@@ -213,6 +213,8 @@ class Article(Base):
     libelle = Column('GA_LIBELLE', String(70, 'French_CI_AS'), index=True)
     # rubrique_paie_code = Column('GA_LIBREART1', String(6, 'French_CI_AS'))
     rubrique_paie_code = Column('GA_LIBREART1', String(6, 'French_CI_AS'), ForeignKey('REMUNERATION.PRM_RUBRIQUE'))
+    # Famille article
+    famille_code = Column('GA_FAMILLENIV1', CHAR(3, 'French_CI_AS')),
 
     rubrique_paie = relationship(
         "Remuneration", 

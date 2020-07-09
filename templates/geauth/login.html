@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load myfilters %}
+{% block body_class %}hold-transition login-page{% endblock body_class %}
+
+{% block body %}
+<div class="login-box">
+  <div class="login-logo">
+    <b>CAP</b> MES
+  </div>
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body login-card-body">
+      <p class="login-box-msg">Merci de vous connecter</p>
+
+      <form action="../../index3.html" method="post">
+        <div class="input-group mb-3">
+            {{ form.username }}
+          <!-- <input type="email" class="form-control" placeholder="Login">  -->
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-user"></span>
+            </div>
+          </div>
+        </div>
+        <div class="input-group mb-3">
+          <input type="password" class="form-control" placeholder="Mot de passe">
+          <div class="input-group-append">
+            <div class="input-group-text">
+              <span class="fas fa-lock"></span>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+{% endblock body %}

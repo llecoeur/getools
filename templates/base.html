@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{% block title %}Ge Tools{% endblock title %}</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{% static 'fontawesome-free/css/all.min.css' %}">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+  <!-- Tempusdominus Bbootstrap 4 -->
+  <link rel="stylesheet" href="{% static 'tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="{% static 'icheck-bootstrap/icheck-bootstrap.min.css' %}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{% static 'adminlte/css/adminlte.min.css' %}">
+  <!-- overlayScrollbars -->
+  <link rel="stylesheet" href="{% static 'overlayScrollbars/css/OverlayScrollbars.min.css' %}">
+  <!-- Select 2 -->
+  <link rel="stylesheet" href="{% static 'select2/css/select2.css' %}">
+  <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/select2-bootstrap4.css' %}">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed{% endblock body_class %}">
+{% block body %}
+<div class="wrapper">
+
+  <!-- Navbar -->
+  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+    <!-- Left navbar links -->
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+      </li>
+      <li class="nav-item d-none d-sm-inline-block">
+        <a href="/" class="nav-link">Home</a>
+      </li>
+
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      {% if not user.is_authenticated %}
+      <li class="nav-item">
+        <form method="POST" action="{% url 'login' %}" class="form-inline ml-3">
+        <div class="input-group input-group-sm">
+        {% csrf_token %}
+          {{ form.non_field_errors }}
+          <div class="row">
+            <div class="col-sm-6">
+              {{ auth_form.username }}
+            </div>
+            <div class="col-sm-6">
+              {{ auth_form.password }}
+            </div>
+          </div>
+          <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i></button>
+          </div>
+        </form>
+      </li>
+      {% endif %}
+
+    </ul>
+  </nav>
+  <!-- /.navbar -->
+
+  <!-- Main Sidebar Container -->
+  
+  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <!-- Brand Logo -->
+    <a href="{% url 'home' %}" class="brand-link">
+      <img src="{% static 'adminlte/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+           style="opacity: .8">
+      <span class="brand-text font-weight-light">GeTools</span>
+    </a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Sidebar user panel (optional) -->
+      {% if user.is_authenticated %}
+      <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+        <div class="image">
+          {{user.svg_avatar_mini | safe}}
+          <!-- <img src="{% static 'adminlte/img/user2-160x160.jpg' %}" class="img-circle elevation-2" alt="User Image">-->
+        </div>
+        <div class="info">
+          <a href="#" class="d-block">{{user}}</a>
+          
+        </div>
+      </div>
+
+      {% endif %}
+
+      <!-- Sidebar Menu -->
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          {% if user.is_authenticated %}
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-file-invoice"></i>
+              <p>
+                Saisie d'Activite
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'prepa_paie' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Préparation Paie</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-cog"></i>
+              <p>
+                Paramètres
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'prepa_paie' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Tarifs</p>
+                </a>
+              </li>
+            </ul>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link">
+                  <i class="fas fa-sign-out-alt nav-icon"></i>
+                  <p>Déconnexion</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
+          <!-- Add icons to the links using the .nav-icon class
+               with font-awesome or any other icon font library -->
+          <!-- 
+          Exemple de menu déroullant en surbrillance
+
+          <li class="nav-item has-treeview menu-open">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                Contrôle qualité
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="./index.html" class="nav-link active">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Dashboard v1</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./index2.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Dashboard v2</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="./index3.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Dashboard v3</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          -->
+
+
+          <!-- menu simple 
+          <li class="nav-item">
+            <a href="pages/widgets.html" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Widgets
+                <span class="right badge badge-danger">New</span>
+              </p>
+            </a>
+          </li>
+          -->
+
+
+          <!-- Menu déroulant normal 
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-copy"></i>
+              <p>
+                Layout Options
+                <i class="fas fa-angle-left right"></i>
+                <span class="badge badge-info right">6</span>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="pages/layout/top-nav.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Top Navigation</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="pages/layout/boxed.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Boxed</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="pages/layout/fixed-sidebar.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Fixed Sidebar</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="pages/layout/fixed-topnav.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Fixed Navbar</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="pages/layout/fixed-footer.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Fixed Footer</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="pages/layout/collapsed-sidebar.html" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Collapsed Sidebar</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          -->
+
+        </ul>
+      </nav>
+      <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0 text-dark">{% block main_content_title %}{% endblock %}</h1>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <!-- Main row -->
+        <div class="container-fluid">
+          {% if messages %}
+              {% for message in messages %}
+                  
+                  <div class="alert {% if message.tags == "error" %}alert-danger{% elif message.tags == "warning" %}alert-warning{% elif message.tags == "success" %}alert-success{% else %}alert-info{% endif %} alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  {% if message.tags == "error" %}
+                    <h5><i class="icon fas fa-ban"></i> Erreur !</h5>
+                  {% elif message.tags == "warning" %}
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> Attention !</h5>
+                  {% elif message.tags == "success" %}
+                    <h5><i class="icon fas fa-check"></i> Bravo !</h5>
+                  {% else %}
+                    <h5><i class="icon fas fa-info"></i> Information !</h5>
+                  {% endif %}
+                  
+                  {{ message }}
+                </div>
+
+              
+              {% endfor %}
+          {% endif %}
+              {% block "main_content" %}{% endblock "main_content"%}
+        </div>
+        <!-- /.row (main row) -->
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+  <footer class="main-footer">
+    <div class="float-right d-none d-sm-inline-block">
+      <b>Version</b> 3.0.1
+    </div>
+  </footer>
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+</div>
+<!-- ./wrapper -->
+{% endblock body %}
+<!-- jQuery -->
+<script src="{% static 'jquery/jquery.min.js' %}"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{% static 'jquery-ui/jquery-ui.min.js' %}"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+  $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<!-- ChartJS -->
+<script src="{% static 'chart.js/Chart.min.js' %}"></script>
+<!-- Sparkline -->
+<script src="{% static 'sparklines/sparkline.js' %}"></script>
+<!-- JQVMap -->
+<script src="{% static 'jqvmap/jquery.vmap.min.js' %}"></script>
+<script src="{% static 'jqvmap/maps/jquery.vmap.usa.js' %}"></script>
+<!-- jQuery Knob Chart -->
+<script src="{% static 'jquery-knob/jquery.knob.min.js' %}"></script>
+<!-- daterangepicker -->
+<script src="{% static 'moment/moment-with-locales.js' %}"></script>
+<script src="{% static 'daterangepicker/daterangepicker.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'summernote/summernote-bs4.min.js' %}"></script>
+<!-- overlayScrollbars -->
+<script src="{% static 'overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
+<!-- Select 2 -->
+<script src="{% static 'select2/js/select2.full.js' %}"></script>
+<!-- AdminLTE App -->
+<script src="{% static 'adminlte/js/adminlte.js' %}"></script>
+
+ {% block "footer_js" %}{% endblock "footer_js"%}
+ {% block "base_js" %}
+<script>
+
+$(function() {
+    $(".knob").knob();
+    $('[data-toggle="tooltip"]').tooltip()
+});
+moment.locale('fr');
+</script>
+{% endblock "base_js" %}
+</body>
+</html>

@@ -1,0 +1,232 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Recherche de la mise a disposition a saisir</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-2">
+              <div class="input-group date" id="mois_saisie" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
+                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                  </div>
+              </div>
+            </div>
+            <div class="col-3">
+              <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
+                {% for salarie in salarie_list %}
+                <option value="{{salarie.id}}">{{salarie}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-3">
+              <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;">
+
+              </select>
+            </div>
+            <div class="col-1">
+              <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <div class="card card-outline card-primary" v-if="jour_list.length != 0">
+        <div class="card-header">
+          <h3 class="card-title">Saisie</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body" style="height:100%%;overflow:auto;">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th></th>
+                <th v-for="tarif in mad.tarifs_ge">
+                  ${tarif.article.libelle}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="j in jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }">
+                <td class="text-nowrap">${j.str}</td>
+                <td v-for="tarif in mad.tarifs_ge">
+                  <!-- <input type="number" :name="'saisie[' + j.num + '][' + tarif.id + ']'" class="form-control saisie-activite"> -->
+                  <input :value="getSaisieValue(j.num, tarif.id)" type="text" class="form-control" :id="j.num + '-' + tarif.id" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Infos</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>Mensuel : ${mad.duree_travail_mensuel}</p>
+          <p>Quotidien : ${mad.duree_travail_quotidien}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+$(function () {
+    $('#mois_saisie').datetimepicker({
+      locale: 'fr',
+      format: 'MMMM YYYY',
+      defaultDate: moment(),
+    });
+    $('#salarie_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+    $('#mad_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+});
+
+
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data: {
+    // loader
+    loader: false,
+    // couple mois-annnee selectionne
+    mois: "",
+    annee: "",
+    // Salarie selectionne
+    salarie_id: "",
+    // mise a dispo selectionnee
+    mad_id: "",
+
+    mad: {},
+    jour_list: [],
+  },
+  methods: {
+    fillSelectMiseADisposition() {
+      // Fetch la liste des madss du salarié, et remplis le select des mads en fonction des résultats
+      app.loader = true;
+      fetch("/act/ajax_mad_for_salarie/" + this.salarie_id + "/false/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $('#mad_select_id').val(null).empty().trigger('change');
+        for (key in result) {
+          var newOption = new Option(result[key].text, result[key].id, false, false);
+          $('#mad_select_id').append(newOption).trigger('change');
+          // console.log(result[key].id);
+        }
+        app.mad_id = $('#mad_select_id').val();
+      });
+      app.loader = false;
+    },
+    loadCalendar() {
+      // Charge la saisie de la mise a disposition
+      this.loader = true;
+      fetch("/act/ajax_load_saisie_mad/" + this.mois + "/" + this.annee + "/" + this.mad_id+ "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        // console.log(result['jours']);
+        app.jour_list = result['jours'];
+        app.mad = result['mad'];
+      });
+      // suppression de la couleur verte des input
+      $("input").removeClass("bg-success");
+      this.loader = false;
+    },
+    saveSaisieValue: function (value, id) {
+      // Value: valeur saisie, id:couple jour / 
+      // ajax_save_saisie/<str:valeur>/<int:tarif_id>/<int:annee>/<int:mois>/<int:jour>/
+      [jour, tarif_id] = id.split("-");
+      if (value == '') {
+        // il faut effacer la valeur dans ce cas
+        value = "0";
+      }
+      fetch("/act/ajax_save_saisie/" + value + "/" + tarif_id + "/" + this.annee + "/" + this.mois+ "/" + jour + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        if (result['result'] == 'error') {
+          $(document).Toasts('create', {
+            class: 'bg-danger', 
+            title: 'Valeur Ajoutée',
+            body: result['message'],
+          });
+        } else {
+          $("#"+id).addClass("bg-success");
+        }
+      });
+    },
+    getSaisieValue: function (jour, id) {
+      /**
+        Récupère la valeur a afficher dans la case de saisie.
+      **/
+      console.log(this.mad.saisies[jour]);
+      console.log(jour);
+      console.log(id);
+      if (this.mad.saisies[jour] == null) {
+        return 0;
+      }
+      if (this.mad.saisies[jour][id] == null) {
+        return 0;
+      }
+      return this.mad.saisies[jour][id];
+    }
+  },
+  mounted: function () {
+      this.mois = moment().format("M");
+      this.annee = moment().format("YYYY");
+  }
+});
+
+// Select2 des salariés a été changé
+$('#salarie_select_id').on('select2:select', function (e) { 
+  // console.log('select event : ' + $(this).val());
+  app.salarie_id = $(this).val();
+  app.fillSelectMiseADisposition();
+});
+
+//le mois est choisi
+$('#mois_saisie').on('hide.datetimepicker', function (e) { 
+  // console.log('Date event : ' + e.date.format("MM-YYYY"));
+  d = e.date.format("M-YYYY").split("-");
+  app.mois = d[0];
+  app.annee = d[1];
+});
+
+// La mise a disposition est choisie
+$('#mad_select_id').on('select2:select', function (e) { 
+  // console.log('select event : ' + $(this).val());
+
+  app.mad_id = $(this).val();
+});
+
+</script>
+{% endblock "footer_js"%}

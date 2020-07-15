@@ -1,0 +1,137 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Edition des tarifs</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="GET" action="/act/tarif/">
+            <div class="row">
+              <div class="col-3">
+                <label for="salarie_select_id">Salarié</label>
+                <select name="fsalarie_id" class="form-control" id="salarie_select_id">
+                  <option value="">Tous</option>
+                  {% for salarie in salarie_list %}
+                  <option value="{{salarie.id}}"{% if salarie.id == fsalarie_id %} selected{% endif %}>{{salarie}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="adherent_select_id">Adherent</label>
+                <select name="fadherent_id" class="form-control" id="adherent_select_id">
+                  <option value="">Tous</option>
+                  {% for adherent in adherent_list %}
+                  <option value="{{adherent.id}}">{{adherent}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-3">
+                <label for="article_select_id">Adherent</label>
+                <select name="farticle_id" class="form-control" id="article_select_id">
+                  <option value="">Tous</option>
+                  {% for article in article_list %}
+                  <option value="{{article.id}}">{{article}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-3">
+                <button type="submit" class="btn btn-success"><i class="fas fa-search"></i></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-10">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Tarifs ({{tarif_count}} affichés sur {{tarif_count_all}})</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body" style="height:100%;overflow:auto;">
+          <table class="table table-bordered table-condensed">
+            <thead>
+              <tr>
+                <th>id</th>
+                <th>Salarié</th>
+                <th>Adhérent</th>
+                <th>Article</th>
+                <th>Tarif</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tarif in tarif_list %}
+                <tr>
+                  <td>{{tarif.id}}</td>
+                  <td>{{tarif.mise_a_disposition.salarie}}</td>
+                  <td>{{tarif.mise_a_disposition.adherent}}</td>
+                  <td>{{tarif.article}}</td>
+                  <td>{{tarif.tarif}}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Aide</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+$(function () {
+    $('#salarie_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+    $('#adherent_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+    
+    $('#article_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+});
+
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data: {
+    // loader
+    loader: false,
+  },
+  methods: {
+
+  },
+
+});
+
+</script>
+{% endblock "footer_js"%}

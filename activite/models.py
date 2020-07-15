@@ -7,16 +7,28 @@ from collections import defaultdict
 from pprint import pprint
 
 
+class FamilleArticle(models.Model):
+    """
+        Contient les familles articles
+    """
+    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default="", db_index=True)
+    libelle = models.CharField("Libelle", max_length=70, db_index=True)
+    forfaitaire = models.BooleanField("Forfaitaire", default=False, db_index=True)
+
+    def __str__(self):
+        return self.libelle
+
 class Article(models.Model):
     """
     Contient la liste des articles.
     Les articles sont toutles les typ
     """
     # Identifiant unique de l'ERP
-    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default="")
-    libelle = models.CharField("Libelle", max_length=70)
-    type_article = models.CharField("Type", max_length=70, default="")
-    rubrique_paie = models.ForeignKey("RubriquePaie", on_delete=models.CASCADE, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default="", db_index=True)
+    libelle = models.CharField("Libelle", max_length=70, db_index=True)
+    type_article = models.CharField("Type", max_length=70, default="", db_index=True)
+    rubrique_paie = models.ForeignKey("RubriquePaie", on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
+    famille = models.ForeignKey("FamilleArticle", on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="article_list", db_index=True)
 
     def __str__(self):
         return self.libelle
@@ -24,7 +36,7 @@ class Article(models.Model):
 
 class Adherent(models.Model):
     # Identifiant unique de l'ERP
-    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default=None, db_index=True)
     raison_sociale = models.CharField("Code ERP", max_length=50)
 
     def __str__(self):
@@ -33,14 +45,14 @@ class Adherent(models.Model):
 
 class Salarie(models.Model):
     # Identifiant unique de l'ERP
-    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=200, null=True, blank=True, default=None, db_index=True)
     # Utilisateur associé, if any :)
     nom = models.CharField("Nom", max_length=200, default="")
     prenom = models.CharField("Prenom", max_length=200, default="")
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
 
-    date_entree = models.DateField("Date d'entrée", null=True, default=None, blank=True)
-    date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True)
+    date_entree = models.DateField("Date d'entrée", null=True, default=None, blank=True, db_index=True)
+    date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True, db_index=True)
 
     @property
     def tarif_ge_list_dict(self):
@@ -57,7 +69,7 @@ class Service(models.Model):
     """
         Table des services des entreprises adhérentes
     """
-    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None, db_index=True)
     libelle = models.CharField("Libelle", max_length=70)
 
     def __str__(self):
@@ -68,7 +80,7 @@ class Poste(models.Model):
         Table contenant les postes des salariés dans les mises a dispositions
     """
 
-    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None, db_index=True)
     libelle = models.CharField("Libelle", max_length=70)
 
     def __str__(self):
@@ -76,7 +88,7 @@ class Poste(models.Model):
 
 
 class RubriquePaie(models.Model):
-    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None)
+    code_erp = models.CharField("Code ERP", max_length=70, null=True, blank=True, default=None, db_index=True)
     libelle = models.CharField("Libelle", max_length=70)
     abrege = models.CharField("Abrégé", max_length=70, default="")
 
@@ -86,13 +98,13 @@ class RubriquePaie(models.Model):
 
 class MiseADisposition(models.Model):
     # Identifiant unique ERP
-    code_erp = models.CharField("Code ERP", max_length=18)
+    code_erp = models.CharField("Code ERP", max_length=18, db_index=True)
     # Adhérent de la mise a disposition 
-    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE, related_name="mise_a_disposition_list", null=True, default=None, blank=True)
+    adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE, related_name="mise_a_disposition_list", null=True, default=None, blank=True, db_index=True)
     # Salarié mis a disposition
-    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="mise_a_disposition_list")
+    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="mise_a_disposition_list", db_index=True)
     # Est ce que la mad est terminée ?
-    cloturee = models.BooleanField("Mise à disposition cloturée ?", default=False)
+    cloturee = models.BooleanField("Mise à disposition cloturée ?", default=False, db_index=True)
 
     # Temps de travail mensuel sur la mad :
     duree_travail_mensuel = models.FloatField("Temps de travail mensuel", default=0)
@@ -110,7 +122,14 @@ class MiseADisposition(models.Model):
     @property
     def tarif_ge_list_dict(self):
         d = []
-        for tarif in self.tarif_ge_list.all().order_by("id"):
+        for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("id"):
+            d.append(tarif.to_dict())
+        return d
+
+    def tarifs_ge_prime_forfaitaire_dict(self):
+        d = []
+        for tarif in self.tarif_ge_list.filter(article__famille__forfaitaire=True).order_by("id"):
+            print(tarif.to_dict())
             d.append(tarif.to_dict())
         return d
 
@@ -162,13 +181,11 @@ class TarifGe(models.Model):
         Certaines relations sont adaptées
     """
     # Code ERP du tarif. Ici c'est un integer. Allez savoir pouquoi...
-    code_erp = models.IntegerField(default=0)
+    code_erp = models.IntegerField(default=0, db_index=True)
     # L'article concerné
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="tarif_ge_list")
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name="tarif_ge_list", db_index=True)
     # La mise a disposition, qui permet ensuite de faire la liaison avec l'adhérent et le salarié. Si None, le code s'applique a tous les adhérents, et le code salarié est a prendre dnas le champ suivant
-    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="tarif_ge_list", null=True, default=None, blank=True)
-    # Si mise a disposition = None, alors le code salarié est a prendre ici. Ce Tarif est utilisé quelque soit l'la mise a dispo dans ce cas
-    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="tarif_ge_list", null=True, default=None, blank=True)
+    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="tarif_ge_list", null=True, default=None, blank=True, db_index=True)
     # ???
     poste = models.CharField("Poste", max_length=17, blank=True)
     # Tarif horaire ?
@@ -187,11 +204,7 @@ class TarifGe(models.Model):
 
 
     def __str__(self):
-        if self.mise_a_disposition == None:
-            mad_str = "TOUS"
-        else:
-            mad_str = str(self.mise_a_disposition)
-        return f"{mad_str} - {self.salarie} - {self.article}"
+        return f"{self.mise_a_disposition} - {self.article}"
 
     def to_dict(self):
         d = model_to_dict(self)

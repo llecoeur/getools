@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
-from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe
+from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
@@ -67,6 +67,9 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     tarif_ge_mad_list_dict = mad.tarif_ge_list_dict
     mad_dict['tarifs_ge'] = tarif_ge_salarie_list_dict + tarif_ge_mad_list_dict
 
+    mad_dict['primes_forfaitaires'] = mad_primes_forfaitaires = mad.tarifs_ge_prime_forfaitaire_dict()
+
+
     # les valeurs saisies sur les mises tarifs
     saisies_array = mad.get_saisies_from_mois_dict(mois, annee)
     mad_dict['saisies'] = saisies_array
@@ -127,3 +130,52 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
         }
     return JsonResponse(ret)
 
+def tarifs(request):
+    """
+        Page pour lister, modifier, créer, supprimer des tarifs
+    """
+    template = "tarifs.html"
+    fsalarie_id = request.GET.get("fsalarie_id", "")
+    fadherent_id = request.GET.get("fadherent_id", "")
+    farticle_id = request.GET.get("farticle_id", "")
+    if fsalarie_id == "":
+        fsalarie = None
+    else:
+        fsalarie = get_object_or_404(Salarie, pk=fsalarie_id)
+    if fadherent_id == "":
+        fadherent = None
+    else:
+        fadherent = get_object_or_404(Adherent, pk=fadherent_id)
+    if farticle_id == "":
+        farticle = None
+    else:
+        farticle = get_object_or_404(Article, pk=farticle_id)
+
+    
+    tarif_list = TarifGe.objects.all()
+    if fsalarie:
+        tarif_list.filter(mise_a_disposition__salarie=fsalarie)
+    if fadherent:
+        tarif_list.filter(mise_a_disposition__adherent=fadherent)
+    if farticle:
+        tarif_list.filter(article=farticle)
+    
+    tarif_list.order_by("id")
+
+
+    salarie_list = Salarie.objects.all().order_by("nom")
+    adherent_list = Adherent.objects.all().order_by("raison_sociale")
+    article_list = Article.objects.all().order_by("libelle")
+    tarif_list = tarif_list[:50]
+    context = {
+        "tarif_list": tarif_list,
+        "tarif_count": tarif_list.count(),
+        "tarif_count_all": TarifGe.objects.all().count(),
+        "salarie_list": salarie_list,
+        "adherent_list": adherent_list,
+        "article_list": article_list,
+        "fsalarie_id": fsalarie_id,
+        "fadherent_id": fadherent_id,
+        "farticle_id": farticle_id,
+    }
+    return render(request, template, context)

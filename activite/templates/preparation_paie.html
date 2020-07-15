@@ -53,7 +53,7 @@
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
         </div>
-        <div class="card-body" style="height:100%%;overflow:auto;">
+        <div class="card-body" style="height:100%;overflow:auto;">
           <table class="table table-bordered table-condensed">
             <thead>
               <tr>
@@ -87,6 +87,10 @@
         <div class="card-body">
           <p>Mensuel : ${mad.duree_travail_mensuel}</p>
           <p>Quotidien : ${mad.duree_travail_quotidien}</p>
+          Primes forfaitaires :
+          <ul>
+            <li v-for="prime in mad.prime_forfaitaire"> prime.libelle </li>
+          </ul>
         </div>
       </div>
     </div>

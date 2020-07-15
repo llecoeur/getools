@@ -34,6 +34,26 @@ class ChoixExt(Base):
     def __str__(self):
         return self.libelle
 
+class ChoixCod(Base):
+    """
+        Deuxieme table de liste de choix
+        CC_TYPE=FN1 : Familles articles
+    """
+    __tablename__ = 'CHOIXCOD'
+
+    type_choix = Column('CC_TYPE', CHAR(3, 'French_CI_AS'))
+    code = Column('CC_CODE', CHAR(3, 'French_CI_AS'))
+    libelle = Column('CC_LIBELLE', String(105, 'French_CI_AS'))
+    abrege = Column('CC_ABREGE', String(17, 'French_CI_AS'))
+    commentaire = Column('CC_LIBRE', String(70, 'French_CI_AS'))
+
+    __table_args__ = (
+        PrimaryKeyConstraint(type_choix, code),
+    )
+
+    @staticmethod
+    def get_famille_article():
+        return session.query(ChoixCod).filter(ChoixCod.type_choix == "FN1")
 
 
 class Salarie(Base):
@@ -214,7 +234,7 @@ class Article(Base):
     # rubrique_paie_code = Column('GA_LIBREART1', String(6, 'French_CI_AS'))
     rubrique_paie_code = Column('GA_LIBREART1', String(6, 'French_CI_AS'), ForeignKey('REMUNERATION.PRM_RUBRIQUE'))
     # Famille article
-    famille_code = Column('GA_FAMILLENIV1', CHAR(3, 'French_CI_AS')),
+    famille_code = Column('GA_FAMILLENIV1', CHAR(3, 'French_CI_AS'))
 
     rubrique_paie = relationship(
         "Remuneration", 

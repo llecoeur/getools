@@ -6,6 +6,7 @@ from django.utils import timezone
 from collections import defaultdict
 from pprint import pprint
 from django.urls import reverse
+from django.db.models import Q
 
 
 class FamilleArticle(models.Model):
@@ -57,6 +58,13 @@ class Salarie(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.nom, self.prenom)
+
+    @staticmethod
+    def get_salaries_actuels():
+        """
+            Retourne un queryset des salariés actuellement dans le grouppement
+        """
+        return Salarie.objects.filter(Q(date_sortie=None) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 
 
 class Service(models.Model):

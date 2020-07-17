@@ -28,7 +28,7 @@ def preparation_paie(request):
         Vue pour la page de préparation paie
     """
     template = "preparation_paie.html"
-    salarie_list = Salarie.objects.filter(Q(date_sortie=None) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
+    salarie_list = Salarie.get_salaries_actuels()
     context = {
         "salarie_list": salarie_list,
     }

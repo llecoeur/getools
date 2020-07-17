@@ -6,6 +6,8 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
@@ -20,7 +22,7 @@ pendulum.set_locale('fr')
 
 # Create your views here.
 
-
+@login_required
 def preparation_paie(request):
     """
         Vue pour la page de préparation paie
@@ -32,6 +34,7 @@ def preparation_paie(request):
     }
     return render(request, template, context)
 
+@login_required
 def ajax_mad_for_salarie(request, salarie_id, termine):
     """
         Retourne un json avec la liste des mise a dispo du salarié donné.
@@ -51,6 +54,7 @@ def ajax_mad_for_salarie(request, salarie_id, termine):
         })
     return JsonResponse(ret, safe=False)
 
+@login_required
 def ajax_load_saisie_mad(request, mois, annee, mad_id):
     """
         Retourne un json avec :
@@ -101,6 +105,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     return JsonResponse(ret)
 
 
+@login_required
 def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
     """
         Enregistre ou met a jour la valeur pour la saisie d'activité souhaitée.
@@ -132,6 +137,7 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
         }
     return JsonResponse(ret)
 
+@login_required
 def tarifs(request):
     """
         Page pour lister, modifier, créer, supprimer des tarifs
@@ -174,7 +180,7 @@ def tarifs(request):
     adherent_list = Adherent.objects.all().order_by("raison_sociale")
     article_list = Article.objects.all().order_by("libelle")
     tarif_list = tarif_list[:50]
-    """
+    """ 
     f = TarifGeFilter(request.GET, queryset=TarifGe.objects.all())
     context = {
         "tarif_list": f.qs[:50],
@@ -184,13 +190,13 @@ def tarifs(request):
     return render(request, template, context)
 
 
-class TarifGeCreate(CreateView):
+class TarifGeCreate(LoginRequiredMixin, CreateView):
     model = TarifGe
     template_name = "tarifs_form.html"
     fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
 
 
-class TarifGeUpdate(UpdateView):
+class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     model = TarifGe
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
@@ -201,6 +207,6 @@ class TarifGeUpdate(UpdateView):
         context['tarifge'] = self.get_object()
         return context
 
-class TarifGeDelete(DeleteView):
+class TarifGeDelete(LoginRequiredMixin, DeleteView):
     model = TarifGe
     success_url = reverse_lazy('tarifs')

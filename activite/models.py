@@ -5,6 +5,7 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 from collections import defaultdict
 from pprint import pprint
+from django.urls import reverse
 
 
 class FamilleArticle(models.Model):
@@ -53,13 +54,6 @@ class Salarie(models.Model):
 
     date_entree = models.DateField("Date d'entrée", null=True, default=None, blank=True, db_index=True)
     date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True, db_index=True)
-
-    @property
-    def tarif_ge_list_dict(self):
-        d = []
-        for tarif in self.tarif_ge_list.all().order_by("id"):
-            d.append(tarif.to_dict())
-        return d
 
     def __str__(self):
         return "{} {}".format(self.nom, self.prenom)
@@ -162,14 +156,7 @@ class MiseADisposition(models.Model):
         d = defaultdict(dict)
         for saisie in saisie_list:
             d[saisie.date_realisation.day][saisie.tarif.id] = saisie.quantite
-
-        # Les saisies liées au salarié
-        saisie_list = SaisieActivite.objects.filter(date_realisation__year=annee, date_realisation__month=mois, tarif__salarie=self.salarie)
-        for saisie in saisie_list:
-            d[saisie.date_realisation.day][saisie.tarif.id] = saisie.quantite
         return d
-
-
 
     def __str__(self):
         return f"{self.adherent} - {self.salarie}"
@@ -202,6 +189,10 @@ class TarifGe(models.Model):
     coef_paie = models.FloatField("Coefficient de paie", default=0)
     article_a_saisir = models.BooleanField("Article a saisir ?", default=False)
 
+    archive = models.BooleanField("Archivé", default=False)
+
+    def get_absolute_url(self):
+        return reverse('tarifge-update', kwargs={'pk': self.pk})
 
     def __str__(self):
         return f"{self.mise_a_disposition} - {self.article}"

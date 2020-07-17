@@ -2,10 +2,14 @@ from django.shortcuts import render, get_object_or_404
 from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent
+from .forms import TarifGeEditForm
+from .filters import TarifGeFilter
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
+from django.urls import reverse_lazy
 import json
 import calendar
 import pendulum
@@ -63,9 +67,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     mad_dict['salarie'] = salarie_dict
 
     # Tarifs liés au salarié (ie commun a tous les GE)
-    tarif_ge_salarie_list_dict = mad.salarie.tarif_ge_list_dict
-    tarif_ge_mad_list_dict = mad.tarif_ge_list_dict
-    mad_dict['tarifs_ge'] = tarif_ge_salarie_list_dict + tarif_ge_mad_list_dict
+    mad_dict['tarifs_ge'] = mad.tarif_ge_list_dict
 
     mad_dict['primes_forfaitaires'] = mad_primes_forfaitaires = mad.tarifs_ge_prime_forfaitaire_dict()
 
@@ -135,47 +137,70 @@ def tarifs(request):
         Page pour lister, modifier, créer, supprimer des tarifs
     """
     template = "tarifs.html"
+    """
     fsalarie_id = request.GET.get("fsalarie_id", "")
     fadherent_id = request.GET.get("fadherent_id", "")
     farticle_id = request.GET.get("farticle_id", "")
     if fsalarie_id == "":
         fsalarie = None
+        fsalarie_id = 0
     else:
         fsalarie = get_object_or_404(Salarie, pk=fsalarie_id)
     if fadherent_id == "":
+        fadherent_id = 0
         fadherent = None
     else:
         fadherent = get_object_or_404(Adherent, pk=fadherent_id)
     if farticle_id == "":
+        farticle_id = 0
         farticle = None
     else:
         farticle = get_object_or_404(Article, pk=farticle_id)
 
-    
+    print(f"fsalarie_id={fsalarie_id}, fadherent_id={fadherent_id}, farticle_id={farticle_id}")
+
     tarif_list = TarifGe.objects.all()
     if fsalarie:
-        tarif_list.filter(mise_a_disposition__salarie=fsalarie)
+        tarif_list = tarif_list.filter(mise_a_disposition__salarie=fsalarie)
     if fadherent:
-        tarif_list.filter(mise_a_disposition__adherent=fadherent)
+        tarif_list = tarif_list.filter(mise_a_disposition__adherent=fadherent)
     if farticle:
-        tarif_list.filter(article=farticle)
+        tarif_list = tarif_list.filter(article=farticle)
     
-    tarif_list.order_by("id")
+    tarif_list = tarif_list.order_by("id")
 
 
-    salarie_list = Salarie.objects.all().order_by("nom")
+    salarie_list = Salarie.objects.filter(Q(date_sortie=None) | Q(date_sortie__gt=timezone.now())).order_by("nom")
     adherent_list = Adherent.objects.all().order_by("raison_sociale")
     article_list = Article.objects.all().order_by("libelle")
     tarif_list = tarif_list[:50]
+    """
+    f = TarifGeFilter(request.GET, queryset=TarifGe.objects.all())
     context = {
-        "tarif_list": tarif_list,
-        "tarif_count": tarif_list.count(),
-        "tarif_count_all": TarifGe.objects.all().count(),
-        "salarie_list": salarie_list,
-        "adherent_list": adherent_list,
-        "article_list": article_list,
-        "fsalarie_id": fsalarie_id,
-        "fadherent_id": fadherent_id,
-        "farticle_id": farticle_id,
+        "tarif_list": f.qs[:50],
+        "filter": f,
+
     }
     return render(request, template, context)
+
+
+class TarifGeCreate(CreateView):
+    model = TarifGe
+    template_name = "tarifs_form.html"
+    fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
+
+
+class TarifGeUpdate(UpdateView):
+    model = TarifGe
+    # form_class = TarifGeEditForm
+    template_name = "tarifs_form.html"
+    fields = ['tarif', 'coef_paie', 'coef']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tarifge'] = self.get_object()
+        return context
+
+class TarifGeDelete(DeleteView):
+    model = TarifGe
+    success_url = reverse_lazy('tarifs')

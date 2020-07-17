@@ -12,37 +12,14 @@
           </div>
         </div>
         <div class="card-body">
-          <form method="GET" action="/act/tarif/">
+          <form method="get">
             <div class="row">
-              <div class="col-3">
-                <label for="salarie_select_id">Salarié</label>
-                <select name="fsalarie_id" class="form-control" id="salarie_select_id">
-                  <option value="">Tous</option>
-                  {% for salarie in salarie_list %}
-                  <option value="{{salarie.id}}"{% if salarie.id == fsalarie_id %} selected{% endif %}>{{salarie}}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-3">
-                <label for="adherent_select_id">Adherent</label>
-                <select name="fadherent_id" class="form-control" id="adherent_select_id">
-                  <option value="">Tous</option>
-                  {% for adherent in adherent_list %}
-                  <option value="{{adherent.id}}">{{adherent}}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-3">
-                <label for="article_select_id">Adherent</label>
-                <select name="farticle_id" class="form-control" id="article_select_id">
-                  <option value="">Tous</option>
-                  {% for article in article_list %}
-                  <option value="{{article.id}}">{{article}}</option>
-                  {% endfor %}
-                </select>
+              <div class="col-9">
+                {{ filter.form.as_p }}
               </div>
               <div class="col-3">
                 <button type="submit" class="btn btn-success"><i class="fas fa-search"></i></button>
+                <button type="button" class="btn btn-success" id="add-button"><i class="fas fa-plus"></i></button>
               </div>
             </div>
           </form>
@@ -68,6 +45,7 @@
                 <th>Adhérent</th>
                 <th>Article</th>
                 <th>Tarif</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -78,6 +56,10 @@
                   <td>{{tarif.mise_a_disposition.adherent}}</td>
                   <td>{{tarif.article}}</td>
                   <td>{{tarif.tarif}}</td>
+                  <td>
+                    <a href="{% url 'tarifge-update' pk=tarif.id %}" class="btn btn-default"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'tarifge-delete' pk=tarif.id %}" class="btn btn-default"><i class="fas fa-trash-alt"></i></a>
+                  </td>
                 </tr>
               {% endfor %}
             </tbody>

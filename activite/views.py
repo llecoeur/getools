@@ -143,49 +143,15 @@ def tarifs(request):
         Page pour lister, modifier, créer, supprimer des tarifs
     """
     template = "tarifs.html"
-    """
-    fsalarie_id = request.GET.get("fsalarie_id", "")
-    fadherent_id = request.GET.get("fadherent_id", "")
-    farticle_id = request.GET.get("farticle_id", "")
-    if fsalarie_id == "":
-        fsalarie = None
-        fsalarie_id = 0
-    else:
-        fsalarie = get_object_or_404(Salarie, pk=fsalarie_id)
-    if fadherent_id == "":
-        fadherent_id = 0
-        fadherent = None
-    else:
-        fadherent = get_object_or_404(Adherent, pk=fadherent_id)
-    if farticle_id == "":
-        farticle_id = 0
-        farticle = None
-    else:
-        farticle = get_object_or_404(Article, pk=farticle_id)
 
-    print(f"fsalarie_id={fsalarie_id}, fadherent_id={fadherent_id}, farticle_id={farticle_id}")
-
-    tarif_list = TarifGe.objects.all()
-    if fsalarie:
-        tarif_list = tarif_list.filter(mise_a_disposition__salarie=fsalarie)
-    if fadherent:
-        tarif_list = tarif_list.filter(mise_a_disposition__adherent=fadherent)
-    if farticle:
-        tarif_list = tarif_list.filter(article=farticle)
-    
-    tarif_list = tarif_list.order_by("id")
-
-
-    salarie_list = Salarie.objects.filter(Q(date_sortie=None) | Q(date_sortie__gt=timezone.now())).order_by("nom")
-    adherent_list = Adherent.objects.all().order_by("raison_sociale")
-    article_list = Article.objects.all().order_by("libelle")
-    tarif_list = tarif_list[:50]
-    """ 
     f = TarifGeFilter(request.GET, queryset=TarifGe.objects.all())
+    tarif_list = f.qs[:50]
     context = {
-        "tarif_list": f.qs[:50],
+        "tarif_list": tarif_list,
         "filter": f,
-
+        "tarif_count": tarif_list.count(),
+        "tarif_count_all": TarifGe.objects.all().count(),
+        "tarif_count_filter" : f.qs.count(),
     }
     return render(request, template, context)
 

@@ -1,5 +1,6 @@
 {% extends 'base.html'%}
 {% load static %}
+{% load widget_tweaks %}
 {% block "main_content" %}
 <div id="app">
   <div class="row">
@@ -14,11 +15,32 @@
         <div class="card-body">
           <form method="get">
             <div class="row">
-              <div class="col-9">
-                {{ filter.form.as_p }}
+              <div class="col-2">
+                <label for="{{ filter.form.mise_a_disposition__salarie.id_for_label }}">Salarié :</label>
+                {{ filter.form.mise_a_disposition__salarie | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ filter.form.mise_a_disposition__salarie.errors }}
+                <!-- {{ filter.form.as_p }} -->
+              </div>
+              <div class="col-2">
+                <label for="{{ filter.form.mise_a_disposition__adherent.id_for_label }}">Adhérent :</label>
+                {{ filter.form.mise_a_disposition__adherent | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ filter.form.mise_a_disposition__adherent.errors }}
+                <!-- {{ filter.form.as_p }} -->
+              </div>
+              <div class="col-2">
+                <label for="{{ filter.form.article.id_for_label }}">Article :</label>
+                {{ filter.form.article | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ filter.form.article.errors }}
+                <!-- {{ filter.form.as_p }} -->
+              </div>
+              <div class="col-2">
+                <label for="{{ filter.form.archive.id_for_label }}">Archivé :</label>
+                {{ filter.form.archive | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ filter.form.archive.errors }}
+                <!-- {{ filter.form.as_p }} -->
               </div>
               <div class="col-3">
-                <button type="submit" class="btn btn-success"><i class="fas fa-search"></i></button>
+                <button type="submit" class="btn btn-success"><i class="fas fa-filter"></i></button>
                 <button type="button" class="btn btn-success" id="add-button"><i class="fas fa-plus"></i></button>
               </div>
             </div>
@@ -31,7 +53,7 @@
     <div class="col-10">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Tarifs ({{tarif_count}} affichés sur {{tarif_count_all}})</h3>
+          <h3 class="card-title">{{tarif_count}} tarifs affichés sur {{tarif_count_all}}. Max 50. {% if tarif_count < tarif_count_filter %} Tous les tarifs ne sont pas affichés, utilisez le filtre pour réduire la sélection {% endif %} </h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -89,16 +111,20 @@
 <script>
 
 $(function () {
-    $('#salarie_select_id').select2({
+    $('#id_mise_a_disposition__salarie').select2({
       theme: 'bootstrap4',
     }); 
-    $('#adherent_select_id').select2({
+    $('#id_mise_a_disposition__adherent').select2({
       theme: 'bootstrap4',
     }); 
     
-    $('#article_select_id').select2({
+    $('#id_article').select2({
       theme: 'bootstrap4',
     }); 
+    $('#id_archive').select2({
+      theme: 'bootstrap4',
+    });
+    
 });
 
 

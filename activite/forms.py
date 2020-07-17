@@ -10,3 +10,10 @@ class TarifGeEditForm(ModelForm):
     class Meta:
         model = TarifGe
         fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
+
+
+class TarifGeAddForm(ModelForm):
+
+    class Meta:
+        model = TarifGe
+        fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']

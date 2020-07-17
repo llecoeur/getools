@@ -36,6 +36,11 @@
                 <label for="{{ form.coef.id_for_label }}">Coef :</label>
                 {{ form.coef | add_class:"form-control" | attr:"style:width:100%"}}
                 {{ form.coef.errors }}
+                <div class="custom-control custom-switch">
+                  {{ form.archive | add_class:"custom-control-input"}}
+                  <label for="{{ form.archive.id_for_label }}" class="custom-control-label">Archive</label>
+                  {{ form.archive.errors }}
+                </div>
               </div>
             </div>
             <div class="row">

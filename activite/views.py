@@ -166,7 +166,7 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     model = TarifGe
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
-    fields = ['tarif', 'coef_paie', 'coef']
+    fields = ['tarif', 'coef_paie', 'coef', 'archive']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

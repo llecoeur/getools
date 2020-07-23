@@ -8,7 +8,8 @@ from datetime import datetime
 import urllib.parse
 import pyodbc 
 from django.conf import settings
-from cegid.cegid_premise import session, Salarie, Tiers, Affaire, Remuneration, Article, TarifGe
+# from cegid.cegid_premise import session, Salarie, Tiers, Affaire, Remuneration, Article, TarifGe
+from activite.models import Article
 
 
 if __name__ == "__main__":
@@ -38,6 +39,10 @@ if __name__ == "__main__":
     for art in art_list:
         print("{} - {}".format(art, art.rubrique_paie))
     """
-    tarif_list = session.query(TarifGe).all()
-    for tarif in tarif_list:
-        print(f"{tarif.code}")
+    article_list = Article.objects.all()
+    cpt = 1
+    for article in article_list:
+        article.ordre = cpt
+        cpt = cpt + 1
+        article.save()
+    

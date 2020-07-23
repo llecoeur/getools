@@ -1,0 +1,104 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Ordre des articles</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <p>Cette page permet de changer l'ordre dans lequel vont apparaitre les articles dans la page de saisie des activités</p>
+          <p>Sélectionnez l'article, et cliquez sur la flècle pour le monter ou le descendre.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Liste des articles</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body" style="height:100%;overflow:auto;">
+          <ul class="list-group">
+            <li class="list-group-item" v-for="(article, index) in article_list" :key="article.id">
+              <a class="btn btn-default" v-on:click="down(index)" v-bind:class="{disabled: index == Object.keys(article_list).length - 1 }"><i class="fas fa-arrow-circle-down"></i></a>
+              <a class="btn btn-default" v-on:click="up(index)" v-bind:class="{disabled: index == 0 }"><i class="fas fa-arrow-circle-up"></i></a>
+              ${article.libelle}
+            </li>
+          </ul>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-spinner fa-spin"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data: {
+    // loader
+    loader: false,
+    article_list: [],
+  },
+  methods: {
+    initArticles: function() {
+      // Charge la liste des articles via Ajax
+      var self = this;
+      self.loader = true;
+      fetch("/act/ajax_load_article_list/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        // console.log(result['jours']);
+        self.article_list = result;
+      });
+      self.loader = false;
+    },
+    up: function(index) {
+      var self = this;
+      self.loader = true;
+      this.switchArticle(self.article_list[index].id, self.article_list[index-1].id)
+      self.loader = false;
+    },
+    down: function(index) {
+      var self = this;
+      self.loader = true;
+      this.switchArticle(self.article_list[index].id, self.article_list[index+1].id)
+      self.loader = false;
+    },
+    switchArticle: function(article1, article2) {
+      var self = this;
+      fetch("/act/ajax_switch_article_ordre/" + article1 + "/" + article2 + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        // console.log(result['jours']);
+        self.article_list = result;
+      });
+    },
+  },
+  created: function () {
+      this.initArticles();
+  },
+});
+
+</script>
+{% endblock "footer_js"%}

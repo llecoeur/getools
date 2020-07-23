@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import Http404
 from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
@@ -21,6 +22,37 @@ from pprint import pprint
 pendulum.set_locale('fr')
 
 # Create your views here.
+@login_required
+def sort_article(request):
+    """
+        Page permettant de définir l'ordre des articles a afficher dans la page de préparation paie
+    """
+    template = "sort_article.html"
+    return render(request, template, {})
+
+def ajax_load_article_list(request):
+    """
+        Charge les articles a ranger dans la page des articles
+    """
+    # TODO : Filter uniquement les artiches a lister dans le tableau de saisie ?
+    article_list = list(Article.objects.all().order_by('ordre').values())
+    return JsonResponse(article_list, safe=False)
+
+def ajax_switch_article_ordre(request, article1_id, article2_id):
+    """
+        Inverse la position des articles 1 et 2.
+        retourne la liste des articles mis a jour
+    """
+    article1 = Article.objects.get(id=article1_id)
+    article2 = Article.objects.get(id=article2_id)
+    article1_ordre = article1.ordre
+    article2_ordre = article2.ordre
+    article1.ordre = article2_ordre
+    article2.ordre = article1_ordre
+    article1.save()
+    article2.save()
+    article_list = list(Article.objects.all().order_by('ordre').values())
+    return JsonResponse(article_list, safe=False)
 
 @login_required
 def preparation_paie(request):
@@ -70,10 +102,10 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     salarie_dict = model_to_dict(mad.salarie)
     mad_dict['salarie'] = salarie_dict
 
-    # Tarifs liés au salarié (ie commun a tous les GE)
+    # Tarifs liés au salarié 
     mad_dict['tarifs_ge'] = mad.tarif_ge_list_dict
 
-    mad_dict['primes_forfaitaires'] = mad_primes_forfaitaires = mad.tarifs_ge_prime_forfaitaire_dict()
+    mad_dict['primes_forfaitaires'] = mad.tarifs_ge_prime_forfaitaire_dict()
 
 
     # les valeurs saisies sur les mises tarifs
@@ -136,6 +168,7 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
             "message": f"Valeur {saisie.quantite}, sur article {saisie.tarif.article} enregistrée",
         }
     return JsonResponse(ret)
+
 
 @login_required
 def tarifs(request):

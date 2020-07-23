@@ -31,9 +31,23 @@ class Article(models.Model):
     type_article = models.CharField("Type", max_length=70, default="", db_index=True)
     rubrique_paie = models.ForeignKey("RubriquePaie", on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
     famille = models.ForeignKey("FamilleArticle", on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="article_list", db_index=True)
+    ordre = models.IntegerField("Ordre", default=0, null=True, db_index=True)
 
     def __str__(self):
         return self.libelle
+
+    def _next_ordre(self):
+        article = Article.objects.all().order_by("-ordre").first()
+        if article is None:
+            return 1
+        else:
+            return article.ordre + 1
+
+
+    def save(self):
+        if not self.id:
+            self.ordre = self._next_ordre()
+        super().save()
 
 
 class Adherent(models.Model):
@@ -124,11 +138,14 @@ class MiseADisposition(models.Model):
     @property
     def tarif_ge_list_dict(self):
         d = []
-        for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("id"):
+        for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
             d.append(tarif.to_dict())
         return d
 
     def tarifs_ge_prime_forfaitaire_dict(self):
+        """
+            Retourne la prime forfaitaire. Si year et month sont définis, remplus aussi la valeur de la prime
+        """
         d = []
         for tarif in self.tarif_ge_list.filter(article__famille__forfaitaire=True).order_by("id"):
             print(tarif.to_dict())
@@ -220,9 +237,6 @@ class SaisieActivite(models.Model):
     date_realisation = models.DateField("Date")
     # la quantité, la plupart du temps en heure, de cette saisie
     quantite = models.FloatField("Quantité")
-    
-
-
     created = models.DateTimeField("Creation")
     updated = models.DateTimeField("Modification")
 

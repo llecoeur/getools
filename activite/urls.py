@@ -1,6 +1,6 @@
 from django.urls import include, path
 from .views import preparation_paie, ajax_mad_for_salarie, ajax_load_saisie_mad, ajax_save_saisie, tarifs
-from .views import TarifGeCreate, TarifGeDelete, TarifGeUpdate
+from .views import TarifGeCreate, TarifGeDelete, TarifGeUpdate, sort_article, ajax_load_article_list, ajax_switch_article_ordre
 
 urlpatterns = [
     path('prepa/', preparation_paie, name='prepa_paie'),
@@ -11,5 +11,7 @@ urlpatterns = [
     path('ajax_mad_for_salarie/<int:salarie_id>/<str:termine>/', ajax_mad_for_salarie, name="ajax_mad_for_salarie"),
     path('ajax_load_saisie_mad/<int:mois>/<int:annee>/<int:mad_id>/', ajax_load_saisie_mad, name="ajax_load_saisie_mad"),
     path('ajax_save_saisie/<str:valeur>/<int:tarif_id>/<int:annee>/<int:mois>/<int:jour>/', ajax_save_saisie, name="ajax_save_saisie"),
-
+    path('sort_article/', sort_article, name="sort_article"),
+    path('ajax_load_article_list/', ajax_load_article_list, name="ajax_load_article_list"),
+    path('ajax_switch_article_ordre/<int:article1_id>/<int:article2_id>/', ajax_switch_article_ordre, name="ajax_switch_article_ordre"), 
 ]

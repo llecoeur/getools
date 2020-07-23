@@ -25,6 +25,10 @@
 
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <style>
+  {% block header_css %}
+  {% endblock header_css %}
+  </style>
 </head>
 <body class="{% block body_class %}hold-transition sidebar-mini layout-fixed{% endblock body_class %}">
 {% block body %}
@@ -132,9 +136,9 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="{% url 'prepa_paie' %}" class="nav-link">
+                <a href="{% url 'sort_article' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Tarifs</p>
+                  <p>Ordre des articles</p>
                 </a>
               </li>
             </ul>
@@ -296,7 +300,6 @@
               {% endfor %}
           {% endif %}
               {% block "main_content" %}{% endblock "main_content"%}
-        </div>
         <!-- /.row (main row) -->
       </div><!-- /.container-fluid -->
     </section>

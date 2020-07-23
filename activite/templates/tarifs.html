@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="card-body" style="height:100%;overflow:auto;">
-          <table class="table table-bordered table-condensed">
+          <table class="table table-sm table-hover">
             <thead>
               <tr>
                 <th>id</th>
@@ -79,8 +79,8 @@
                   <td>{{tarif.article}}</td>
                   <td>{{tarif.tarif}}</td>
                   <td>
-                    <a href="{% url 'tarifge-update' pk=tarif.id %}" class="btn btn-default"><i class="fas fa-edit"></i></a>
-                    <a href="{% url 'tarifge-delete' pk=tarif.id %}" class="btn btn-default"><i class="fas fa-trash-alt"></i></a>
+                    <a href="{% url 'tarifge-update' pk=tarif.id %}" class="btn btn-default btn-xs"><i class="fas fa-edit"></i></a>
+                    <a href="{% url 'tarifge-delete' pk=tarif.id %}" class="btn btn-default btn-xs"><i class="fas fa-trash-alt"></i></a>
                   </td>
                 </tr>
               {% endfor %}

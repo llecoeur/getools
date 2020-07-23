@@ -1,5 +1,15 @@
 {% extends 'base.html'%}
 {% load static %}
+{% block header_css %}
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+{% endblock header_css %}
 {% block "main_content" %}
 <div id="app">
   <div class="row">
@@ -54,7 +64,7 @@
           </div>
         </div>
         <div class="card-body" style="height:100%;overflow:auto;">
-          <table class="table table-bordered table-condensed">
+          <table class="table table-sm">
             <thead>
               <tr>
                 <th></th>
@@ -68,7 +78,7 @@
                 <td class="text-nowrap">${j.str}</td>
                 <td v-for="tarif in mad.tarifs_ge">
                   <!-- <input type="number" :name="'saisie[' + j.num + '][' + tarif.id + ']'" class="form-control saisie-activite"> -->
-                  <input :value="getSaisieValue(j.num, tarif.id)" type="text" class="form-control" :id="j.num + '-' + tarif.id" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <input :value="getSaisieValue(j.num, tarif.id)" type="text" class="form-control form-control-sm" :id="j.num + '-' + tarif.id" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
             </tbody>
@@ -88,8 +98,10 @@
           <p>Mensuel : ${mad.duree_travail_mensuel}</p>
           <p>Quotidien : ${mad.duree_travail_quotidien}</p>
           Primes forfaitaires :
-          <ul>
-            <li v-for="prime in mad.prime_forfaitaire"> prime.libelle </li>
+          <ul class="list-group">
+            <li class="list-group-item" v-for="prime in mad.primes_forfaitaires">
+              <label>${prime.article.libelle}</label>
+            </li>
           </ul>
         </div>
       </div>
@@ -192,9 +204,6 @@ var app = new Vue({
       /**
         Récupère la valeur a afficher dans la case de saisie.
       **/
-      console.log(this.mad.saisies[jour]);
-      console.log(jour);
-      console.log(id);
       if (this.mad.saisies[jour] == null) {
         return 0;
       }
@@ -202,7 +211,7 @@ var app = new Vue({
         return 0;
       }
       return this.mad.saisies[jour][id];
-    }
+    },
   },
   mounted: function () {
       this.mois = moment().format("M");

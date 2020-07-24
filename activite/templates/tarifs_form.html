@@ -7,7 +7,13 @@
     <div class="col-10">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Edition du tarifs : <b>{{object.mise_a_disposition}}</b> ({{object.article}})</h3>
+          <h3 class="card-title">
+            {% if create %}
+              Création d'un nouveau tarif
+            {% else %}
+              Edition du tarifs : <b>{{object.mise_a_disposition}}</b> ({{object.article}})
+            {% endif %}
+          </h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -25,6 +31,14 @@
               </div>
               {% endif %}
               <div class="col-6">
+              {% if create %}
+                <label for="{{ form.article.id_for_label }}">Article :</label>
+                {{ form.article | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ form.article.errors }}
+                <label for="{{ form.mise_a_disposition.id_for_label }}">Mise a disposition :</label>
+                {{ form.mise_a_disposition | add_class:"form-control" | attr:"style:width:100%"}}
+                {{ form.mise_a_disposition.errors }}
+              {% endif %}
               </div>
               <div class="col-6">
                 <label for="{{ form.tarif.id_for_label }}">Tarif :</label>
@@ -36,16 +50,21 @@
                 <label for="{{ form.coef.id_for_label }}">Coef :</label>
                 {{ form.coef | add_class:"form-control" | attr:"style:width:100%"}}
                 {{ form.coef.errors }}
+                {% if not create %}
                 <div class="custom-control custom-switch">
                   {{ form.archive | add_class:"custom-control-input"}}
                   <label for="{{ form.archive.id_for_label }}" class="custom-control-label">Archive</label>
                   {{ form.archive.errors }}
                 </div>
+                {% endif %}
               </div>
             </div>
             <div class="row">
-              <div class="col-12" class="align-middle text-center">
-                <button type="submit" class="btn btn-primary">Enregistrer</button>
+              <div class="col-12">
+                <div class="text-center p-3">
+                  <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+                  <a href="{% url "tarifs" %}" class="btn btn-default"><i class="fas fa-hand-point-left"></i> Annuler</a>
+                </div>
               </div>
             </div>
           </form>
@@ -74,7 +93,6 @@
 <script>
 
 $(function () {
-  /*
     $('#id_article').select2({
       theme: 'bootstrap4',
     }); 
@@ -82,10 +100,6 @@ $(function () {
       theme: 'bootstrap4',
     }); 
     
-    $('#article_select_id').select2({
-      theme: 'bootstrap4',
-    }); 
-  */
 });
 
 

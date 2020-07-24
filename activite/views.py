@@ -12,6 +12,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
+from django.contrib import messages
 from django.urls import reverse_lazy
 import json
 import calendar
@@ -192,7 +193,13 @@ def tarifs(request):
 class TarifGeCreate(LoginRequiredMixin, CreateView):
     model = TarifGe
     template_name = "tarifs_form.html"
+
     fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['create'] = True
+        return context
 
 
 class TarifGeUpdate(LoginRequiredMixin, UpdateView):
@@ -201,11 +208,25 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     template_name = "tarifs_form.html"
     fields = ['tarif', 'coef_paie', 'coef', 'archive']
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['tarifge'] = self.get_object()
-        return context
 
 class TarifGeDelete(LoginRequiredMixin, DeleteView):
     model = TarifGe
+    template_name = "tarifge_confirm_delete.html"
     success_url = reverse_lazy('tarifs')
+    success_message = "Le tarif a été supprimé."
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+"""
+@login_required
+def tarifge_delete(request, pk):
+    try:
+        TarifGe.objects.get(pk=pk).delete()
+    except TarifGe.DoesNotExist:
+        messages.error(request, "Erreur de suppression : Le tarif a déjà été supprimé !")
+    except TarifGe.MultipleObjectsReturned:
+        messages.error(request, "Erreur de suppression : Plusieurs tarifs avec le même id !")
+    else:
+"""

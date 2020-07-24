@@ -1,0 +1,58 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-danger">
+        <div class="card-header">
+          <h3 class="card-title">
+            Etes vous sur de vouloir supprimer le tarif {{ object }} ?
+          </h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body text-center">
+          <p>Supprimer le tarif supprimera aussi toutes les saisies d'activités liées à ce tarif.</p>
+          <p>Cette action est irréversible. Pour conserver les saisies, préférez archiver ce tarif.<p>
+          <form method="post">{% csrf_token %}
+            <button type="submit" class="btn btn-danger">Oui, supprimer</button> <a href="{% url "tarifs" %}" class="btn btn-default">Annuler</a> 
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+$(function () {
+    $('#id_article').select2({
+      theme: 'bootstrap4',
+    }); 
+    $('#id_mise_a_disposition').select2({
+      theme: 'bootstrap4',
+    }); 
+    
+});
+
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data: {
+    // loader
+    loader: false,
+  },
+  methods: {
+
+  },
+
+});
+
+</script>
+{% endblock "footer_js"%}

@@ -210,7 +210,7 @@ class TarifGe(models.Model):
     element_reference = models.CharField("Elt Nationnal de Référence", max_length=17, blank=True)
     # Les hamps suivants existent en base Cegid, a expliquer ou supprimer si pas utiles.
     coef = models.FloatField("Coefficient", default=0)
-    mode_calcul = models.IntegerField("Mode de Calcul")
+    mode_calcul = models.IntegerField("Mode de Calcul", default=None, null=True, blank=True)
     coef_paie = models.FloatField("Coefficient de paie", default=0)
     article_a_saisir = models.BooleanField("Article a saisir ?", default=False)
 

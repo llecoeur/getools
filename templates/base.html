@@ -284,11 +284,11 @@
                   <div class="alert {% if message.tags == "error" %}alert-danger{% elif message.tags == "warning" %}alert-warning{% elif message.tags == "success" %}alert-success{% else %}alert-info{% endif %} alert-dismissible">
                   <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                   {% if message.tags == "error" %}
-                    <h5><i class="icon fas fa-ban"></i> Erreur !</h5>
+                    <h5><i class="far fa-sad-tear"></i> Erreur !</h5>
                   {% elif message.tags == "warning" %}
                     <h5><i class="icon fas fa-exclamation-triangle"></i> Attention !</h5>
                   {% elif message.tags == "success" %}
-                    <h5><i class="icon fas fa-check"></i> Bravo !</h5>
+                    <h5><i class="fas fa-thumbs-up"></i> Bravo !</h5>
                   {% else %}
                     <h5><i class="icon fas fa-info"></i> Information !</h5>
                   {% endif %}

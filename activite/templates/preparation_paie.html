@@ -49,14 +49,14 @@
           </div>
         </div>
         <div class="overlay" v-show="loader">
-          <i class="fas fa-2x fa-sync-alt"></i>
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
     </div>
   </div>
   <div class="row">
     <div class="col-10">
-      <div class="card card-outline card-primary" v-if="jour_list.length != 0">
+      <div class="card card-outline card-primary" v-if="mad.length != 0">
         <div class="card-header">
           <h3 class="card-title">Saisie</h3>
           <div class="card-tools">
@@ -74,15 +74,24 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="j in jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }">
+              <tr v-for="j in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }">
                 <td class="text-nowrap">${j.str}</td>
-                <td v-for="tarif in mad.tarifs_ge">
+                <td v-for="tarif in j.saisie_list">
                   <!-- <input type="number" :name="'saisie[' + j.num + '][' + tarif.id + ']'" class="form-control saisie-activite"> -->
-                  <input :value="getSaisieValue(j.num, tarif.id)" type="text" class="form-control form-control-sm" :id="j.num + '-' + tarif.id" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <input :value="tarif.valeur" :class="{ 'bg-success': tarif.saved }" type="text" class="form-control form-control-sm" :id="j.num + '-' + tarif.tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                </td>
+              </tr>
+              <tr>
+                <td>Total</td>
+                <td v-for="tarif in mad.tarifs_ge">
+  
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
     </div>
@@ -145,12 +154,12 @@ var app = new Vue({
     mad_id: "",
 
     mad: {},
-    jour_list: [],
   },
   methods: {
     fillSelectMiseADisposition() {
+      self = this;
       // Fetch la liste des madss du salarié, et remplis le select des mads en fonction des résultats
-      app.loader = true;
+      self.loader = true;
       fetch("/act/ajax_mad_for_salarie/" + this.salarie_id + "/false/").then(function (response) {
         return response.json();
       }).then(function (result) {
@@ -160,23 +169,23 @@ var app = new Vue({
           $('#mad_select_id').append(newOption).trigger('change');
           // console.log(result[key].id);
         }
-        app.mad_id = $('#mad_select_id').val();
+        self.mad_id = $('#mad_select_id').val();
       });
-      app.loader = false;
+      self.loader = false;
     },
     loadCalendar() {
       // Charge la saisie de la mise a disposition
-      this.loader = true;
+      self = this;
+      self.loader = true;
       fetch("/act/ajax_load_saisie_mad/" + this.mois + "/" + this.annee + "/" + this.mad_id+ "/").then(function (response) {
         return response.json();
       }).then(function (result) {
         // console.log(result['jours']);
-        app.jour_list = result['jours'];
-        app.mad = result['mad'];
+        self.mad = result['mad'];
       });
       // suppression de la couleur verte des input
       $("input").removeClass("bg-success");
-      this.loader = false;
+      self.loader = false;
     },
     saveSaisieValue: function (value, id) {
       // Value: valeur saisie, id:couple jour / 
@@ -199,18 +208,6 @@ var app = new Vue({
           $("#"+id).addClass("bg-success");
         }
       });
-    },
-    getSaisieValue: function (jour, id) {
-      /**
-        Récupère la valeur a afficher dans la case de saisie.
-      **/
-      if (this.mad.saisies[jour] == null) {
-        return 0;
-      }
-      if (this.mad.saisies[jour][id] == null) {
-        return 0;
-      }
-      return this.mad.saisies[jour][id];
     },
   },
   mounted: function () {

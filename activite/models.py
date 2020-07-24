@@ -6,6 +6,11 @@ from django.utils import timezone
 from collections import defaultdict
 from pprint import pprint
 from django.urls import reverse
+import calendar
+from datetime import date
+from jours_feries_france import JoursFeries
+import pendulum
+pendulum.set_locale('fr')
 from django.db.models import Q
 
 
@@ -178,10 +183,44 @@ class MiseADisposition(models.Model):
         """
         # Les saisies liées a une mad
         saisie_list = SaisieActivite.objects.filter(date_realisation__year=annee, date_realisation__month=mois, tarif__mise_a_disposition=self)
+
         d = defaultdict(dict)
         for saisie in saisie_list:
             d[saisie.date_realisation.day][saisie.tarif.id] = saisie.quantite
         return d
+
+    def get_saisies_from_mois_dict_all(self, mois, annee):
+
+        # Listes des jours du mois
+        start, end = calendar.monthrange(annee, mois)
+        # print(calendar.monthrange(annee, mois))
+        d = []
+        for num_jour in range(1, end + 1):
+            date_saisie = date(annee, mois, num_jour)
+            # récupérer les tarids de la mise a disposition
+            s = []
+            for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
+                saisie = SaisieActivite.get_saisie(tarif, date_saisie)
+                if saisie is None:
+                    s.append({ "tarif": tarif.id, "valeur": 0, "saved": False, })
+                else:
+                    s.append({ "tarif": tarif.id, "valeur": saisie.quantite, "saved": True, })
+
+            pen_day = pendulum.date(annee, mois, num_jour)
+            ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
+            samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
+            j = {
+                "num": num_jour,
+                "str": pen_day.format("dddd D").capitalize(),
+                "non_travaille": samedi_dimanche or ferie,
+                "saisie_list": s 
+            }
+            d.append(j)
+
+        # pprint(d)
+        return d
+            
+
 
     def __str__(self):
         return f"{self.adherent} - {self.salarie}"

@@ -109,31 +109,11 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     mad_dict['primes_forfaitaires'] = mad.tarifs_ge_prime_forfaitaire_dict()
 
 
-    # les valeurs saisies sur les mises tarifs
-    saisies_array = mad.get_saisies_from_mois_dict(mois, annee)
-    mad_dict['saisies'] = saisies_array
-
-
-    # Les jours du mois
-    jours = []
-    start, end = calendar.monthrange(annee, mois)
-    # print(calendar.monthrange(annee, mois))
-    for num_jour in range(1, end + 1):
-        pen_day = pendulum.date(annee, mois, num_jour)
-        ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
-        samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
-        d = {
-            "num": num_jour,
-            "str": pen_day.format("dddd D"),
-            "non_travaille": samedi_dimanche or ferie,
-        }
-        jours.append(d)
+    mad_dict['jour_list'] = mad.get_saisies_from_mois_dict_all(mois, annee)
 
     ret = {
         "mad": mad_dict,
-        "jours": jours,
     }
-    pprint(ret)
 
     return JsonResponse(ret)
 
@@ -219,14 +199,3 @@ class TarifGeDelete(LoginRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
-"""
-@login_required
-def tarifge_delete(request, pk):
-    try:
-        TarifGe.objects.get(pk=pk).delete()
-    except TarifGe.DoesNotExist:
-        messages.error(request, "Erreur de suppression : Le tarif a déjà été supprimé !")
-    except TarifGe.MultipleObjectsReturned:
-        messages.error(request, "Erreur de suppression : Plusieurs tarifs avec le même id !")
-    else:
-"""

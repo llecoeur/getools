@@ -3,7 +3,7 @@ from geauth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.utils import timezone
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from pprint import pprint
 from django.urls import reverse
 import calendar
@@ -37,6 +37,9 @@ class Article(models.Model):
     rubrique_paie = models.ForeignKey("RubriquePaie", on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
     famille = models.ForeignKey("FamilleArticle", on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="article_list", db_index=True)
     ordre = models.IntegerField("Ordre", default=0, null=True, db_index=True)
+
+    class Meta:
+        ordering = ['ordre']
 
     def __str__(self):
         return self.libelle
@@ -198,6 +201,7 @@ class MiseADisposition(models.Model):
         for num_jour in range(1, end + 1):
             date_saisie = date(annee, mois, num_jour)
             # récupérer les tarids de la mise a disposition
+            
             s = []
             for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
                 saisie = SaisieActivite.get_saisie(tarif, date_saisie)

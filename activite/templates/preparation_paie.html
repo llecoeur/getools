@@ -74,17 +74,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="j in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }">
+              <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
-                <td v-for="tarif in j.saisie_list">
-                  <!-- <input type="number" :name="'saisie[' + j.num + '][' + tarif.id + ']'" class="form-control saisie-activite"> -->
-                  <input :value="tarif.valeur" :class="{ 'bg-success': tarif.saved }" type="text" class="form-control form-control-sm" :id="j.num + '-' + tarif.tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
+                  <input v-bind:value="tarif.valeur" v-bind:class="{ 'bg-success': tarif.saved }" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
               <tr>
                 <td>Total</td>
-                <td v-for="tarif in mad.tarifs_ge">
-  
+                <td v-for="tarifTotal in mad.tarifs_ge">
+                  ${totaux_tarif[tarifTotal.id]}
                 </td>
               </tr>
             </tbody>
@@ -123,6 +122,7 @@
 <script src="{% static 'vuejs/vue.js' %}"></script>
 <script>
 
+
 $(function () {
     $('#mois_saisie').datetimepicker({
       locale: 'fr',
@@ -138,7 +138,6 @@ $(function () {
 });
 
 
-
 var app = new Vue({
   el: '#app',
   delimiters: ['${','}'],
@@ -152,11 +151,25 @@ var app = new Vue({
     salarie_id: "",
     // mise a dispo selectionnee
     mad_id: "",
-
-    mad: {},
+    mad: {
+      jour_list:[],
+    },
+  },
+  computed: {
+    totaux_tarif: function() {
+      tar = {};
+      for (jour of self.mad.jour_list) {
+        for (saisie of jour.saisie_list) {
+          if (tar[saisie.tarif] == null)
+            tar[saisie.tarif] = 0;
+          tar[saisie.tarif] += parseFloat(saisie.valeur);
+        }
+      }
+      return tar;
+    },
   },
   methods: {
-    fillSelectMiseADisposition() {
+    fillSelectMiseADisposition: function() {
       self = this;
       // Fetch la liste des madss du salarié, et remplis le select des mads en fonction des résultats
       self.loader = true;
@@ -173,7 +186,7 @@ var app = new Vue({
       });
       self.loader = false;
     },
-    loadCalendar() {
+    loadCalendar: function() {
       // Charge la saisie de la mise a disposition
       self = this;
       self.loader = true;
@@ -185,12 +198,14 @@ var app = new Vue({
       });
       // suppression de la couleur verte des input
       $("input").removeClass("bg-success");
+      self.$forceUpdate();
       self.loader = false;
     },
     saveSaisieValue: function (value, id) {
       // Value: valeur saisie, id:couple jour / 
       // ajax_save_saisie/<str:valeur>/<int:tarif_id>/<int:annee>/<int:mois>/<int:jour>/
-      [jour, tarif_id] = id.split("-");
+      self = this;
+      [jour, tarif_id, index_jour, index_tarif] = id.split("-");
       if (value == '') {
         // il faut effacer la valeur dans ce cas
         value = "0";
@@ -201,10 +216,13 @@ var app = new Vue({
         if (result['result'] == 'error') {
           $(document).Toasts('create', {
             class: 'bg-danger', 
-            title: 'Valeur Ajoutée',
+            title: "Erreur d'enregistrement",
             body: result['message'],
           });
         } else {
+          console.log("old : " + self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur);
+          self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
+          console.log("new : " + self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur);
           $("#"+id).addClass("bg-success");
         }
       });

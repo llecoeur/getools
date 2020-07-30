@@ -57,12 +57,7 @@
   <div class="row">
     <div class="col-10">
       <div class="card card-outline card-primary" v-if="mad.length != 0">
-        <div class="card-header">
-          <h3 class="card-title">Saisie</h3>
-          <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-          </div>
-        </div>
+
         <div class="card-body" style="height:100%;overflow:auto;">
           <table class="table table-sm">
             <thead>
@@ -157,6 +152,7 @@ var app = new Vue({
   },
   computed: {
     totaux_tarif: function() {
+      // Calcule les tarifs total en bas de colonne du mois
       tar = {};
       for (jour of self.mad.jour_list) {
         for (saisie of jour.saisie_list) {
@@ -194,11 +190,11 @@ var app = new Vue({
         return response.json();
       }).then(function (result) {
         // console.log(result['jours']);
+        self.mad = {};
         self.mad = result['mad'];
       });
       // suppression de la couleur verte des input
       $("input").removeClass("bg-success");
-      self.$forceUpdate();
       self.loader = false;
     },
     saveSaisieValue: function (value, id) {
@@ -219,10 +215,9 @@ var app = new Vue({
             title: "Erreur d'enregistrement",
             body: result['message'],
           });
+          $("#"+id).addClass("bg-danger");
         } else {
-          console.log("old : " + self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur);
           self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
-          console.log("new : " + self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur);
           $("#"+id).addClass("bg-success");
         }
       });

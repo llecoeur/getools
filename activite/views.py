@@ -143,11 +143,18 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
         }
     else:
         saisie.quantite = valeur
-        saisie.save()
-        ret = {
-            "result": "ok",
-            "message": f"Valeur {saisie.quantite}, sur article {saisie.tarif.article} enregistrée",
-        }
+        try:
+            saisie.save()
+        except ValueError:
+            ret = {
+                "result": "error",
+                "message": f"Impossible d'enregistrer la valeur {valeur} sur l'article {saisie.tarif.article}. La valeur entrée n'est pas un nombe",
+            }
+        else:
+            ret = {
+                "result": "ok",
+                "message": f"Valeur {valeur}, sur article {saisie.tarif.article} enregistrée",
+            }
     return JsonResponse(ret)
 
 

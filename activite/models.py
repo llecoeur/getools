@@ -81,6 +81,24 @@ class Salarie(models.Model):
     def __str__(self):
         return "{} {}".format(self.nom, self.prenom)
 
+    def get_info_sup(self, mois, annee):
+        """
+            Retourne l'objet InfoSupMois associé au salarié
+            Si n'existe pas, alos ca la crée et l'initialise
+        """
+        try:
+            infos_sup = self.infos_sup_list.get(mois=mois, annee=annee)
+        except InfosSupMoisSalarie.DoesNotExist:
+            infos_sup = InfosSupMoisSalarie()
+            infos_sup.salarie = self
+            infos_sup.mois = mois
+            infos_sup.annee = annee
+            # TODO : Initialiser ces valeurs
+            infos_sup.heures_travaillees = 0
+            infos_sup.heures_theoriques = 0
+            infos_sup.save()
+        return infos_sup
+
     @staticmethod
     def get_salaries_actuels():
         """
@@ -146,7 +164,7 @@ class MiseADisposition(models.Model):
     @property
     def tarif_ge_list_dict(self):
         d = []
-        for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
+        for tarif in self.tarif_ge_list.filter(archive=False).exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
             d.append(tarif.to_dict())
         return d
 
@@ -156,7 +174,6 @@ class MiseADisposition(models.Model):
         """
         d = []
         for tarif in self.tarif_ge_list.filter(article__famille__forfaitaire=True).order_by("id"):
-            print(tarif.to_dict())
             d.append(tarif.to_dict())
         return d
 
@@ -223,11 +240,29 @@ class MiseADisposition(models.Model):
 
         # pprint(d)
         return d
-            
+
+    def get_info_sup(self, mois, annee):
+        """
+            Retourne l'objet InfoSupMois associé à la MAD
+            Si n'existe pas, alos ca la crée et l'initialise
+        """
+        try:
+            infos_sup_mad = self.infos_sup_list.get(mois=mois, annee=annee)
+        except InfosSupMoisMad.DoesNotExist:
+            infos_sup_mad = InfosSupMoisMad()
+            infos_sup_mad.mise_a_disposition = self
+            infos_sup_mad.mois = mois
+            infos_sup_mad.annee = annee
+            # TODO : Initialiser ces valeurs
+            infos_sup_mad.heures_travaillees = 0
+            infos_sup_mad.heures_theoriques = 0
+            infos_sup_mad.saisie_complete = False
+            infos_sup_mad.save()
+        return infos_sup_mad
 
 
-    def __str__(self):
-        return f"{self.adherent} - {self.salarie}"
+        def __str__(self):
+            return f"{self.adherent} - {self.salarie}"
     
 
 class TarifGe(models.Model):
@@ -307,28 +342,38 @@ Elles peuvent je pense être remplacéers par quelque chose de plus utilisable.
 
 """
 
-class CreditTemps(models.Model):
+class InfosSupMoisSalarie(models.Model):
     """
         Equivalent de la table ZCREDITTEMPS de Cegid V9
-        A Documenter
+        
+        Contient les informations liées au salarié pour le mois et l'année donnée
     """
-    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="credit_temps")
+    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="infos_sup_list")
     mois = models.IntegerField("Mois")
-    année = models.IntegerField("Année")
+    annee = models.IntegerField("Année")
+    # Nombre d'heures travaillées sur le mois pour le salarié, quelque soit a MAD
     heures_travaillees = models.FloatField("Heures Travaillées")
+    # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
     heures_theoriques = models.FloatField("heures Théoriques")
     # ???
-    id_detail = models.IntegerField("")
+    # id_detail = models.IntegerField("")
 
 
-class DetailCreditTemps(models.Model):
+class InfosSupMoisMad(models.Model):
     """
-        Equivalent de la taille ZDETAILCREDITTEMPS de Cegid 
+        Equivalent de la taille ZDETAILCREDITTEMPS de Cegid
+
+        Contient les informations liées a la mise a disposition pour le mois en cours
     """
-    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="detail_credit_temps_list", default=None)
+    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="infos_sup_list")
+    mois = models.IntegerField("Mois", default=0)
+    annee = models.IntegerField("Année", default=0)
+    # Heures travaillées chez l'adhérent ce mois
     heures_travaillees = models.FloatField("Heures Travaillées")
-    heures_mensuelles = models.FloatField("heures mensuelles")
-    saisiecomplete = models.BooleanField("Saise Comlète ?")
+    # Heures théoriques chez l'adherent ce mois. Initialisé comment ?
+    heures_theoriques = models.FloatField("heures mensuelles")
+    # Est ce que la saisie est complète ? None : Non démarré, False : En cours, True : Terminée
+    saisie_complete = models.BooleanField("Saise Comlète ?", null=True, default=None)
 
 
 

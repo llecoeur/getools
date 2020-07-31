@@ -97,19 +97,27 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
         Tout doit assez complet pour construire le tableau de saisie
     """
     mad = MiseADisposition.objects.get(pk=mad_id)
+
+
     mad_dict = model_to_dict(mad)
     
     # salarie = Salarie.objects.get(pk=salarie_id)
     salarie_dict = model_to_dict(mad.salarie)
     mad_dict['salarie'] = salarie_dict
+    # Infos supplémentaires des salariés
+    mad_dict['salarie']['infos_sup'] = model_to_dict(mad.salarie.get_info_sup(mois, annee))
 
-    # Tarifs liés au salarié 
+    # Liste des tarifs
     mad_dict['tarifs_ge'] = mad.tarif_ge_list_dict
 
+    # Primes Fofaitaires
     mad_dict['primes_forfaitaires'] = mad.tarifs_ge_prime_forfaitaire_dict()
 
-
+    # Liste des jours, des saisies, etc, pour construire le tableau de saisie
     mad_dict['jour_list'] = mad.get_saisies_from_mois_dict_all(mois, annee)
+
+    # informations supplémentaires des mises a disposition
+    mad_dict['infos_sup'] = model_to_dict(mad.get_info_sup(mois, annee))
 
     ret = {
         "mad": mad_dict,
@@ -132,29 +140,20 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
         saisie = SaisieActivite()
         saisie.tarif = tarif
         saisie.date_realisation = date_realisation
-    if valeur == "0":
-        try:
-            saisie.delete()
-        except AssertionError:
-            pass
+
+    saisie.quantite = valeur
+    try:
+        saisie.save()
+    except ValueError:
         ret = {
-            "result": "ok",
-            "message": f"Valeur sur article {saisie.tarif.article} effacée",
+            "result": "error",
+            "message": f"Impossible d'enregistrer la valeur {valeur} sur l'article {saisie.tarif.article}. La valeur entrée n'est pas un nombe",
         }
     else:
-        saisie.quantite = valeur
-        try:
-            saisie.save()
-        except ValueError:
-            ret = {
-                "result": "error",
-                "message": f"Impossible d'enregistrer la valeur {valeur} sur l'article {saisie.tarif.article}. La valeur entrée n'est pas un nombe",
-            }
-        else:
-            ret = {
-                "result": "ok",
-                "message": f"Valeur {valeur}, sur article {saisie.tarif.article} enregistrée",
-            }
+        ret = {
+            "result": "ok",
+            "message": f"Valeur {valeur}, sur article {saisie.tarif.article} enregistrée",
+        }
     return JsonResponse(ret)
 
 

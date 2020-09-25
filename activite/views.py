@@ -4,7 +4,7 @@ from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent
+from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
 from django.contrib.auth.decorators import login_required
@@ -19,8 +19,10 @@ import calendar
 import pendulum
 from jours_feries_france import JoursFeries
 from datetime import date
+from cegid.xrp_sprint import CegidCloud
 from pprint import pprint
 pendulum.set_locale('fr')
+
 
 # Create your views here.
 @login_required
@@ -205,3 +207,65 @@ class TarifGeDelete(LoginRequiredMixin, DeleteView):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
+
+def ajax_update_famille_article(request):
+    """
+        Lit les familles XPR Print, et met a jour la table des familles articles
+    """
+    cegid = CegidCloud()
+    famille_list = cegid.get_famille_article_list()
+    count = len(famille_list)
+
+    for famille in famille_list:
+        try:
+            f = FamilleArticle.objects.get(code_erp=famille['Key'])
+        except FamilleArticle.DoesNotExist:
+            f = FamilleArticle()
+        f.code_erp = famille['Key']
+        f.libelle = famille['Value']
+        if famille['Key'] == "PRF":
+            # marqué comme prime forfétaire
+            f.forfaitaire = True
+        f.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+    
+
+def ajax_update_service(request):
+    """
+        Mise a jour de a liste des services
+    """
+    cegid = CegidCloud()
+    service_list = cegid.get_service_list()
+    count = len(service_list)
+    for service in service_list:
+        try:
+            s = Service.objects.get(code_erp=service['Key'])
+        except Service.DoesNotExist:
+            # On ajoute
+            s = Service()
+        s.code_erp = service['Key']
+        s.libelle = service['Value']
+        s.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+
+def ajax_update_poste(request):
+    """
+        Mise a jour de a liste des services
+    """
+    cegid = CegidCloud()
+    poste_list = cegid.get_poste_list()
+    count = len(poste_list)
+    for poste in poste_list:
+        try:
+            s = Poste.objects.get(code_erp=poste['Key'])
+        except Poste.DoesNotExist:
+            # On ajoute
+            s = Poste()
+        s.code_erp = poste['Key']
+        s.libelle = poste['Value']
+        s.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)

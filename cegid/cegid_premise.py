@@ -38,6 +38,10 @@ class ChoixCod(Base):
     """
         Deuxieme table de liste de choix
         CC_TYPE=FN1 : Familles articles
+        CC_TYPE=LA2 : Charges sociales / Coef imputé, ié a l'article
+        CC_TYPE=LA4 : Cumul crédit d'heures, lié a l'article
+        
+        
     """
     __tablename__ = 'CHOIXCOD'
 
@@ -63,12 +67,12 @@ class Salarie(Base):
 
     __tablename__ = 'SALARIES'
 
-    code = Column('PSA_SALARIE', String(17, 'French_CI_AS'), unique=True)
-    nom = Column('PSA_LIBELLE', String(35, 'French_CI_AS'), index=True)
-    prenom = Column('PSA_PRENOM', String(35, 'French_CI_AS'))
+    code = Column('PSA_SALARIE', String(17, 'French_CI_AS'), unique=True) # Resource_ARS
+    nom = Column('PSA_LIBELLE', String(35, 'French_CI_AS'), index=True) # lastName_ARS
+    prenom = Column('PSA_PRENOM', String(35, 'French_CI_AS')) # FirstName_ARS
 
-    _date_entree = Column('PSA_DATEENTREE', DateTime)
-    _date_sortie = Column('PSA_DATESORTIE', DateTime)
+    _date_entree = Column('PSA_DATEENTREE', DateTime) # ??
+    _date_sortie = Column('PSA_DATESORTIE', DateTime) # ??
 
     __table_args__ = (
         PrimaryKeyConstraint(code),

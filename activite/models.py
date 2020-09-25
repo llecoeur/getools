@@ -260,9 +260,8 @@ class MiseADisposition(models.Model):
             infos_sup_mad.save()
         return infos_sup_mad
 
-
-        def __str__(self):
-            return f"{self.adherent} - {self.salarie}"
+    def __str__(self):
+        return f"{self.adherent} - {self.salarie}"
     
 
 class TarifGe(models.Model):

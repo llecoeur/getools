@@ -130,7 +130,7 @@ if __name__ == "__main__":
         adh.raison_sociale = adherent_cegid.libelle
         adh.save()
 
-    print("Mise a jour des Mise d Dispositionss...")
+    print("Mise a jour des Mise d Dispositions...")
     aff_list = session.query(CegidAffaire).filter(CegidAffaire.code_1 == "MAD").filter(CegidAffaire._etat == "ENC").order_by(CegidAffaire.created)
     
     for affaire_cegid in aff_list:

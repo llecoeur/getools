@@ -44,6 +44,9 @@ class CegidCloud:
             js = json.loads(response.text)
             try:
                 items += js["value"]
+            except TypeError:
+                # On a directement un tableau, les valeurs ne sont pas dans la propriété "value". Bravo les exceptions CEGID !
+                items += js
             except KeyError:
                 # n'est pas un odata
                 try:
@@ -53,6 +56,9 @@ class CegidCloud:
                     url = False
             try:
                 url = js["@odata.nextLink"]
+            except TypeError:
+                # pas de pagination
+                url = False
             except KeyError:
                 # N'est pas sur Odata
                 if debug:
@@ -68,13 +74,13 @@ class CegidCloud:
             # sleep(settings.API_TIME_SLEEP)
         return items
 
-    def get_odata_client_list(self):
+    def get_client_list(self):
         """
             Retourne la liste des affaires en dict
         """
         return self._get_api_data(settings.ODATA_CLIENT_LIST_URL)
 
-    def get_odata_article_list(self):
+    def get_article_list(self):
         """
             Retourle na liste des articles de prestation en dict
         """
@@ -105,3 +111,22 @@ class CegidCloud:
 
         """
         return self._get_api_data(settings.API_POSTE_LIST)
+
+    def get_salarie_list(self):
+        """
+            Retourne la liste des salariés, sous forme de dict
+        """
+        return self._get_api_data(settings.API_SALARIE_LIST)
+
+    def get_rubrique_list(self):
+        """
+            Retourne la liste des salariés, sous forme de dict
+        """
+        return self._get_api_data(settings.API_RUBRIQUE_LIST)
+
+    def get_motif_absence_list(self):
+        """
+            Retourne la liste des salariés, sous forme de dict
+        """
+        return self._get_api_data(settings.API_MOTIF_ABSENCE_LIST)
+    

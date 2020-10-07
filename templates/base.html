@@ -142,14 +142,6 @@
                 </a>
               </li>
             </ul>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="{% url 'logout' %}" class="nav-link">
-                  <i class="fas fa-sign-out-alt nav-icon"></i>
-                  <p>Déconnexion</p>
-                </a>
-              </li>
-            </ul>
           </li>
           
           <!-- Add icons to the links using the .nav-icon class
@@ -253,6 +245,22 @@
           </li>
           -->
 
+        </ul>
+        <ul class="nav nav-pills nav-sidebar flex-column">
+          <li class="nav-item">
+            <a href="{% url 'synchronisation' %}" class="nav-link">
+              <i class="fas fa-exchange-alt nav-icon"></i>
+              <p>Synchronisation</p>
+            </a>
+          </li>
+        </ul>
+        <ul class="nav nav-pills nav-sidebar flex-column">
+          <li class="nav-item">
+            <a href="{% url 'logout' %}" class="nav-link">
+              <i class="fas fa-sign-out-alt nav-icon"></i>
+              <p>Déconnexion</p>
+            </a>
+          </li>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->

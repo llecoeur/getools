@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
 
     cegid = CegidCloud()
-    pprint(cegid.get_service_list())
+    pprint(cegid.get_motif_absence_list())
     """
     print(len(cegid.get_odata_affaire_list()))
 

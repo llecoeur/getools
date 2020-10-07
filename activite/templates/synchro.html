@@ -1,0 +1,68 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-4">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Lecture des données de Cegid Y2 XRP Sprint</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <a href="#" class="btn btn-primary" v-on:click="getDataXrp"><i class="fas fa-cloud-download-alt"></i> Synchro XRP Sprint</a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <span>${synchroLog}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return({
+      // loader
+      loader: false,
+      synchroLog: "",
+    });
+  },
+
+  methods: {
+    getDataXrp() {
+      this.synchroLog = "";
+      this.synchroLog += "<br />Synchronisation des Familles d'articles...";
+      this.synchroLog += "<br />Synchronisation des Services...";
+      this.synchroLog += "<br />Synchronisation des Postes ...";
+      this.synchroLog += "<br />Synchronisation des Salariés...";
+      this.synchroLog += "<br />Synchronisation des Rubriques ...";
+      this.synchroLog += "<br />Synchronisation des Salariés ...";
+      this.synchroLog += "<br />Synchronisation des Articles ...";
+      this.synchroLog += "<br />Synchronisation des Adhérents ...";
+      this.synchroLog += "<br />Synchronisation des Mises à disposition ...";
+
+    }
+  },
+
+});
+
+
+</script>
+{% endblock "footer_js"%}

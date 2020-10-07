@@ -4,7 +4,7 @@ from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
-from .models import MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
+from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
 from django.contrib.auth.decorators import login_required
@@ -68,6 +68,16 @@ def preparation_paie(request):
         "salarie_list": salarie_list,
     }
     return render(request, template, context)
+
+
+@login_required
+def synchronisation(request):
+    """
+        Vue pour la page de synchronisation
+    """
+    template = "synchro.html"
+    return render(request, template, {})
+
 
 @login_required
 def ajax_mad_for_salarie(request, salarie_id, termine):
@@ -268,4 +278,158 @@ def ajax_update_poste(request):
         s.libelle = poste['Value']
         s.save()
     ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+
+def ajax_update_salaries(request):
+    """
+        Mise a joru de a liste des salariés
+    """
+    cegid = CegidCloud()
+    salarie_list = cegid.get_salarie_list()
+    count = len(salarie_list)
+    for salarie_cegid in salarie_list:
+        try:
+            sal = Salarie.objects.get(code_erp=salarie_cegid['EmployeeId'])
+        except Salarie.DoesNotExist:
+            # On ajoute
+            sal = Salarie()
+        sal.code_erp = salarie_cegid['EmployeeId']
+        sal.nom = salarie_cegid['Name']
+        sal.prenom = salarie_cegid['FirstName']
+        print(salarie_cegid['EntryDate'])
+        sal.date_entree = pendulum.parse(salarie_cegid['EntryDate']).to_date_string()
+        sal.date_sortie = pendulum.parse(salarie_cegid['ExitDate']).to_date_string()
+        sal.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+def ajax_update_rubrique(request):
+    """
+        Mise a jour de la liste des rubriques
+    """
+    cegid = CegidCloud()
+    rub_list = cegid.get_rubrique_list()
+    count = len(rub_list)
+    for rub_cegid in rub_list:
+        try:
+            rub = RubriquePaie.objects.get(code_erp=rub_cegid['Rubric'])
+        except RubriquePaie.DoesNotExist:
+            # On ajoute
+            rub = RubriquePaie()
+        rub.code_erp = rub_cegid['Rubric']
+        rub.libelle = rub_cegid['RubricLabel']
+        rub.abrege = rub_cegid['RubricLabel']
+        rub.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+def ajax_update_article(request):
+    """
+        Mise a jour de la liste des rubriques
+    """
+    cegid = CegidCloud()
+    article_list = cegid.get_article_list()
+    count = len(article_list)
+    for article_cegid in article_list:
+        try:
+            art = Article.objects.get(code_erp=article_cegid['ItemCode_GA'])
+        except Article.DoesNotExist:
+            # On ajoute
+            art = RubriquePaie()
+        art.code_erp = article_cegid['ItemCode_GA']
+        art.libelle = article_cegid['Description_GA']
+        art.type_article = article_cegid['ItemType_GA']
+        try:
+            rub_paie = RubriquePaie.objects.get(code_erp=article_cegid['UserFieldItem1_GA'])
+        except AttributeError:
+            pass
+        except RubriquePaie.DoesNotExist:
+            pass
+        else:
+            art.rubrique_paie = rub_paie
+        # La famille
+        try:
+            famille = FamilleArticle.objects.get(code_erp=article_cegid['FamilyLevel1_GA'])
+        except FamilleArticle.DoesNotExist:
+            famille = None
+        art.famille = famille
+        art.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+def ajax_update_adherent(request):
+    """
+        Mise a jour de la liste des adhérents
+    """
+    cegid = CegidCloud()
+    adherent_list = cegid.get_client_list()
+    count = len(adherent_list)
+    for adh_cegid in adherent_list:
+        try:
+            adh = Adherent.objects.get(code_erp=adh_cegid['ThirdParty_T'])
+        except Adherent.DoesNotExist:
+            adh = Adherent()
+        adh.code_erp = adh_cegid['ThirdParty_T']
+        adh.raison_sociale = adh_cegid['Name_T']
+        adh.save()
+    ret = { "result": "ok", "count": count }
+    return JsonResponse(ret)
+
+def ajax_update_mad(request):
+    """
+        Mise a jour des mises à disposition
+    """
+    cegid = CegidCloud()
+    aff_list = cegid.get_affaire_list()
+    count = len(aff_list)
+    error_count = 0
+    for affaire_cegid in aff_list:
+        error = False
+
+        try:
+            adherent = Adherent.objects.get(code_erp=affaire_cegid['ThirdParty_AFF'])
+        except AttributeError:
+            print(f"l'affaire {affaire_cegid['Project_AFF']} n'a pas d'adhérent.")
+            error = True
+            error_count += 1
+        except Adherent.DoesNotExist:
+            print(f"L'adhérent {affaire_cegid['ThirdParty_AFF']} n'existe pas en base django: As-il été importé ?")
+            error = True
+            error_count += 1
+        
+
+        try:
+            salarie = Salarie.objects.get(code_erp=affaire_cegid['Manager_AFF'])
+        except AttributeError:
+            print(f"l'affaire {affaire_cegid['Project_AFF']} n'a pas de salarié.")
+            error = True
+            error_count += 1
+        except Salarie.DoesNotExist:
+            print(f"Le salarié {affaire_cegid['Manager_AFF']} n'existe pas en base django: As-il été importé ?")
+            error = True
+            error_count += 1
+
+        if not error:
+            mad = MiseADisposition.get_mise_a_disposition(adherent.code_erp, salarie.code_erp)
+            if mad is None:
+                mad = MiseADisposition()
+                mad.adherent = adherent
+                mad.salarie = salarie
+                mad.cloturee = False
+            mad.code_erp = affaire_cegid['Project_AFF']
+            mad.duree_travail_mensuel = affaire_cegid['UserFieldNumeric2_AFF']
+            mad.duree_travail_quotidien = affaire_cegid['UserFieldNumeric3_AFF']
+            mad.service = Service.objects.filter(code_erp=affaire_cegid['UserField1_AFF']).first()
+            mad.poste = Poste.objects.filter(code_erp=affaire_cegid['UserField2_AFF']).first()
+            if affaire_cegid['UserField3_AFF'] != '':
+                mad.coef_vente_soumis = affaire_cegid['UserField3_AFF']
+            else:
+                mad.coef_vente_soumis = 0
+            if affaire_cegid['UserField4_AFF'] != '':
+                mad.coef_vente_non_soumis = affaire_cegid['UserField4_AFF']
+            else:
+                mad.coef_vente_non_soumis = 0
+            mad.save()
+    ret = { "result": "ok", "count": count, "error_count": error_count }
     return JsonResponse(ret)

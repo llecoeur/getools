@@ -37,6 +37,9 @@ class Article(models.Model):
     rubrique_paie = models.ForeignKey("RubriquePaie", on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
     famille = models.ForeignKey("FamilleArticle", on_delete=models.CASCADE, null=True, blank=True, default=None, related_name="article_list", db_index=True)
     ordre = models.IntegerField("Ordre", default=0, null=True, db_index=True)
+    unite = models.CharField("Unité", default="", max_length=10)
+    charges_soumises = models.BooleanField("Charges soumises ?", null=True, default=True)
+    facturation_uniquement = models.BooleanField("Facturation uniquement", null=True, default=False)
 
     class Meta:
         ordering = ['ordre']
@@ -104,7 +107,7 @@ class Salarie(models.Model):
         """
             Retourne un queryset des salariés actuellement dans le grouppement
         """
-        return Salarie.objects.filter(Q(date_sortie=None) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
+        return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 
 
 class Service(models.Model):
@@ -225,7 +228,7 @@ class MiseADisposition(models.Model):
                 if saisie is None:
                     s.append({ "tarif": tarif.id, "valeur": 0, "saved": False, })
                 else:
-                    s.append({ "tarif": tarif.id, "valeur": saisie.quantite, "saved": True, })
+                    s.append({ "tarif": tarif.id, "valeur": saisie.quantite, "saved": True, "uploaded": saisie.uploaded, })
 
             pen_day = pendulum.date(annee, mois, num_jour)
             ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
@@ -314,6 +317,8 @@ class SaisieActivite(models.Model):
     date_realisation = models.DateField("Date")
     # la quantité, la plupart du temps en heure, de cette saisie
     quantite = models.FloatField("Quantité")
+    # Est ce que la saisie a été envoyée vers l'activité correspondante de XRP Sprint ?
+    uploaded = models.BooleanField("Envoyée", default=False)
     created = models.DateTimeField("Creation")
     updated = models.DateTimeField("Modification")
 
@@ -335,10 +340,38 @@ class SaisieActivite(models.Model):
         except SaisieActivite.DoesNotExist:
             return None
 
+
+    def to_xrp_dict(self):
+        """
+            Retourne les données de l'activité sous forme de dictionnaire intégrable directement dans XRP sprint si trnasformé en json
+        """
+        """
+        if self.tarif.article.charges_soumises is True:
+            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 100)
+        elif self.tarif.article.charges_soumises is False:
+            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 100)
+        else:
+            selling_price = self.tarif.tarif
+        """
+        return {
+            "Project": self.tarif.mise_a_disposition.code_erp,
+            "Resource": self.tarif.mise_a_disposition.salarie.code_erp,
+            "ActivityDate": self.date_realisation.strftime("%Y-%m-%d"),
+            "ThirdParty": self.tarif.mise_a_disposition.adherent.code_erp,
+            "ItemType": self.tarif.article.type_article,
+            "Item": self.tarif.article.libelle,
+            "ItemCode": self.tarif.article.code_erp,
+            "Unit": self.tarif.article.unite,
+            "Quantity": self.quantite,
+            # Tarif du GE
+            # "IndirectExpenseCostPrice": self.tarif.tarif,
+            # Tarif du tarif GE * coef_vente_soumis, ou coef_vente_soumis de l'affaire (mad)
+            "SellingPrice": self.tarif.tarif, 
+        }
+
 """
 Les tables suivantes existent dans les pécifiques Cegid, et doivent servir a saisir les activités.
 Elles peuvent je pense être remplacéers par quelque chose de plus utilisable.
-
 """
 
 class InfosSupMoisSalarie(models.Model):

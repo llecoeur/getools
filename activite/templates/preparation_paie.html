@@ -77,7 +77,7 @@
               <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
                 <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
-                  <input v-bind:value="tarif.valeur" v-bind:class="{ 'bg-success': tarif.saved }" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <input v-bind:value="tarif.valeur" v-bind:class="{ 'bg-warning': tarif.saved }" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
               <tr>
@@ -135,6 +135,19 @@
               <label>${prime.article.libelle}</label>
             </li>
           </ul>
+        </div>
+      </div> <!-- /card -->
+      <div class="card card-outline card-primary" v-if="mad_id">
+        <div class="card-header">
+          <h3 class="card-title">Envoyer en Facturation</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          Attention : Seules les activités non transférées seront envoyées.<br />
+          Attendez la fin du traitement pour fermer la page.
+          <a href="#" class="btn btn-primary" v-on:click="UploadActivites"><i class="fas fa-cloud-upload-alt"></i>Envoyer les activités</a>
         </div>
       </div> <!-- /card -->
     </div>
@@ -256,21 +269,36 @@ var app = new Vue({
         // il faut effacer la valeur dans ce cas
         value = "0";
       }
-      fetch("/act/ajax_save_saisie/" + value + "/" + tarif_id + "/" + this.annee + "/" + this.mois+ "/" + jour + "/").then(function (response) {
-        return response.json();
-      }).then(function (result) {
-        if (result['result'] == 'error') {
-          $(document).Toasts('create', {
-            class: 'bg-danger', 
-            title: "Erreur d'enregistrement",
-            body: result['message'],
-          });
-          $("#"+id).addClass("bg-danger");
-        } else {
-          self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
-          $("#"+id).addClass("bg-success");
-        }
-      });
+      if (value != "0") {
+        fetch("/act/ajax_save_saisie/" + value + "/" + tarif_id + "/" + this.annee + "/" + this.mois+ "/" + jour + "/").then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          if (result['result'] == 'error') {
+            $(document).Toasts('create', {
+              class: 'bg-danger', 
+              title: "Erreur d'enregistrement",
+              body: result['message'],
+            });
+            $("#"+id).addClass("bg-danger");
+          } else {
+            self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
+            $("#"+id).addClass("bg-warning");
+          }
+        });
+      }
+    },
+    async UploadActivites() {
+      self = this
+      if (confirm("Confirmez vous l'envoi des activités de l'affaire en cours vers Cegid ?\n Ne fermez pas la page avant la fin du traitement !")) {
+        self.loader = true;
+        await fetch("/act/ajax_upload_activite/" + self.mad_id + "/").then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          console.log(result);
+          alert("Activités envoyées avec succès !")
+        });
+        self.loader = false;
+      }
     },
   },
   mounted: function () {

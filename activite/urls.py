@@ -1,5 +1,5 @@
 from django.urls import include, path
-from .views import ajax_update_mad, ajax_update_adherent, ajax_update_article, preparation_paie, ajax_mad_for_salarie, ajax_load_saisie_mad, ajax_save_saisie, tarifs, synchronisation
+from .views import ajax_upload_activite, ajax_update_mad, ajax_update_adherent, ajax_update_article, preparation_paie, ajax_mad_for_salarie, ajax_load_saisie_mad, ajax_save_saisie, tarifs, synchronisation
 from .views import TarifGeCreate, TarifGeDelete, TarifGeUpdate, sort_article, ajax_load_article_list, ajax_switch_article_ordre, ajax_update_famille_article, ajax_update_service, ajax_update_poste, ajax_update_salaries, ajax_update_rubrique
 
 urlpatterns = [
@@ -23,4 +23,5 @@ urlpatterns = [
     path('ajax_update_article/', ajax_update_article, name="ajax_update_article"),
     path('ajax_update_adherent/', ajax_update_adherent, name="ajax_update_adherent"),
     path('ajax_update_mad/', ajax_update_mad, name="ajax_update_mad"),
+    path('ajax_upload_activite/<int:mad_id>/', ajax_upload_activite, name="ajax_upload_activite"),
 ]

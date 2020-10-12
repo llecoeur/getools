@@ -74,6 +74,13 @@ class CegidCloud:
             # sleep(settings.API_TIME_SLEEP)
         return items
 
+    def _set_api_data(self, url_param, data, debug=False):
+        response = requests.post(url_param, auth=settings.XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
+        if debug:
+            print(response.status_code)
+        return response.text
+
+
     def get_client_list(self):
         """
             Retourne la liste des affaires en dict
@@ -130,3 +137,9 @@ class CegidCloud:
         """
         return self._get_api_data(settings.API_MOTIF_ABSENCE_LIST)
     
+    def save_activite_list(self, activite_list):
+        """
+            Eregistre la liste des activités passées en param
+            @param : liste des activités a enregistrer, en dict
+        """
+        return self._set_api_data(settings.API_POST_ACTIVITY_LIST, activite_list)

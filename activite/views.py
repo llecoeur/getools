@@ -340,6 +340,17 @@ def ajax_update_article(request):
         art.code_erp = article_cegid['ItemCode_GA']
         art.libelle = article_cegid['Description_GA']
         art.type_article = article_cegid['ItemType_GA']
+        art.unite = article_cegid['ActivityUnit']
+        if article_cegid['UserFieldItem2_GA'].strip() == 'OUI':
+            art.charges_soumises = True
+        elif article_cegid['UserFieldItem2_GA'].strip() == 'NON':
+            art.charges_soumises = False
+        else:
+            art.charges_soumises = None
+        if article_cegid['UserFieldItem5_GA'].strip() == 'OUI':
+            art.facturation_uniquement = True
+        else:
+            art.facturation_uniquement = False
         try:
             rub_paie = RubriquePaie.objects.get(code_erp=article_cegid['UserFieldItem1_GA'])
         except AttributeError:
@@ -433,3 +444,23 @@ def ajax_update_mad(request):
             mad.save()
     ret = { "result": "ok", "count": count, "error_count": error_count }
     return JsonResponse(ret)
+
+def ajax_upload_activite(request, mad_id):
+    """
+        Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
+    """
+    try:
+        mad = MiseADisposition.objects.get(id=mad_id)
+    except MiseADisposition.DoesNotExist:
+        return JsonResponse({ "result": "Error", "message" : "La mise a disposition n'existe pas" })
+
+    activite_list = SaisieActivite.objects.filter(tarif__mise_a_disposition=mad, uploaded=False)
+    activite_dict_array = []
+    for activite in activite_list:
+        if activite.quantite != 0:
+            activite_dict_array.append(activite.to_xrp_dict())
+    
+    # print(json.dumps(activite_dict_array))
+    cegid = CegidCloud()
+    status_code = cegid.save_activite_list(activite_dict_array)
+    return JsonResponse(activite_dict_array, safe=False)

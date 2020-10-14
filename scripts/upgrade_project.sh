@@ -5,4 +5,5 @@ source /bin/activate
 cd getools
 git pull
 python manage.py migrate
+python manage collectstatic
 sudo systemctl restart gunicorn.socket

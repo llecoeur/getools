@@ -345,14 +345,14 @@ class SaisieActivite(models.Model):
         """
             Retourne les données de l'activité sous forme de dictionnaire intégrable directement dans XRP sprint si trnasformé en json
         """
-        """
+
         if self.tarif.article.charges_soumises is True:
-            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 100)
+            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 1000)
         elif self.tarif.article.charges_soumises is False:
-            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 100)
+            selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 1000)
         else:
             selling_price = self.tarif.tarif
-        """
+
         return {
             "Project": self.tarif.mise_a_disposition.code_erp,
             "Resource": self.tarif.mise_a_disposition.salarie.code_erp,
@@ -366,7 +366,7 @@ class SaisieActivite(models.Model):
             # Tarif du GE
             "CostPrice": self.tarif.tarif,
             # Tarif du tarif GE * coef_vente_soumis, ou coef_vente_soumis de l'affaire (mad)
-            "SellingPrice": self.tarif.tarif, 
+            "SellingPrice": selling_price, 
         }
 
 """

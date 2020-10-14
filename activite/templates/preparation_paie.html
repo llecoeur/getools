@@ -77,7 +77,7 @@
               <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
                 <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
-                  <input v-bind:value="tarif.valeur" v-bind:class="{ 'bg-warning': tarif.saved }" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <input v-bind:value="tarif.valeur" v-bind:class="class_value(tarif)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
               <tr>
@@ -295,9 +295,22 @@ var app = new Vue({
           return response.json();
         }).then(function (result) {
           console.log(result);
+          self.loadCalendar();
           alert("Activités envoyées avec succès !")
         });
         self.loader = false;
+      }
+    },
+    class_value: function(tarif) {
+      // Retourne la classe a afficher dans la valeur du tarif
+      if (tarif.valeur == 0) {
+        return '';
+      } else {
+        if (tarif.saved == true) {
+          return('bg-success');
+        } else {
+          return('bg-warning');
+        }
       }
     },
   },

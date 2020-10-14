@@ -9,7 +9,7 @@ from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
 from django.contrib import messages
@@ -33,6 +33,7 @@ def sort_article(request):
     template = "sort_article.html"
     return render(request, template, {})
 
+@login_required
 def ajax_load_article_list(request):
     """
         Charge les articles a ranger dans la page des articles
@@ -41,6 +42,7 @@ def ajax_load_article_list(request):
     article_list = list(Article.objects.all().order_by('ordre').values())
     return JsonResponse(article_list, safe=False)
 
+@login_required
 def ajax_switch_article_ordre(request, article1_id, article2_id):
     """
         Inverse la position des articles 1 et 2.
@@ -218,6 +220,7 @@ class TarifGeDelete(LoginRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
+@login_required
 def ajax_update_famille_article(request):
     """
         Lit les familles XPR Print, et met a jour la table des familles articles
@@ -241,6 +244,7 @@ def ajax_update_famille_article(request):
     return JsonResponse(ret)
     
 
+@login_required
 def ajax_update_service(request):
     """
         Mise a jour de a liste des services
@@ -261,6 +265,7 @@ def ajax_update_service(request):
     return JsonResponse(ret)
 
 
+@login_required
 def ajax_update_poste(request):
     """
         Mise a jour de a liste des services
@@ -281,6 +286,7 @@ def ajax_update_poste(request):
     return JsonResponse(ret)
 
 
+@login_required
 def ajax_update_salaries(request):
     """
         Mise a joru de a liste des salariés
@@ -304,6 +310,7 @@ def ajax_update_salaries(request):
     ret = { "result": "ok", "count": count }
     return JsonResponse(ret)
 
+@login_required
 def ajax_update_rubrique(request):
     """
         Mise a jour de la liste des rubriques
@@ -324,6 +331,7 @@ def ajax_update_rubrique(request):
     ret = { "result": "ok", "count": count }
     return JsonResponse(ret)
 
+@login_required
 def ajax_update_article(request):
     """
         Mise a jour de la liste des rubriques
@@ -369,6 +377,7 @@ def ajax_update_article(request):
     ret = { "result": "ok", "count": count }
     return JsonResponse(ret)
 
+@login_required
 def ajax_update_adherent(request):
     """
         Mise a jour de la liste des adhérents
@@ -387,6 +396,7 @@ def ajax_update_adherent(request):
     ret = { "result": "ok", "count": count }
     return JsonResponse(ret)
 
+@login_required
 def ajax_update_mad(request):
     """
         Mise a jour des mises à disposition
@@ -445,6 +455,7 @@ def ajax_update_mad(request):
     ret = { "result": "ok", "count": count, "error_count": error_count }
     return JsonResponse(ret)
 
+@login_required
 def ajax_upload_activite(request, mad_id):
     """
         Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
@@ -463,5 +474,10 @@ def ajax_upload_activite(request, mad_id):
     # print(json.dumps(activite_dict_array))
     cegid = CegidCloud()
     response = cegid.save_activite_list(activite_dict_array)
+    if response.status_code == 200:
+        # On est ok, on marque les activités comme envoyées
+        for activite in activite_list:
+            activite.uploaded = True
+            activite.save()
     # 
-    return JsonResponse(activite_dict_array, safe=False)
+    return HttpResponse(response.text)

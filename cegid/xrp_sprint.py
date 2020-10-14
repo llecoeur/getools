@@ -78,7 +78,7 @@ class CegidCloud:
         response = requests.post(url_param, auth=settings.XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
         if debug:
             print(response.status_code)
-        return response.text
+        return response
 
 
     def get_client_list(self):

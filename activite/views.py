@@ -462,5 +462,6 @@ def ajax_upload_activite(request, mad_id):
     
     # print(json.dumps(activite_dict_array))
     cegid = CegidCloud()
-    status_code = cegid.save_activite_list(activite_dict_array)
+    response = cegid.save_activite_list(activite_dict_array)
+    # 
     return JsonResponse(activite_dict_array, safe=False)

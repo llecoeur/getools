@@ -364,7 +364,7 @@ class SaisieActivite(models.Model):
             "Unit": self.tarif.article.unite,
             "Quantity": self.quantite,
             # Tarif du GE
-            # "IndirectExpenseCostPrice": self.tarif.tarif,
+            "CostPrice": self.tarif.tarif,
             # Tarif du tarif GE * coef_vente_soumis, ou coef_vente_soumis de l'affaire (mad)
             "SellingPrice": self.tarif.tarif, 
         }

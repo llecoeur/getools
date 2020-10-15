@@ -9,7 +9,7 @@ import urllib.parse
 import pyodbc 
 from django.conf import settings
 # from cegid.cegid_premise import session, Salarie, Tiers, Affaire, Remuneration, Article, TarifGe
-from activite.models import Article, SaisieActivite, TarifGe
+from activite.models import Article, SaisieActivite, TarifGe, MiseADisposition, Salarie, RubriquePaie, Adherent, Service, Poste
 from pprint import pprint
 import requests
 import json
@@ -29,7 +29,6 @@ if __name__ == "__main__":
     Adherent.objects.all().delete()
     Service.objects.all().delete()
     Poste.objects.all().delete()
-    TarifGe.objects.all().delete()
     """
     cegid = CegidCloud()
     pprint(cegid.get_motif_absence_list())

@@ -22,6 +22,7 @@ if __name__ == "__main__":
             Service.objects.all().delete()
             Poste.objects.all().delete()
             TarifGe.objects.all().delete()
+            MiseADisposition.objects.all().delete()
     except IndexError:
         pass
 

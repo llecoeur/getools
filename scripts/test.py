@@ -22,7 +22,14 @@ if __name__ == "__main__":
     # Purge des saisies et des tarifs
     SaisieActivite.objects.all().delete()
     TarifGe.objects.all().delete()
-
+    MiseADisposition.objects.all().delete()
+    Article.objects.all().delete()
+    Salarie.objects.all().delete()
+    RubriquePaie.objects.all().delete()
+    Adherent.objects.all().delete()
+    Service.objects.all().delete()
+    Poste.objects.all().delete()
+    TarifGe.objects.all().delete()
     """
     cegid = CegidCloud()
     pprint(cegid.get_motif_absence_list())

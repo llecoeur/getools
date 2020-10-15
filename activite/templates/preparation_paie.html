@@ -9,51 +9,14 @@
     border-radius: .2rem;
 }
 
+.table-sm td {
+  padding: 0;
+}
+
 {% endblock header_css %}
 {% block "main_content" %}
 <div id="app">
-  <div class="row">
-    <div class="col-12">
-      <div class="card card-outline card-primary">
-        <div class="card-header">
-          <h3 class="card-title">Recherche de la mise a disposition a saisir</h3>
-          <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-2">
-              <div class="input-group date" id="mois_saisie" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
-                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
-                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
-                  </div>
-              </div>
-            </div>
-            <div class="col-3">
-              <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
-                {% for salarie in salarie_list %}
-                <option value="{{salarie.id}}">{{salarie}}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-3">
-              <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;">
 
-              </select>
-            </div>
-            <div class="col-1">
-              <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="overlay" v-show="loader">
-          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
-        </div>
-      </div>
-    </div>
-  </div>
   <div class="row">
     <div class="col-9">
       <div class="card" v-bind:class="infos_sup_mad.saisie_complete ? 'card-success' : 'card-warning'" v-if="mad_id">
@@ -95,6 +58,36 @@
       </div>
     </div>
     <div class="col-3">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Recherche de la mise a disposition a saisir</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+              <div class="input-group date" id="mois_saisie" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
+                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                  </div>
+              </div>
+              <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
+                {% for salarie in salarie_list %}
+                <option value="{{salarie.id}}">{{salarie}}</option>
+                {% endfor %}
+              </select>
+              <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;">
+
+              </select>
+              <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
+
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+
       <div class="card card-outline card-primary" v-if="mad_id">
         <div class="card-header">
           <h3 class="card-title">Employé</h3>

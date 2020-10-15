@@ -1,7 +1,7 @@
 #/bin/bash
 
 cd /opt/getools
-source /bin/activate
+source bin/activate
 cd getools
 git pull
 python manage.py migrate

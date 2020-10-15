@@ -3,7 +3,7 @@
 {% block "main_content" %}
 <div id="app">
   <div class="row">
-    <div class="col-4">
+    <div class="col-12">
       <div class="card card-outline card-primary">
         <div class="card-header">
           <h3 class="card-title">Lecture des données de Cegid Y2 XRP Sprint</h3>
@@ -54,50 +54,50 @@ var app = new Vue({
       await fetch("/act/ajax_update_famille_article/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Services...";
       await fetch("/act/ajax_update_service/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Postes ...";
       await fetch("/act/ajax_update_poste/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Salariés...";
       await fetch("/act/ajax_update_salaries/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Rubriques ...";
       await fetch("/act/ajax_update_rubrique/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       // TODO : ici si possible alimentation de la tablette des rubriques en GA
       this.synchroLog += "Synchronisation des Articles ...";
       await fetch("/act/ajax_update_article/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Adhérents ...";
       await fetch("/act/ajax_update_adherent/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       this.synchroLog += "Synchronisation des Mises à disposition ...";
       await fetch("/act/ajax_update_mad/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + "(" + result.count + ")\n";
+        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       self.loader = false;
     },

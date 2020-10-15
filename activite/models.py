@@ -173,7 +173,7 @@ class MiseADisposition(models.Model):
 
     def tarifs_ge_prime_forfaitaire_dict(self):
         """
-            Retourne la prime forfaitaire. Si year et month sont définis, remplus aussi la valeur de la prime
+            Retourne ls primes forfaitaires
         """
         d = []
         for tarif in self.tarif_ge_list.filter(article__famille__forfaitaire=True).order_by("id"):

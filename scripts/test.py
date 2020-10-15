@@ -9,7 +9,7 @@ import urllib.parse
 import pyodbc 
 from django.conf import settings
 # from cegid.cegid_premise import session, Salarie, Tiers, Affaire, Remuneration, Article, TarifGe
-from activite.models import Article
+from activite.models import Article, SaisieActivite, TarifGe
 from pprint import pprint
 import requests
 import json
@@ -19,9 +19,14 @@ from cegid.xrp_sprint import CegidCloud
 if __name__ == "__main__":
 
 
+    # Purge des saisies et des tarifs
+    SaisieActivite.objects.all().delete()
+    TarifGe.objects.all().delete()
 
+    """
     cegid = CegidCloud()
     pprint(cegid.get_motif_absence_list())
+    """
     """
     print(len(cegid.get_odata_affaire_list()))
 

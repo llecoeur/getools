@@ -25,6 +25,7 @@ if __name__ == "__main__":
     except IndexError:
         pass
 
+    """
     print("Mise a jour des famille articles")
 
     famille_list = ChoixCod.get_famille_article()
@@ -170,11 +171,13 @@ if __name__ == "__main__":
             mad.coef_vente_soumis = affaire_cegid.coef_vente_soumis
             mad.coef_vente_non_soumis = affaire_cegid.coef_vente_non_soumis
             mad.save()
-
+    """
     print("Mise a jour des tarifs TOUS ...")
     # Les tarifs sont obligatoirement recréés
     TarifGe.objects.all().delete()
     tarif_list = session.query(CegidTarifGe).filter(CegidTarifGe.adherent_code == "TOUS")
+    mad_list = []
+
     for tarif_cegid in tarif_list:
         # On liste toutes les mises a dispo du salarié
         try:
@@ -183,7 +186,8 @@ if __name__ == "__main__":
             # FIXME Peut etre qu'il faut tout de même ajouter a tout le monde ?
             print(f"Le salarié {tarif_cegid.salarie_code} du tarif {tarif_cegid.code} N'existe pas")
             error = False
-        mad_list = MiseADisposition.objects.filter(salarie=salarie)
+        else:
+            mad_list = MiseADisposition.objects.filter(salarie=salarie)
         
         for mad in mad_list:
             tar = TarifGe()

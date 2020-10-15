@@ -228,19 +228,21 @@ def ajax_update_famille_article(request):
     cegid = CegidCloud()
     famille_list = cegid.get_famille_article_list()
     count = len(famille_list)
+    ajoute = 0
 
     for famille in famille_list:
         try:
             f = FamilleArticle.objects.get(code_erp=famille['Key'])
         except FamilleArticle.DoesNotExist:
             f = FamilleArticle()
+            ajoute += 1
         f.code_erp = famille['Key']
         f.libelle = famille['Value']
         if famille['Key'] == "PRF":
             # marqué comme prime forfétaire
             f.forfaitaire = True
         f.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
     
 
@@ -252,16 +254,18 @@ def ajax_update_service(request):
     cegid = CegidCloud()
     service_list = cegid.get_service_list()
     count = len(service_list)
+    ajoute = 0
     for service in service_list:
         try:
             s = Service.objects.get(code_erp=service['Key'])
         except Service.DoesNotExist:
             # On ajoute
             s = Service()
+            ajoute += 1
         s.code_erp = service['Key']
         s.libelle = service['Value']
         s.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 
@@ -273,16 +277,18 @@ def ajax_update_poste(request):
     cegid = CegidCloud()
     poste_list = cegid.get_poste_list()
     count = len(poste_list)
+    ajoute = 0
     for poste in poste_list:
         try:
             s = Poste.objects.get(code_erp=poste['Key'])
         except Poste.DoesNotExist:
             # On ajoute
             s = Poste()
+            ajoute += 1
         s.code_erp = poste['Key']
         s.libelle = poste['Value']
         s.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 
@@ -294,12 +300,14 @@ def ajax_update_salaries(request):
     cegid = CegidCloud()
     salarie_list = cegid.get_salarie_list()
     count = len(salarie_list)
+    ajoute = 0
     for salarie_cegid in salarie_list:
         try:
             sal = Salarie.objects.get(code_erp=salarie_cegid['EmployeeId'])
         except Salarie.DoesNotExist:
             # On ajoute
             sal = Salarie()
+            ajoute += 1
         sal.code_erp = salarie_cegid['EmployeeId']
         sal.nom = salarie_cegid['Name']
         sal.prenom = salarie_cegid['FirstName']
@@ -307,7 +315,7 @@ def ajax_update_salaries(request):
         sal.date_entree = pendulum.parse(salarie_cegid['EntryDate']).to_date_string()
         sal.date_sortie = pendulum.parse(salarie_cegid['ExitDate']).to_date_string()
         sal.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 @login_required
@@ -318,17 +326,19 @@ def ajax_update_rubrique(request):
     cegid = CegidCloud()
     rub_list = cegid.get_rubrique_list()
     count = len(rub_list)
+    ajoute = 0
     for rub_cegid in rub_list:
         try:
             rub = RubriquePaie.objects.get(code_erp=rub_cegid['Rubric'])
         except RubriquePaie.DoesNotExist:
             # On ajoute
             rub = RubriquePaie()
+            ajoute += 1
         rub.code_erp = rub_cegid['Rubric']
         rub.libelle = rub_cegid['RubricLabel']
         rub.abrege = rub_cegid['RubricLabel']
         rub.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 @login_required
@@ -339,12 +349,14 @@ def ajax_update_article(request):
     cegid = CegidCloud()
     article_list = cegid.get_article_list()
     count = len(article_list)
+    ajoute = 0
     for article_cegid in article_list:
         try:
             art = Article.objects.get(code_erp=article_cegid['ItemCode_GA'])
         except Article.DoesNotExist:
             # On ajoute
-            art = RubriquePaie()
+            art = Article()
+            ajoute += 1
         art.code_erp = article_cegid['ItemCode_GA']
         art.libelle = article_cegid['Description_GA']
         art.type_article = article_cegid['ItemType_GA']
@@ -374,7 +386,7 @@ def ajax_update_article(request):
             famille = None
         art.famille = famille
         art.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 @login_required
@@ -385,15 +397,17 @@ def ajax_update_adherent(request):
     cegid = CegidCloud()
     adherent_list = cegid.get_client_list()
     count = len(adherent_list)
+    ajoute = 0
     for adh_cegid in adherent_list:
         try:
             adh = Adherent.objects.get(code_erp=adh_cegid['ThirdParty_T'])
         except Adherent.DoesNotExist:
             adh = Adherent()
+            ajoute += 1
         adh.code_erp = adh_cegid['ThirdParty_T']
         adh.raison_sociale = adh_cegid['Name_T']
         adh.save()
-    ret = { "result": "ok", "count": count }
+    ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 @login_required
@@ -404,6 +418,7 @@ def ajax_update_mad(request):
     cegid = CegidCloud()
     aff_list = cegid.get_affaire_list()
     count = len(aff_list)
+    ajoute = 0
     error_count = 0
     for affaire_cegid in aff_list:
         error = False
@@ -438,6 +453,7 @@ def ajax_update_mad(request):
                 mad.adherent = adherent
                 mad.salarie = salarie
                 mad.cloturee = False
+                ajoute += 1
             mad.code_erp = affaire_cegid['Project_AFF']
             mad.duree_travail_mensuel = affaire_cegid['UserFieldNumeric2_AFF']
             mad.duree_travail_quotidien = affaire_cegid['UserFieldNumeric3_AFF']
@@ -452,7 +468,7 @@ def ajax_update_mad(request):
             else:
                 mad.coef_vente_non_soumis = 0
             mad.save()
-    ret = { "result": "ok", "count": count, "error_count": error_count }
+    ret = { "result": "ok", "count": count, "error_count": error_count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
 @login_required

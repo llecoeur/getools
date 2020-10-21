@@ -65,7 +65,7 @@ def preparation_paie(request):
         Vue pour la page de préparation paie
     """
     template = "preparation_paie.html"
-    salarie_list = Salarie.get_salaries_actuels()
+    salarie_list = Salarie.objects.all()
     context = {
         "salarie_list": salarie_list,
     }
@@ -315,8 +315,9 @@ def ajax_update_salaries(request):
             ajoute += 1
         sal.code_erp = salarie_cegid['EmployeeId']
         sal.nom = salarie_cegid['Name']
+        if salarie_cegid['Name'].strip() == "LEMUET":
+            print(salarie_cegid)
         sal.prenom = salarie_cegid['FirstName']
-        print(salarie_cegid['EntryDate'])
         sal.date_entree = pendulum.parse(salarie_cegid['EntryDate']).to_date_string()
         sal.date_sortie = pendulum.parse(salarie_cegid['ExitDate']).to_date_string()
         sal.save()

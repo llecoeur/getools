@@ -66,21 +66,29 @@
           </div>
         </div>
         <div class="card-body">
-              <div class="input-group date" id="mois_saisie" data-target-input="nearest">
-                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
-                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
-                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
-                  </div>
+          <div class="form-group">
+            <label for="mois_saisie">Période</label>
+            <div class="input-group date" id="mois_saisie" data-target-input="nearest">
+              <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
+              <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
+                  <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
               </div>
-              <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
-                {% for salarie in salarie_list %}
-                <option value="{{salarie.id}}">{{salarie}}</option>
-                {% endfor %}
-              </select>
-              <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;">
-
-              </select>
-              <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="salarie_select_id">Salarié</label>
+            <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
+              <option value="">Choisissez un salarié</option>
+              {% for salarie in salarie_list %}
+              <option value="{{salarie.id}}">{{salarie}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mad_select_id">Mise a disposition</label>
+            <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;"></select>
+          </div>
+          <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
 
         </div>
         <div class="overlay" v-show="loader">
@@ -123,11 +131,38 @@
           </div>
         </div>
         <div class="card-body">
-          <ul class="list-group">
-            <li class="list-group-item" v-for="prime in mad.primes_forfaitaires">
-              <label>${prime.article.libelle}</label>
-            </li>
-          </ul>
+          <div class="row">
+            <div class="col-7">
+              <select name="mad_id" class="custom-select form-control" id="mad_prime_forfaitaire_add_id" style="width: 100%;" v-model="prime_forfaitaire_add.id">
+                <option value="0" selected>---</option>
+                <option v-for="prime in mad.primes_forfaitaires" :value="prime.id">
+                  ${prime.article.libelle}
+                </option>
+              </select>
+            </div>
+            <div class="col-3">
+              <input type="text" v-model="prime_forfaitaire_add.value" size="3"></input>
+            </div>
+            <div class="col-2">
+              <button class="btn btn-primary" v-on:click="addPrimeForfait"><i class="fas fa-plus-square"></i></button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <table v-if="mad.prime_forfaitaires_values" class="table">
+                <thead>
+                  <th>Nom</th>
+                  <th>Qté</th>
+                </thead>
+                <tbody>
+                  <tr v-for="forfait in mad.prime_forfaitaires_values">
+                    <td>${forfait.tarif.article.libelle} </td>
+                    <td>${forfait.quantite}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -165,6 +200,10 @@ $(function () {
     $('#mad_select_id').select2({
       theme: 'bootstrap4',
     }); 
+    $('.mad_prime_forfaitaire_add_id').select2({
+      theme: 'bootstrap4',
+    }); 
+    
 });
 
 
@@ -187,6 +226,10 @@ var app = new Vue({
         infos_sup:{},
       },
       infos_sup:{},
+    },
+    prime_forfaitaire_add: {
+      id: 0,
+      value: 0,
     },
   },
   computed: {
@@ -293,6 +336,34 @@ var app = new Vue({
         });
         self.loader = false;
       }
+    },
+    async addPrimeForfait () {
+      self = this;
+      // Ajoute une prime forfaitaire
+      if (this.prime_forfaitaire_add.value == "") {
+        this.prime_forfaitaire_add.value = 0;
+      }
+      if (this.prime_forfaitaire_add.id != 0) {
+        // La prime forfaitaire est ajoutée pour le jour 1 du mois
+        // ca évite de faire une fonction dédiée
+        await fetch("/act/ajax_save_saisie/" + this.prime_forfaitaire_add.value  + "/" + this.prime_forfaitaire_add.id + "/" + this.annee + "/" + this.mois+ "/1/").then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          if (result['result'] == 'error') {
+            $(document).Toasts('create', {
+              class: 'bg-danger', 
+              title: "Erreur d'enregistrement",
+              body: result['message'],
+            });
+          } else {
+            //rechargement
+            self.loadCalendar();
+          }
+        });
+      } else {
+        console.log("id=0 ou value=0")
+      }
+
     },
     class_value: function(tarif) {
       // Retourne la classe a afficher dans la valeur du tarif

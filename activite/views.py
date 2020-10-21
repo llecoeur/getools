@@ -133,6 +133,9 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     # informations supplémentaires des mises a disposition
     mad_dict['infos_sup'] = model_to_dict(mad.get_info_sup(mois, annee))
 
+    # Liste des primes forfaitaires enregistrées
+    mad_dict['prime_forfaitaires_values'] = mad.prime_forfaitaire_values_list(annee, mois)
+
     ret = {
         "mad": mad_dict,
     }
@@ -459,6 +462,8 @@ def ajax_update_mad(request):
             mad.duree_travail_quotidien = affaire_cegid['UserFieldNumeric3_AFF']
             mad.service = Service.objects.filter(code_erp=affaire_cegid['UserField1_AFF']).first()
             mad.poste = Poste.objects.filter(code_erp=affaire_cegid['UserField2_AFF']).first()
+            if affaire_cegid['State_AFF'] == "CLO":
+                mad.cloturee = True
             if affaire_cegid['UserField3_AFF'] != '':
                 mad.coef_vente_soumis = affaire_cegid['UserField3_AFF']
             else:

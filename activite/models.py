@@ -180,6 +180,25 @@ class MiseADisposition(models.Model):
             d.append(tarif.to_dict())
         return d
 
+    def prime_forfaitaire_values_list(self, annee, mois):
+        """
+            retourne la liste des values primes forfaitaires du mois
+        """
+        d = []
+        saisie_list = SaisieActivite.objects.filter(tarif__mise_a_disposition=self, date_realisation=date(annee, mois, 1)).order_by("id")
+        for saisie in saisie_list:
+            tarif_dict = saisie.tarif.to_dict()
+            saisie_dict = {
+                "date_realisation": saisie.date_realisation,
+                "quantite": saisie.quantite,
+                "id": saisie.id,
+                "tarif_id": saisie.tarif_id,
+                "tarif": tarif_dict,
+                "uploaded": saisie.uploaded,
+            }
+            d.append(saisie_dict)
+        return d
+
     @staticmethod
     def get_mise_a_disposition(adherent_code_erp, salarie_code_erp):
         """

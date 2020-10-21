@@ -104,10 +104,26 @@
           </div>
         </div>
         <div class="card-body">
-          <p>Mensuel : ${mad.duree_travail_mensuel}</p>
-          <p>Quotidien : ${mad.duree_travail_quotidien}</p>
-          <p>Heures travaillées: ${infos_sup_salarie.heures_travaillees}</p>
-          <p>Heures théoriques: ${infos_sup_salarie.heures_theoriques}</p>
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <td>Mensuel</td>
+                <td>${mad.duree_travail_mensuel}</td>
+              </tr>
+              <tr>
+                <td>Quotidien</td>
+                <td>${mad.duree_travail_quotidien}</td>
+              </tr>
+              <tr>
+                <td>Heures travaillées</td>
+                <td>${infos_sup_salarie.heures_travaillees}</td>
+              </tr>
+              <tr>
+                <td>Heures théoriques</td>
+                <td>${infos_sup_salarie.heures_theoriques}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -118,9 +134,18 @@
           </div>
         </div>
         <div class="card-body">
-          <p>Heures travaillées: ${infos_sup_mad.heures_travaillees}</p>
-          <p>Heures théoriques: ${infos_sup_mad.heures_theoriques}</p>
-          <p>Saisie terminée : ${infos_sup_mad.saisie_complete ? 'Oui' : 'Non'}</p>
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <td>Heures travaillées</td>
+                <td>${infos_sup_mad.heures_travaillees}</td>
+              </tr>
+              <tr>
+                <td>Heures théoriques</td>
+                <td>${infos_sup_mad.heures_theoriques}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -319,6 +344,7 @@ var app = new Vue({
           } else {
             self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
             $("#"+id).addClass("bg-warning");
+            self.updateInfoSup();
           }
         });
       }
@@ -364,6 +390,16 @@ var app = new Vue({
         console.log("id=0 ou value=0")
       }
 
+    },
+    updateInfoSup() {
+      // Met a jour les heures et éventuellement d'autres trucs
+      self = this;
+      fetch("/act/ajax_maj_heures_travaillees/" + this.mad_id  + "/" + this.annee + "/" + this.mois+ "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.mad.infos_sup.heures_travaillees = result.mise_a_disposition.heures_travaillees;
+        self.mad.salarie.infos_sup.heures_travaillees = result.salarie.heures_travaillees;
+      });
     },
     class_value: function(tarif) {
       // Retourne la classe a afficher dans la valeur du tarif

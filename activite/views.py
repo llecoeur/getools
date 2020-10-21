@@ -505,3 +505,26 @@ def ajax_upload_activite(request, mad_id):
             activite.save()
     # 
     return HttpResponse(response.text)
+
+def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
+    """
+        Retourne un json contenant des infos sup a mettre a jour
+        {
+            salarie:{
+                heures_travaillees:val,
+            }
+            mise_a_disposition:{
+                heures_travaillees:val,
+            }
+        }
+    """
+    mad = MiseADisposition.objects.get(id=mad_id)
+    ret = {
+        "salarie": {
+            "heures_travaillees": mad.salarie.get_heures_travail_mois(annee, mois),
+        },
+        "mise_a_disposition": {
+            "heures_travaillees": mad.get_heures_travail_mois(annee, mois),
+        },
+    }
+    return JsonResponse(ret)

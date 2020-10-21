@@ -299,6 +299,23 @@ class MiseADisposition(models.Model):
             infos_sup_mad.save()
         return infos_sup_mad
 
+    def get_heures_travail_mois(self, annee, mois):
+        """
+            Retourne le nombre d'heures total travaillées sur la MAD dans le mois
+        """
+        # saisies du salarié
+        qs = SaisieActivite.objects.filter(tarif__mise_a_disposition=self)
+        # sur le mois en cours
+        qs = qs.filter(date_realisation__year=annee,date_realisation__month=mois)
+        # Uniquement des heures
+        qs = qs.filter(tarif__article__unite="H")
+        # Exclure les primes forfaitaires
+        qs = qs.exclude(tarif__article__famille__forfaitaire=True)
+        val = qs.aggregate(Sum('quantite')).get('quantite__sum')
+        if val is None:
+            val = 0
+        return val
+
     def __str__(self):
         return f"{self.adherent} - {self.salarie}"
     

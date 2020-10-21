@@ -119,7 +119,9 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     salarie_dict = model_to_dict(mad.salarie)
     mad_dict['salarie'] = salarie_dict
     # Infos supplémentaires des salariés
-    mad_dict['salarie']['infos_sup'] = model_to_dict(mad.salarie.get_info_sup(mois, annee))
+    salarie_info_sup = mad.salarie.get_info_sup(mois, annee)
+    mad_dict['salarie']['infos_sup'] = model_to_dict(salarie_info_sup)
+    mad_dict['salarie']['infos_sup']['heures_travaillees'] = salarie_info_sup.heures_travaillees
 
     # Liste des tarifs
     mad_dict['tarifs_ge'] = mad.tarif_ge_list_dict
@@ -363,7 +365,7 @@ def ajax_update_article(request):
         art.code_erp = article_cegid['ItemCode_GA']
         art.libelle = article_cegid['Description_GA']
         art.type_article = article_cegid['ItemType_GA']
-        art.unite = article_cegid['ActivityUnit']
+        art.unite = article_cegid['ActivityUnit'].strip()
         if article_cegid['UserFieldItem2_GA'].strip() == 'OUI':
             art.charges_soumises = True
         elif article_cegid['UserFieldItem2_GA'].strip() == 'NON':

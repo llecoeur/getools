@@ -11,7 +11,7 @@ from datetime import date
 from jours_feries_france import JoursFeries
 import pendulum
 pendulum.set_locale('fr')
-from django.db.models import Q
+from django.db.models import Q, Sum
 
 
 class FamilleArticle(models.Model):
@@ -101,6 +101,28 @@ class Salarie(models.Model):
             infos_sup.heures_theoriques = 0
             infos_sup.save()
         return infos_sup
+
+    def get_heures_travail_mois(self, annee, mois):
+        """
+            Retourne le nombre d'heures total travaillées par le salarié dans le mois, quelque soit les mises a dispos
+        """
+        # saisies du salarié
+        qs = SaisieActivite.objects.filter(tarif__mise_a_disposition__salarie=self)
+        # sur le mois en cours
+        qs = qs.filter(date_realisation__year=annee,date_realisation__month=mois)
+
+        # Uniquement des heures
+        qs = qs.filter(tarif__article__unite="H")
+        for item in qs:
+            print(item.quantite)
+        """
+        # Exclure les primes forfaitaires
+        qs = qs.exclude(tarif__article__famille__forfaitaire=True)
+        """
+        val = qs.aggregate(Sum('quantite')).get('quantite__sum')
+        if val is None:
+            val = 0
+        return val
 
     @staticmethod
     def get_salaries_actuels():
@@ -403,11 +425,15 @@ class InfosSupMoisSalarie(models.Model):
     mois = models.IntegerField("Mois")
     annee = models.IntegerField("Année")
     # Nombre d'heures travaillées sur le mois pour le salarié, quelque soit a MAD
-    heures_travaillees = models.FloatField("Heures Travaillées")
+    # heures_travaillees = models.FloatField("Heures Travaillées")
     # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
     heures_theoriques = models.FloatField("heures Théoriques")
     # ???
     # id_detail = models.IntegerField("")
+
+    @property
+    def heures_travaillees(self):
+        return self.salarie.get_heures_travail_mois(self.annee, self.mois)
 
 
 class InfosSupMoisMad(models.Model):

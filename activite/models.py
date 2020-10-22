@@ -67,7 +67,7 @@ class Adherent(models.Model):
     raison_sociale = models.CharField("Code ERP", max_length=50)
 
     def __str__(self):
-        return self.raison_sociale
+        return "{} ({})".format(self.raison_sociale, self.code_erp)
 
 
 class Salarie(models.Model):
@@ -82,7 +82,7 @@ class Salarie(models.Model):
     date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True, db_index=True)
 
     def __str__(self):
-        return "{} {}".format(self.nom, self.prenom)
+        return "{} {} ({})".format(self.nom, self.prenom, self.code_erp)
 
     def get_info_sup(self, mois, annee):
         """

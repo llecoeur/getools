@@ -89,15 +89,15 @@ class Salarie(models.Model):
             Retourne l'objet InfoSupMois associé au salarié
             Si n'existe pas, alos ca la crée et l'initialise
         """
+
         try:
             infos_sup = self.infos_sup_list.get(mois=mois, annee=annee)
-        except InfosSupMoisSalarie.DoesNotExist:
+        except (InfosSupMoisSalarie.DoesNotExist, AttributeError):
             infos_sup = InfosSupMoisSalarie()
             infos_sup.salarie = self
             infos_sup.mois = mois
             infos_sup.annee = annee
             # TODO : Initialiser ces valeurs
-            infos_sup.heures_travaillees = 0
             infos_sup.heures_theoriques = 0
             infos_sup.save()
         return infos_sup
@@ -287,14 +287,14 @@ class MiseADisposition(models.Model):
         """
         try:
             infos_sup_mad = self.infos_sup_list.get(mois=mois, annee=annee)
-        except InfosSupMoisMad.DoesNotExist:
+        except (InfosSupMoisMad.DoesNotExist, AttributeError):
             infos_sup_mad = InfosSupMoisMad()
             infos_sup_mad.mise_a_disposition = self
             infos_sup_mad.mois = mois
             infos_sup_mad.annee = annee
             # TODO : Initialiser ces valeurs
-            infos_sup_mad.heures_travaillees = 0
             infos_sup_mad.heures_theoriques = 0
+            infos_sup_mad.heures_travaillees = 0
             infos_sup_mad.saisie_complete = False
             infos_sup_mad.save()
         return infos_sup_mad

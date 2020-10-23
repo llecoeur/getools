@@ -161,6 +161,7 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
         saisie.date_realisation = date_realisation
 
     saisie.quantite = valeur
+    saisie.uploaded = False
     try:
         saisie.save()
     except ValueError:

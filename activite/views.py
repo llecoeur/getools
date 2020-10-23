@@ -484,6 +484,7 @@ def ajax_update_mad(request):
 def ajax_upload_activite(request, mad_id):
     """
         Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
+        TODO : DEPRECIE lors de la suppression des uploads dans la pag de saisie des mads
     """
     try:
         mad = MiseADisposition.objects.get(id=mad_id)
@@ -506,6 +507,23 @@ def ajax_upload_activite(request, mad_id):
             activite.save()
     # 
     return HttpResponse(response.text)
+
+
+@login_required
+def ajax_get_mad_to_upload(request):
+    """
+        Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
+    """
+
+    # Récupération de toutes les mises a dispos qui ont des activités non envoyées
+    mad_list = MiseADisposition.objects.filter(cloturee=False)
+    mad_array = []
+    for mad in mad_list:
+        activites_list = mad.get_activites_to_upload()
+        if len(activites_list) != 0:
+            mad_array.append(model_to_dict(mad))
+    return JsonResponse(mad_array, safe=False)
+    
 
 def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
     """

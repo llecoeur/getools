@@ -7,7 +7,7 @@ from collections import defaultdict, namedtuple
 from pprint import pprint
 from django.urls import reverse
 import calendar
-from datetime import date
+from datetime import date, datetime
 from jours_feries_france import JoursFeries
 import pendulum
 pendulum.set_locale('fr')
@@ -122,9 +122,15 @@ class Salarie(models.Model):
     @staticmethod
     def get_salaries_actuels():
         """
-            Retourne un queryset des salariés actuellement dans le grouppement
+            Retourne un queryset des salariés dans le groupement
+            Les salariés sortis apres le 1er jour du mois N-2 est considéré comme sorti
+            ex : On est au mois de novembre. Un salarié non listé aura une date de sortie avant le 1er septembre (Mois-2).
+        
         """
-        return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
+        
+        date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=date_compare)).order_by("date_entree").order_by("nom")
+        # return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 
 
 class Service(models.Model):
@@ -215,6 +221,19 @@ class MiseADisposition(models.Model):
             }
             d.append(saisie_dict)
         return d
+
+    def get_activites_to_upload(self):
+        """
+            Renvoie un tableau de la liste des activités a uploader our cette MAD
+        """
+        activite_list = SaisieActivite.objects.filter(tarif__mise_a_disposition=self, uploaded=False)
+        activite_dict_array = []
+        for activite in activite_list:
+            if activite.quantite != 0:
+                activite_dict_array.append(activite.to_xrp_dict())
+        return activite_dict_array
+
+
 
     @staticmethod
     def get_mise_a_disposition(adherent_code_erp, salarie_code_erp):

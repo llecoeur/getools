@@ -190,19 +190,6 @@
           </div>
         </div>
       </div> <!-- /card -->
-      <div class="card card-outline card-primary" v-if="mad_id">
-        <div class="card-header">
-          <h3 class="card-title">Envoyer en Facturation</h3>
-          <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-          </div>
-        </div>
-        <div class="card-body">
-          Attention : Seules les activités non transférées seront envoyées.<br />
-          Attendez la fin du traitement pour fermer la page.
-          <a href="#" class="btn btn-primary" v-on:click="UploadActivites"><i class="fas fa-cloud-upload-alt"></i>Envoyer les activités</a>
-        </div>
-      </div> <!-- /card -->
     </div>
   </div>
 </div>
@@ -344,25 +331,19 @@ var app = new Vue({
           } else {
             self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
             $("#"+id).addClass("bg-warning");
+            if (self.mad.jour_list[index_jour].saisie_list[index_tarif].uploaded == true) {
+              $(document).Toasts('create', {
+                class: 'bg-warning', 
+                title: "Activité déjà envoyée !",
+                body: "Attention<br />Cette valeur a été déjà envoyée dans Cegid.<br /><br /> Pensez a supprimer l'ancienne valeur dans les activité sur affaire !",
+              });
+            }
             self.updateInfoSup();
           }
         });
       }
     },
-    async UploadActivites() {
-      self = this
-      if (confirm("Confirmez vous l'envoi des activités de l'affaire en cours vers Cegid ?\n Ne fermez pas la page avant la fin du traitement !")) {
-        self.loader = true;
-        await fetch("/act/ajax_upload_activite/" + self.mad_id + "/").then(function (response) {
-          return response.json();
-        }).then(function (result) {
-          console.log(result);
-          self.loadCalendar();
-          alert("Activités envoyées avec succès !")
-        });
-        self.loader = false;
-      }
-    },
+    
     async addPrimeForfait () {
       self = this;
       // Ajoute une prime forfaitaire

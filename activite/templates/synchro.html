@@ -14,7 +14,7 @@
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <a href="#" class="btn btn-primary" v-on:click="getDataXrp" v-bind:class="{ 'disabled': loader }"><i class="fas fa-cloud-download-alt"></i> Synchro XRP Sprint</a>
+              <a href="#" class="btn btn-primary" v-on:click="getDataXrp" v-bind:class="{ 'disabled': loaderGetData }"><i class="fas fa-cloud-download-alt"></i> Synchro XRP Sprint</a>
               <a href="#" class="btn btn-primary" v-if="loaderGetData"><i class="fas fa-sync-alt fa-spin"></i></a>
             </div>
           </div>
@@ -37,13 +37,13 @@
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <a href="#" class="btn btn-primary" v-on:click="uploadActivites" v-bind:class="{ 'disabled': loader }"><i class="fas fa-cloud-upload-alt"></i> Envoi des activités</a>
-              <a href="#" class="btn btn-primary" v-if="uploadActivites"><i class="fas fa-sync-alt fa-spin"></i></a>
+              <a href="#" class="btn btn-primary" v-on:click="uploadActivites" v-bind:class="{ 'disabled': loaderUploadActivites }"><i class="fas fa-cloud-upload-alt"></i> Envoi des activités</a>
+              <a href="#" class="btn btn-primary" v-if="loaderUploadActivites"><i class="fas fa-sync-alt fa-spin"></i></a>
             </div>
           </div>
           <div class="row">
             <div class="col-12">
-              <span><pre>${synchroLogGetData}</pre></span>
+              <span><pre>${synchroLogActivites}</pre></span>
             </div>
           </div>
         </div>
@@ -64,9 +64,10 @@ var app = new Vue({
     return({
       // loader
       loaderGetData: false,
-      uploadActivites: false,
+      loaderUploadActivites: false,
       synchroLogGetData: "",
-      uploadActivites: "",
+      synchroLogActivites: "",
+      mad_list: [],
     });
   },
 
@@ -127,7 +128,27 @@ var app = new Vue({
       self.loaderGetData = false;
     },
     async uploadActivites() {
-
+      // récupère la liste des liste des saisies a envoyer, classées par mad
+      self = this;
+      self.loaderUploadActivites = false;
+      self.synchroLogActivites = "";
+      self.synchroLogActivites += "Sélection des Mises a disposition a envoyer...";
+      await fetch("/act/ajax_get_mad_to_upload/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.synchroLogActivites += "OK\n"
+        self.mad_list = result;
+      });
+      console.log(self.mad_list);
+      for (index in self.mad_list) {
+        console.log(app.mad_list[index].code_erp);
+        self.synchroLogActivites += "Envoi de " + app.mad_list[index].code_erp + "... ";
+        await fetch("/act/ajax_upload_activite/" + app.mad_list[index].id + "/").then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          self.synchroLogActivites += "OK\n";
+        });
+      }
     },
   },
 

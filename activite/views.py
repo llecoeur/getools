@@ -244,7 +244,7 @@ def ajax_update_famille_article(request):
             ajoute += 1
         f.code_erp = famille['Key']
         f.libelle = famille['Value']
-        if famille['Key'] == "PRF":
+        if famille['Key'] == "PRF" or famille['Key'] == "FOR":
             # marqué comme prime forfétaire
             f.forfaitaire = True
         f.save()

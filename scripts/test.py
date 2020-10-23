@@ -18,7 +18,11 @@ from cegid.xrp_sprint import CegidCloud
 
 if __name__ == "__main__":
 
+    loic = Salarie.objects.get(code_erp="0000000008")
+    print(loic)
+    loic.get_paie(2020,10)
 
+    """
     # Purge des saisies et des tarifs
     SaisieActivite.objects.all().delete()
     TarifGe.objects.all().delete()
@@ -29,6 +33,7 @@ if __name__ == "__main__":
     Adherent.objects.all().delete()
     Service.objects.all().delete()
     Poste.objects.all().delete()
+    """
     """
     cegid = CegidCloud()
     pprint(cegid.get_motif_absence_list())

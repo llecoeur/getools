@@ -132,6 +132,34 @@ class Salarie(models.Model):
         return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=date_compare)).order_by("date_entree").order_by("nom")
         # return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 
+    def get_paie(self, annee, mois):
+        """
+            Crée le tableau de paie du salarié
+        """
+        # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
+        # tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
+        tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie=self).filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
+        for tarif in tarif_list:
+            # Somme des valeurs d'activité pour ce mois sur ce tarif
+            # saisies_list = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois)
+            # for saisie in saisies_list:
+            #     print(saisie.quantite)
+            val = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois).aggregate(Sum('quantite'))['quantite__sum']
+            if val is not None:
+                print(f"{tarif.article.rubrique_paie.code_erp} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
+                print(f"val={val}")
+                d ={
+                    "ImportType": "MHE",
+                    "EmployeeId": self.code_erp,
+                    "BeginDatePayroll": date(annee, mois, 1),
+                    "EndDatePayroll": calendar.monthrange(annee, mois)[1],
+                    "NumberOrder": 1,
+                    "Rubric": tarif.article.rubrique_paie.code_erp,
+                    "RubricLabelSubstitution": tarif.article.rubrique_paie.libelle,
+                    "TypeSupplyRubric": "BT",
+                    
+                }
+
 
 class Service(models.Model):
     """

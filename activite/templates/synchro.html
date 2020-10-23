@@ -3,7 +3,7 @@
 {% block "main_content" %}
 <div id="app">
   <div class="row">
-    <div class="col-12">
+    <div class="col-6">
       <div class="card card-outline card-primary">
         <div class="card-header">
           <h3 class="card-title">Lecture des données de Cegid Y2 XRP Sprint</h3>
@@ -15,12 +15,35 @@
           <div class="row">
             <div class="col-12">
               <a href="#" class="btn btn-primary" v-on:click="getDataXrp" v-bind:class="{ 'disabled': loader }"><i class="fas fa-cloud-download-alt"></i> Synchro XRP Sprint</a>
-              <a href="#" class="btn btn-primary" v-if="loader"><i class="fas fa-sync-alt fa-spin"></i></a>
+              <a href="#" class="btn btn-primary" v-if="loaderGetData"><i class="fas fa-sync-alt fa-spin"></i></a>
             </div>
           </div>
           <div class="row">
             <div class="col-12">
-              <span><pre>${synchroLog}</pre></span>
+              <span><pre>${synchroLogGetData}</pre></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Envoi des activités</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <a href="#" class="btn btn-primary" v-on:click="uploadActivites" v-bind:class="{ 'disabled': loader }"><i class="fas fa-cloud-upload-alt"></i> Envoi des activités</a>
+              <a href="#" class="btn btn-primary" v-if="uploadActivites"><i class="fas fa-sync-alt fa-spin"></i></a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <span><pre>${synchroLogGetData}</pre></span>
             </div>
           </div>
         </div>
@@ -40,66 +63,71 @@ var app = new Vue({
   data() {
     return({
       // loader
-      loader: false,
-      synchroLog: "",
+      loaderGetData: false,
+      uploadActivites: false,
+      synchroLogGetData: "",
+      uploadActivites: "",
     });
   },
 
   methods: {
     async getDataXrp() {
       self = this;
-      self.loader = true;
-      self.synchroLog = "";
-      self.synchroLog += "Synchronisation des Familles d'articles...";
+      self.loaderGetData = true;
+      self.synchroLogGetData = "";
+      self.synchroLogGetData += "Synchronisation des Familles d'articles...";
       await fetch("/act/ajax_update_famille_article/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Services...";
+      this.synchroLogGetData += "Synchronisation des Services...";
       await fetch("/act/ajax_update_service/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Postes ...";
+      this.synchroLogGetData += "Synchronisation des Postes ...";
       await fetch("/act/ajax_update_poste/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Salariés...";
+      this.synchroLogGetData += "Synchronisation des Salariés...";
       await fetch("/act/ajax_update_salaries/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Rubriques ...";
+      this.synchroLogGetData += "Synchronisation des Rubriques ...";
       await fetch("/act/ajax_update_rubrique/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
       // TODO : ici si possible alimentation de la tablette des rubriques en GA
-      this.synchroLog += "Synchronisation des Articles ...";
+      this.synchroLogGetData += "Synchronisation des Articles ...";
       await fetch("/act/ajax_update_article/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Adhérents ...";
+      this.synchroLogGetData += "Synchronisation des Adhérents ...";
       await fetch("/act/ajax_update_adherent/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      this.synchroLog += "Synchronisation des Mises à disposition ...";
+      this.synchroLogGetData += "Synchronisation des Mises à disposition ...";
       await fetch("/act/ajax_update_mad/").then(function (response) {
         return response.json();
       }).then(function (result) {
-        self.synchroLog += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
+        self.synchroLogGetData += result.result + " (T : " + result.count + ", N: " + result.ajoute + ")\n";
       });
-      self.loader = false;
+      self.loaderGetData = false;
+    },
+    async uploadActivites() {
+
     },
   },
 

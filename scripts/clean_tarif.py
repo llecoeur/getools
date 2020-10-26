@@ -17,10 +17,13 @@ from cegid.xrp_sprint import CegidCloud
 
 
 if __name__ == "__main__":
-    tarifs_list = TarifGe.objects.filter(mise_a_disposition__cloturee=True)
+    """
+        ABSENCE
+        ACCIDENT
+        CONGES PAYES
+    """
+    TarifGe.objects.filter(article__libelle__startswith="ABSENCE").delete()
+    TarifGe.objects.filter(article__libelle__startswith="ACCIDENT").delete()
+    TarifGe.objects.filter(article__libelle__startswith="CONGES PAYES").delete()
 
-    for tarif in tarifs_list:
-        print(f"suppression du tarif Mise a dispo {tarif.mise_a_disposition.salarie} - {tarif.mise_a_disposition.adherent} - {tarif.article}")
-        tarif.delete()
 
-    print(f"Tarifs supprimés : {len(tarifs_list)} / {len(TarifGe.objects.all())}")

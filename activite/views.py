@@ -316,8 +316,6 @@ def ajax_update_salaries(request):
             ajoute += 1
         sal.code_erp = salarie_cegid['EmployeeId']
         sal.nom = salarie_cegid['Name']
-        if salarie_cegid['Name'].strip() == "LEMUET":
-            print(salarie_cegid)
         sal.prenom = salarie_cegid['FirstName']
         sal.date_entree = pendulum.parse(salarie_cegid['EntryDate']).to_date_string()
         sal.date_sortie = pendulum.parse(salarie_cegid['ExitDate']).to_date_string()
@@ -429,7 +427,6 @@ def ajax_update_mad(request):
     error_count = 0
     for affaire_cegid in aff_list:
         error = False
-
         try:
             adherent = Adherent.objects.get(code_erp=affaire_cegid['ThirdParty_AFF'])
         except AttributeError:
@@ -437,7 +434,7 @@ def ajax_update_mad(request):
             error = True
             error_count += 1
         except Adherent.DoesNotExist:
-            print(f"L'adhérent {affaire_cegid['ThirdParty_AFF']} n'existe pas en base django: As-il été importé ?")
+            print(f"L'adhérent {affaire_cegid['ThirdParty_AFF']} pour l'affaire {affaire_cegid['Project_AFF']} n'existe pas en base django: As-il été importé ?")
             error = True
             error_count += 1
         
@@ -449,7 +446,7 @@ def ajax_update_mad(request):
             error = True
             error_count += 1
         except Salarie.DoesNotExist:
-            print(f"Le salarié {affaire_cegid['Manager_AFF']} n'existe pas en base django: As-il été importé ?")
+            print(f"l'affaire {affaire_cegid['Project_AFF']} ne sera pas ajoutée : Le salarié {affaire_cegid['Manager_AFF']} est sorti")
             error = True
             error_count += 1
 
@@ -468,6 +465,8 @@ def ajax_update_mad(request):
             mad.poste = Poste.objects.filter(code_erp=affaire_cegid['UserField2_AFF']).first()
             if affaire_cegid['State_AFF'] == "CLO":
                 mad.cloturee = True
+            else:
+                mad.cloturee = False
             if affaire_cegid['UserField3_AFF'] != '':
                 mad.coef_vente_soumis = affaire_cegid['UserField3_AFF']
             else:

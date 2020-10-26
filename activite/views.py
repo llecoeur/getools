@@ -155,10 +155,25 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
     date_realisation = date(annee, mois, jour)
     # print(date_realisation)
     saisie = SaisieActivite.get_saisie(tarif, date_realisation)
+
     if saisie == None:
+        if saisie == 0:
+            ret = {
+                "result": "ok",
+                "message": f"Valeur {valeur}, sur article {saisie.tarif.article} enregistrée",
+            }
+            return JsonResponse(ret)
         saisie = SaisieActivite()
         saisie.tarif = tarif
         saisie.date_realisation = date_realisation
+    else:
+        if saisie == 0:
+            saisie.delete()
+            ret = {
+                "result": "ok",
+                "message": f"Valeur {valeur}, sur article {saisie.tarif.article} enregistrée",
+            }
+            return JsonResponse(ret)
 
     saisie.quantite = valeur
     saisie.uploaded = False

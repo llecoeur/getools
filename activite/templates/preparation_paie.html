@@ -317,31 +317,30 @@ var app = new Vue({
         // il faut effacer la valeur dans ce cas
         value = "0";
       }
-      if (value != "0") {
-        fetch("/act/ajax_save_saisie/" + value + "/" + tarif_id + "/" + this.annee + "/" + this.mois+ "/" + jour + "/").then(function (response) {
-          return response.json();
-        }).then(function (result) {
-          if (result['result'] == 'error') {
+      fetch("/act/ajax_save_saisie/" + value + "/" + tarif_id + "/" + this.annee + "/" + this.mois+ "/" + jour + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        if (result['result'] == 'error') {
+          $(document).Toasts('create', {
+            class: 'bg-danger', 
+            title: "Erreur d'enregistrement",
+            body: result['message'],
+          });
+          $("#"+id).addClass("bg-danger");
+        } else {
+          self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
+          $("#"+id).addClass("bg-warning");
+          if (self.mad.jour_list[index_jour].saisie_list[index_tarif].uploaded == true) {
             $(document).Toasts('create', {
-              class: 'bg-danger', 
-              title: "Erreur d'enregistrement",
-              body: result['message'],
+              class: 'bg-warning', 
+              title: "Activité déjà envoyée !",
+              body: "Attention<br />Cette valeur a été déjà envoyée dans Cegid.<br /><br /> Pensez a supprimer l'ancienne valeur dans les activité sur affaire !",
             });
-            $("#"+id).addClass("bg-danger");
-          } else {
-            self.mad.jour_list[index_jour].saisie_list[index_tarif].valeur = value;
-            $("#"+id).addClass("bg-warning");
-            if (self.mad.jour_list[index_jour].saisie_list[index_tarif].uploaded == true) {
-              $(document).Toasts('create', {
-                class: 'bg-warning', 
-                title: "Activité déjà envoyée !",
-                body: "Attention<br />Cette valeur a été déjà envoyée dans Cegid.<br /><br /> Pensez a supprimer l'ancienne valeur dans les activité sur affaire !",
-              });
-            }
-            self.updateInfoSup();
           }
-        });
-      }
+          self.updateInfoSup();
+        }
+      });
+      
     },
     
     async addPrimeForfait () {

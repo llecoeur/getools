@@ -143,3 +143,10 @@ class CegidCloud:
             @param : liste des activités a enregistrer, en dict
         """
         return self._set_api_data(settings.API_POST_ACTIVITY_LIST, activite_list)
+
+    def save_paie_list(self, paie_list):
+        """
+            Eregistre la liste des rubriques de paie du mois
+            @param : liste des paies a enregistrer, en dict
+        """
+        return self._set_api_data(settings.API_POST_RUBRIC_LIST, paie_list)

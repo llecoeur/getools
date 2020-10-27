@@ -552,8 +552,34 @@ def ajax_get_mad_to_upload(request):
         if len(activites_list) != 0:
             mad_array.append(model_to_dict(mad))
     return JsonResponse(mad_array, safe=False)
-    
 
+
+@login_required
+def ajax_upload_paie(request):
+    # liste les salariés, puis envoie la paie
+    sal_list = Salarie.objects.all()
+    paie_list = []
+    for sal in sal_list:
+        paie_list += sal.get_paie()
+
+    cegid = CegidCloud()
+    response = cegid.save_paie_list(sal_list)
+    if response.status_code == 200:
+        ret = {
+            "class": "bg-success",
+            "title": "Paie envoyée",
+            "body": f"Les rubriques de paie ont été envoyées vers Y2",
+        }
+    else:
+        ret = {
+            "class": "bg-error",
+            "title": "Echec",
+            "body": f"Echec d'envoi de la paie",
+        }
+    return JsonResponse(ret)
+
+
+@login_required
 def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
     """
         Retourne un json contenant des infos sup a mettre a jour
@@ -577,7 +603,9 @@ def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
     }
     return JsonResponse(ret)
 
+
 @csrf_exempt
+@login_required
 def update_memo(request, id_salarie):
     print(str(request.body))
     data = json.loads(request.body.decode("utf-8"))

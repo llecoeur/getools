@@ -140,6 +140,7 @@ class Salarie(models.Model):
         # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
         # tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
         tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie=self).filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
+        rub_list = []
         for tarif in tarif_list:
             # Somme des valeurs d'activité pour ce mois sur ce tarif
             # saisies_list = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois)
@@ -147,8 +148,8 @@ class Salarie(models.Model):
             #     print(saisie.quantite)
             val = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois).aggregate(Sum('quantite'))['quantite__sum']
             if val is not None:
-                print(f"{tarif.article.rubrique_paie.code_erp} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
-                print(f"val={val}")
+                # print(f"{tarif.article.rubrique_paie.code_erp} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
+                # print(f"val={val}")
                 if tarif.article.famille.forfaitaire:
                     base = 1
                 else:
@@ -166,6 +167,9 @@ class Salarie(models.Model):
                     "PayrollRate": val,
                     
                 }
+                rub_list.append(d)
+
+        return rub_list
 
 
 class Service(models.Model):
@@ -452,8 +456,12 @@ class SaisieActivite(models.Model):
         """
             Retourne les données de l'activité sous forme de dictionnaire intégrable directement dans XRP sprint si trnasformé en json
         """
+        try:
+            forfaitaire = self.tarif.article.famille.forfaitaire
+        except AttributeError:
+            forfaitaire = False
 
-        if self.tarif.article.famille.forfaitaire == True:
+        if forfaitaire == True:
             if self.tarif.article.charges_soumises is True:
                 selling_price = self.quantite * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 1000)
             elif self.tarif.article.charges_soumises is False:

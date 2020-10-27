@@ -385,6 +385,8 @@ var app = new Vue({
               class: 'bg-danger', 
               title: "Erreur d'enregistrement",
               body: result['message'],
+              autohide: true,
+              delay: 3000,
             });
           } else {
             //rechargement
@@ -421,6 +423,8 @@ var app = new Vue({
           class: result.class, 
           title: result.title,
           body: result.body,
+          autohide: true,
+          delay: 3000,
         });
       });
     },

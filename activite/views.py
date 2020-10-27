@@ -235,6 +235,13 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
     fields = ['tarif', 'coef_paie', 'coef', 'archive']
+    success_message = "Tarif modifié 👏"
+
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 
 
 class TarifGeDelete(LoginRequiredMixin, DeleteView):

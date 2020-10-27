@@ -77,6 +77,7 @@ class Salarie(models.Model):
     nom = models.CharField("Nom", max_length=200, default="")
     prenom = models.CharField("Prenom", max_length=200, default="")
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
+    memo = models.TextField("Mémo", null=True, blank=True, default=None)
 
     date_entree = models.DateField("Date d'entrée", null=True, default=None, blank=True, db_index=True)
     date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True, db_index=True)
@@ -385,11 +386,11 @@ class TarifGe(models.Model):
     # La mise a disposition, qui permet ensuite de faire la liaison avec l'adhérent et le salarié. Si None, le code s'applique a tous les adhérents, et le code salarié est a prendre dnas le champ suivant
     mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="tarif_ge_list", null=True, default=None, blank=True, db_index=True)
     # ???
-    poste = models.CharField("Poste", max_length=17, blank=True)
+    poste = models.CharField("Poste", max_length=17, blank=True, db_index=True)
     # Tarif horaire ?
-    tarif = models.FloatField("Tarif", default=0)
+    tarif = models.FloatField("Tarif", default=0, db_index=True)
     # Case a cocher. Pas sur que ce soit utilisé
-    exportable = models.BooleanField("Exportable ?", default=False, null=True)
+    exportable = models.BooleanField("Exportable ?", default=False, null=True, db_index=True)
     # ??? Pourquoi un second article ?
     article2 = models.ForeignKey(Article, on_delete=models.CASCADE, null=True, default=None, blank=True)
     # ???
@@ -418,15 +419,15 @@ class SaisieActivite(models.Model):
         Table des saisies effectuées sur activité
     """
     # Tarif correspondant a cette saisie
-    tarif = models.ForeignKey(TarifGe, on_delete=models.CASCADE, related_name="saisie_activite_list", default=None)
+    tarif = models.ForeignKey(TarifGe, on_delete=models.CASCADE, related_name="saisie_activite_list", default=None, db_index=True)
     # la date a laquelle cette saisie est associée
-    date_realisation = models.DateField("Date")
+    date_realisation = models.DateField("Date", db_index=True)
     # la quantité, la plupart du temps en heure, de cette saisie
     quantite = models.FloatField("Quantité")
     # Est ce que la saisie a été envoyée vers l'activité correspondante de XRP Sprint ?
-    uploaded = models.BooleanField("Envoyée", default=False)
-    created = models.DateTimeField("Creation")
-    updated = models.DateTimeField("Modification")
+    uploaded = models.BooleanField("Envoyée", default=False, db_index=True)
+    created = models.DateTimeField("Creation", db_index=True)
+    updated = models.DateTimeField("Modification", db_index=True)
 
     def save(self):
         # positionnement automatique a l'enregistrement des champs created et updated
@@ -499,13 +500,13 @@ class InfosSupMoisSalarie(models.Model):
         
         Contient les informations liées au salarié pour le mois et l'année donnée
     """
-    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="infos_sup_list")
-    mois = models.IntegerField("Mois")
-    annee = models.IntegerField("Année")
+    salarie = models.ForeignKey(Salarie, on_delete=models.CASCADE, related_name="infos_sup_list", db_index=True)
+    mois = models.IntegerField("Mois", db_index=True)
+    annee = models.IntegerField("Année", db_index=True)
     # Nombre d'heures travaillées sur le mois pour le salarié, quelque soit a MAD
     # heures_travaillees = models.FloatField("Heures Travaillées")
     # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
-    heures_theoriques = models.FloatField("heures Théoriques")
+    heures_theoriques = models.FloatField("heures Théoriques", db_index=True)
     # ???
     # id_detail = models.IntegerField("")
 
@@ -520,15 +521,15 @@ class InfosSupMoisMad(models.Model):
 
         Contient les informations liées a la mise a disposition pour le mois en cours
     """
-    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="infos_sup_list")
-    mois = models.IntegerField("Mois", default=0)
-    annee = models.IntegerField("Année", default=0)
+    mise_a_disposition = models.ForeignKey(MiseADisposition, on_delete=models.CASCADE, related_name="infos_sup_list", db_index=True)
+    mois = models.IntegerField("Mois", default=0, db_index=True)
+    annee = models.IntegerField("Année", default=0, db_index=True)
     # Heures travaillées chez l'adhérent ce mois
     heures_travaillees = models.FloatField("Heures Travaillées")
     # Heures théoriques chez l'adherent ce mois. Initialisé comment ?
     heures_theoriques = models.FloatField("heures mensuelles")
     # Est ce que la saisie est complète ? None : Non démarré, False : En cours, True : Terminée
-    saisie_complete = models.BooleanField("Saise Comlète ?", null=True, default=None)
+    saisie_complete = models.BooleanField("Saise Comlète ?", null=True, default=None, db_index=True)
 
 
 

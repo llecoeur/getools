@@ -56,6 +56,31 @@
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
+      <div class="card" class="card-success" v-if="mad.salarie.id">
+        <div class="card-header">
+          <h3 class="card-title">Memo Salarié</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body" style="height:100%;overflow:auto;">
+          <div class="row">
+            <div class="col-12">
+              <textarea class="form-control" rows="4" v-model="mad.salarie.memo"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-5"></div>
+            <div class="col-2">
+              <button class="btn btn-success" style="width:100%;overflow:auto;" v-on:click="saveMemo"><i class="fas fa-comments"></i> Mettre a jour</button>
+            </div>
+            <div class="col-5"></div>
+          </div>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
     </div>
     <div class="col-3">
       <div class="card card-outline card-primary">
@@ -379,6 +404,24 @@ var app = new Vue({
       }).then(function (result) {
         self.mad.infos_sup.heures_travaillees = result.mise_a_disposition.heures_travaillees;
         self.mad.salarie.infos_sup.heures_travaillees = result.salarie.heures_travaillees;
+      });
+    },
+    saveMemo() {
+      // Enregistre le champ mémo dans l'utilisateur
+      self = this;
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ memo: self.mad.salarie.memo })
+      };
+      fetch("/act/update_memo/" + self.mad.salarie.id + "/", requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $(document).Toasts('create', {
+          class: result.class, 
+          title: result.title,
+          body: result.body,
+        });
       });
     },
     class_value: function(tarif) {

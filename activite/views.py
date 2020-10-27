@@ -21,6 +21,7 @@ from jours_feries_france import JoursFeries
 from datetime import date
 from cegid.xrp_sprint import CegidCloud
 from pprint import pprint
+from django.views.decorators.csrf import csrf_exempt
 pendulum.set_locale('fr')
 
 
@@ -574,4 +575,26 @@ def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
             "heures_travaillees": mad.get_heures_travail_mois(annee, mois),
         },
     }
+    return JsonResponse(ret)
+
+@csrf_exempt
+def update_memo(request, id_salarie):
+    print(str(request.body))
+    data = json.loads(request.body.decode("utf-8"))
+    try:
+        sal = Salarie.objects.get(id=id_salarie)
+    except Salarie.DoesNotExist:
+        ret = {
+            "class": "bg-error",
+            "title": "Erreur",
+            "body": "Le salarié n'existe pas",
+        }
+    else:
+        sal.memo = data['memo']
+        sal.save()
+        ret = {
+            "class": "bg-success",
+            "title": "memo mis à jour",
+            "body": f"Le mémo du salarié {sal} a été mis à jour.",
+        }
     return JsonResponse(ret)

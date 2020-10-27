@@ -215,7 +215,7 @@ class TarifGeCreate(LoginRequiredMixin, CreateView):
     model = TarifGe
     template_name = "tarifs_form.html"
     success_url = "/act/tarif/add/"
-    success_message = "Tarif ajouté !"
+    success_message = "Tarif ajouté 👏"
 
     fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
 

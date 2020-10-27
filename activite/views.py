@@ -214,6 +214,8 @@ def tarifs(request):
 class TarifGeCreate(LoginRequiredMixin, CreateView):
     model = TarifGe
     template_name = "tarifs_form.html"
+    success_url = "/act/tarif/add/"
+    success_message = "Tarif ajouté !"
 
     fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
 
@@ -221,6 +223,11 @@ class TarifGeCreate(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['create'] = True
         return context
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
 
 
 class TarifGeUpdate(LoginRequiredMixin, UpdateView):

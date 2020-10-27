@@ -18,14 +18,9 @@ from cegid.xrp_sprint import CegidCloud
 
 if __name__ == "__main__":
 
-    c = CegidCloud()
-    pprint(c.get_affaire_list())
-
-    """
     loic = Salarie.objects.get(code_erp="0000000008")
     print(loic)
-    loic.get_paie(2020,10)
-    """
+    pprint(loic.get_paie(2020,10))
     """
     # Purge des saisies et des tarifs
     SaisieActivite.objects.all().delete()

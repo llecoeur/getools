@@ -482,14 +482,25 @@ class SaisieActivite(models.Model):
             cost = self.quantite
 
         else:
-            if self.tarif.article.charges_soumises is True:
-                selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 1000)
-            elif self.tarif.article.charges_soumises is False:
-                selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 1000)
+            if self.tarif.tarif_pere is None:
+                if self.tarif.article.charges_soumises is True:
+                    selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 1000)
+                elif self.tarif.article.charges_soumises is False:
+                    selling_price = self.tarif.tarif * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 1000)
+                else:
+                    selling_price = self.tarif.tarif
+                cost = self.tarif.tarif
+                qte = self.quantite
             else:
-                selling_price = self.tarif.tarif
-            cost = self.tarif.tarif
-            qte = self.quantite
+                # En cas de tarif parent, alors il faut prendre le tarif parent et le multiplier par le coeficient
+                if self.tarif.article.charges_soumises is True:
+                    selling_price = self.tarif.tarif_pere.tarif * self.tarif.coef * (int(self.tarif.mise_a_disposition.coef_vente_soumis) / 1000)
+                elif self.tarif.article.charges_soumises is False:
+                    selling_price = self.tarif.tarif_pere.tarif * self.tarif.coef * (int(self.tarif.mise_a_disposition.coef_vente_non_soumis) / 1000)
+                else:
+                    selling_price = self.tarif.tarif_pere.tarif * self.tarif.coef
+                cost = self.tarif.tarif_pere.tarif * self.tarif.coef
+                qte = self.quantite
 
         return {
             "Project": self.tarif.mise_a_disposition.code_erp,
@@ -499,7 +510,7 @@ class SaisieActivite(models.Model):
             "ItemType": self.tarif.article.type_article,
             "Item": self.tarif.article.libelle,
             "ItemCode": self.tarif.article.code_erp,
-            "Unit": unite,
+            "Unit": self.tarif.article.unite,
             "Quantity": qte,
             # Tarif du GE
             "CostPrice": cost,

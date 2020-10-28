@@ -18,7 +18,7 @@ from cegid.xrp_sprint import CegidCloud
 
 if __name__ == "__main__":
 
-    loic = Salarie.objects.get(code_erp="0000000008")
+    loic = Salarie.objects.get(code_erp="0000000002")
     print(loic)
     pprint(loic.get_paie(2020,10))
     """

@@ -138,8 +138,11 @@ class Salarie(models.Model):
             Crée le tableau de paie du salarié
         """
         # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
-        # tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
-        tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie=self).filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
+
+        tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
+        # tarif_list = tarif_list.
+        # tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie__id=self.id.filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
+        print(tarif_list)
         rub_list = []
         for tarif in tarif_list:
             # Somme des valeurs d'activité pour ce mois sur ce tarif
@@ -148,17 +151,22 @@ class Salarie(models.Model):
             #     print(saisie.quantite)
             val = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois).aggregate(Sum('quantite'))['quantite__sum']
             if val is not None:
-                # print(f"{tarif.article.rubrique_paie.code_erp} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
-                # print(f"val={val}")
-                if tarif.article.famille.forfaitaire:
+                print(f"{tarif.article} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
+                print(f"{self} : val={val}")
+                try:
+                    forfaitaire = tarif.article.famille.forfaitaire
+                except AttributeError:
+                    forfaitaire = False
+
+                if forfaitaire:
                     base = 1
                 else:
                     base = tarif.tarif
                 d ={
                     "ImportType": "MHE",
                     "EmployeeId": self.code_erp,
-                    "BeginDatePayroll": date(annee, mois, 1),
-                    "EndDatePayroll": calendar.monthrange(annee, mois)[1],
+                    "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                    "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
                     "NumberOrder": 1,
                     "Rubric": tarif.article.rubrique_paie.code_erp,
                     "RubricLabelSubstitution": tarif.article.rubrique_paie.libelle,
@@ -395,12 +403,14 @@ class TarifGe(models.Model):
     tarif = models.FloatField("Tarif", default=0, db_index=True)
     # Case a cocher. Pas sur que ce soit utilisé
     exportable = models.BooleanField("Exportable ?", default=False, null=True, db_index=True)
-    # ??? Pourquoi un second article ?
-    article2 = models.ForeignKey(Article, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    # Tarif fils de référence
+    tarif_fils = models.ForeignKey("TarifGe", on_delete=models.CASCADE, null=True, default=None, blank=True)
+    # Coef en cas de tarif fils
+    coef = models.FloatField("Coefficient appliqué au fils", default=0)
     # ???
     element_reference = models.CharField("Elt Nationnal de Référence", max_length=17, blank=True)
     # Les hamps suivants existent en base Cegid, a expliquer ou supprimer si pas utiles.
-    coef = models.FloatField("Coefficient", default=0)
+    
     mode_calcul = models.IntegerField("Mode de Calcul", default=None, null=True, blank=True)
     coef_paie = models.FloatField("Coefficient de paie", default=0)
     article_a_saisir = models.BooleanField("Article a saisir ?", default=False)
@@ -481,6 +491,9 @@ class SaisieActivite(models.Model):
             cost = self.tarif.tarif
             qte = self.quantite
 
+        unite = self.tarif.article.unite
+        if unite == '':
+            unite = "H"
         return {
             "Project": self.tarif.mise_a_disposition.code_erp,
             "Resource": self.tarif.mise_a_disposition.salarie.code_erp,
@@ -489,12 +502,15 @@ class SaisieActivite(models.Model):
             "ItemType": self.tarif.article.type_article,
             "Item": self.tarif.article.libelle,
             "ItemCode": self.tarif.article.code_erp,
-            "Unit": self.tarif.article.unite,
+            "Unit": unite,
             "Quantity": qte,
             # Tarif du GE
             "CostPrice": cost,
             # Tarif du tarif GE * coef_vente_soumis, ou coef_vente_soumis de l'affaire (mad)
-            "SellingPrice": selling_price, 
+            "SellingPrice": round(selling_price, 2), 
+            # Obligatoire, sinon ca bug dans Cegid !
+            "ExpensesSheetId": 0,
+            "ResourceExpensePayId": 0,
         }
 
 """

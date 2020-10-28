@@ -200,7 +200,7 @@ if __name__ == "__main__":
                 error = True
             # article 2
             try:
-                article2 = Article.objects.get(code_erp=tarif_cegid.article2_code)
+                article2 = TarifGe.objects.get(code_erp=tarif_cegid.article2_code)
             except Article.DoesNotExist:
                 article2 = None
             if not error:

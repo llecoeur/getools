@@ -3,7 +3,7 @@ from django.http import Http404
 from .models import Salarie
 from django.db.models import Q
 from django.utils import timezone
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
@@ -21,6 +21,8 @@ from jours_feries_france import JoursFeries
 from datetime import date
 from cegid.xrp_sprint import CegidCloud
 from pprint import pprint
+from django.forms.models import modelform_factory
+from django.forms import ModelChoiceField
 from django.views.decorators.csrf import csrf_exempt
 pendulum.set_locale('fr')
 
@@ -231,13 +233,20 @@ class TarifGeCreate(LoginRequiredMixin, CreateView):
         return response
 
 
+
 class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     model = TarifGe
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
-    fields = ['tarif', 'coef_paie', 'coef', 'archive']
+    fields = ['tarif', 'coef_paie', 'tarif_fils', 'coef', 'archive']
     success_message = "Tarif modifié 👏"
 
+    def get_form(self, *args, **kwargs):
+        form = super().get_form(*args, **kwargs)
+        form.fields['tarif_fils'].queryset = TarifGe.objects.filter(
+            mise_a_disposition=self.object.mise_a_disposition
+        )
+        return form
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -528,13 +537,15 @@ def ajax_upload_activite(request, mad_id):
     
     # print(json.dumps(activite_dict_array))
     cegid = CegidCloud()
+    pprint(activite_dict_array)
     response = cegid.save_activite_list(activite_dict_array)
     if response.status_code == 200:
         # On est ok, on marque les activités comme envoyées
         for activite in activite_list:
             activite.uploaded = True
             activite.save()
-    # 
+    else:
+        print(response.text)
     return HttpResponse(response.text)
 
 
@@ -555,15 +566,15 @@ def ajax_get_mad_to_upload(request):
 
 
 @login_required
-def ajax_upload_paie(request):
+def ajax_upload_paie(request, annee, mois):
     # liste les salariés, puis envoie la paie
     sal_list = Salarie.objects.all()
     paie_list = []
     for sal in sal_list:
-        paie_list += sal.get_paie()
+        paie_list += sal.get_paie(annee, mois)
 
     cegid = CegidCloud()
-    response = cegid.save_paie_list(sal_list)
+    response = cegid.save_paie_list(paie_list)
     if response.status_code == 200:
         ret = {
             "class": "bg-success",
@@ -574,7 +585,7 @@ def ajax_upload_paie(request):
         ret = {
             "class": "bg-error",
             "title": "Echec",
-            "body": f"Echec d'envoi de la paie",
+            "body": f"Echec d'envoi de la paie : {response.status_code}\n{response.text}",
         }
     return JsonResponse(ret)
 

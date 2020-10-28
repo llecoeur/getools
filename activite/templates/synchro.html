@@ -144,11 +144,16 @@ var app = new Vue({
         console.log(app.mad_list[index].code_erp);
         self.synchroLogActivites += "Envoi de " + app.mad_list[index].code_erp + "... ";
         await fetch("/act/ajax_upload_activite/" + app.mad_list[index].id + "/").then(function (response) {
+          if (response.status != "200") {
+            console.log(response.text());
+          }
           return response.json();
         }).then(function (result) {
+          
           self.synchroLogActivites += "OK\n";
         });
       }
+      alert("Activités envoyées");
     },
   },
 

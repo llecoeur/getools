@@ -137,8 +137,14 @@ class Salarie(models.Model):
         """
             Crée le tableau de paie du salarié
         """
-        # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
 
+        # on récupere tous les tarifs du salarié qui ont des saisies sur la période :
+        tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).aggregate(Sum("saisie_activite_list__quantite")).values("mise_a_disposition__code_erp", "article__code_erp", "quantite__sum")
+        for tarif in tarif_list:
+            print(tarif)
+
+        # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
+        """
         tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
         # tarif_list = tarif_list.
         # tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie__id=self.id.filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
@@ -178,6 +184,7 @@ class Salarie(models.Model):
                 rub_list.append(d)
 
         return rub_list
+        """
 
 
 class Service(models.Model):

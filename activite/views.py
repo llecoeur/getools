@@ -220,7 +220,7 @@ class TarifGeCreate(LoginRequiredMixin, CreateView):
     success_url = "/act/tarif/add/"
     success_message = "Tarif ajouté 👏"
 
-    fields = ['article', 'mise_a_disposition', 'tarif', 'coef_paie', 'coef']
+    fields = ['article', 'mise_a_disposition', 'tarif']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

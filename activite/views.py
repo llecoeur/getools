@@ -238,12 +238,12 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     model = TarifGe
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
-    fields = ['tarif', 'coef_paie', 'tarif_fils', 'coef', 'archive']
+    fields = ['tarif', 'coef_paie', 'tarif_pere', 'coef', 'archive']
     success_message = "Tarif modifié 👏"
 
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
-        form.fields['tarif_fils'].queryset = TarifGe.objects.filter(
+        form.fields['tarif_pere'].queryset = TarifGe.objects.filter(
             mise_a_disposition=self.object.mise_a_disposition
         )
         return form

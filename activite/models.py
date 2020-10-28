@@ -404,9 +404,9 @@ class TarifGe(models.Model):
     # Case a cocher. Pas sur que ce soit utilisé
     exportable = models.BooleanField("Exportable ?", default=False, null=True, db_index=True)
     # Tarif fils de référence
-    tarif_fils = models.ForeignKey("TarifGe", on_delete=models.CASCADE, null=True, default=None, blank=True)
+    tarif_pere = models.ForeignKey("TarifGe", on_delete=models.CASCADE, null=True, default=None, blank=True)
     # Coef en cas de tarif fils
-    coef = models.FloatField("Coefficient appliqué au fils", default=0)
+    coef = models.FloatField("Coefficient appliqué au père", default=0)
     # ???
     element_reference = models.CharField("Elt Nationnal de Référence", max_length=17, blank=True)
     # Les hamps suivants existent en base Cegid, a expliquer ou supprimer si pas utiles.

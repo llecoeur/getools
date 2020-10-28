@@ -44,18 +44,19 @@
                 <label for="{{ form.tarif.id_for_label }}">Tarif :</label>
                 {{ form.tarif | add_class:"form-control" | attr:"style:width:100%"}}
                 {{ form.tarif.errors }}
-                <label for="{{ form.coef_paie.id_for_label }}">Coef Paie :</label>
-                {{ form.coef_paie | add_class:"form-control" | attr:"style:width:100%"}}
-                {{ form.coef_paie.errors }}
+
 
 
                 {% if not create %}
                   <label for="{{ form.tarif_pere.id_for_label }}">Tarif Père :</label>
                   {{ form.tarif_pere | add_class:"form-control" | attr:"style:width:100%"}}
                   {{ form.tarif_pere.errors }}
-                  <label for="{{ form.coef.id_for_label }}">Coef si Père :</label>
+                  <label for="{{ form.coef.id_for_label }}">Coef activité si Père :</label>
                   {{ form.coef | add_class:"form-control" | attr:"style:width:100%"}}
                   {{ form.coef.errors }}
+                  <label for="{{ form.coef_paie.id_for_label }}">Coef Paie si père :</label>
+                  {{ form.coef_paie | add_class:"form-control" | attr:"style:width:100%"}}
+                  {{ form.coef_paie.errors }}
                   <div class="custom-control custom-switch">
                   {{ form.archive | add_class:"custom-control-input"}}
                   <label for="{{ form.archive.id_for_label }}" class="custom-control-label">Archive</label>

@@ -50,10 +50,10 @@
 
 
                 {% if not create %}
-                  <label for="{{ form.tarif_pere.id_for_label }}">Tarif fils :</label>
+                  <label for="{{ form.tarif_pere.id_for_label }}">Tarif Père :</label>
                   {{ form.tarif_pere | add_class:"form-control" | attr:"style:width:100%"}}
                   {{ form.tarif_pere.errors }}
-                  <label for="{{ form.coef.id_for_label }}">Coef si fils :</label>
+                  <label for="{{ form.coef.id_for_label }}">Coef si Père :</label>
                   {{ form.coef | add_class:"form-control" | attr:"style:width:100%"}}
                   {{ form.coef.errors }}
                   <div class="custom-control custom-switch">

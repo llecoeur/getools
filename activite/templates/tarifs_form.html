@@ -41,7 +41,7 @@
               {% endif %}
               </div>
               <div class="col-6">
-                <label for="{{ form.tarif.id_for_label }}">Tarif :</label>
+                <label for="{{ form.tarif.id_for_label }}">Montant :</label>
                 {{ form.tarif | add_class:"form-control" | attr:"style:width:100%"}}
                 {{ form.tarif.errors }}
 
@@ -86,6 +86,8 @@
           </div>
         </div>
         <div class="card-body">
+          <p>Montant : Montant appliqué du tarif, si pas de père. N'est pas utilisé en cas de famille article forfaitaire.</p>
+          <p>Tarif père : Le tarif sur lequel le montant sera pris, avec un coeficient soir paie, soit facturation. Le montant n'est pas pris en compte dans ce cas.</p>
 
         </div>
       </div>

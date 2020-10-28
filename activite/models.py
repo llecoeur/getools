@@ -400,7 +400,7 @@ class TarifGe(models.Model):
     # ???
     poste = models.CharField("Poste", max_length=17, blank=True, db_index=True)
     # Tarif horaire ?
-    tarif = models.FloatField("Tarif", default=0, db_index=True)
+    tarif = models.FloatField("Montant", default=0, db_index=True)
     # Case a cocher. Pas sur que ce soit utilisé
     exportable = models.BooleanField("Exportable ?", default=False, null=True, db_index=True)
     # Tarif fils de référence
@@ -491,9 +491,6 @@ class SaisieActivite(models.Model):
             cost = self.tarif.tarif
             qte = self.quantite
 
-        unite = self.tarif.article.unite
-        if unite == '':
-            unite = "H"
         return {
             "Project": self.tarif.mise_a_disposition.code_erp,
             "Resource": self.tarif.mise_a_disposition.salarie.code_erp,

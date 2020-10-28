@@ -244,7 +244,8 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
         form.fields['tarif_pere'].queryset = TarifGe.objects.filter(
-            mise_a_disposition=self.object.mise_a_disposition
+            mise_a_disposition=self.object.mise_a_disposition,
+            tarif_pere=None
         )
         return form
 

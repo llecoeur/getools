@@ -438,7 +438,7 @@ var app = new Vue({
       }).then(function (result) {
         self.mad.infos_sup.heures_travaillees = result.mise_a_disposition.heures_travaillees;
         self.mad.salarie.infos_sup.heures_travaillees = result.salarie.heures_travaillees;
-        self.mad.salarie.infos_sup.difference_heures = self.mad.salarie.infos_sup.heures_theoriques - result.salarie.heures_travaillees;
+        self.mad.salarie.infos_sup.difference_heures = result.salarie.heures_travaillees - self.mad.salarie.infos_sup.heures_theoriques;
         self.saveInfoSupSalarie()
       });
     },

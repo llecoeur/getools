@@ -131,18 +131,18 @@
         <div class="card-body">
           <div class="row">
             <div class="col-8">
-              <b>Mensuel :</b>
+              <b>Paie envoyée :</b>
             </div>
             <div class="col-4">
-              ${mad.duree_travail_mensuel}
+              <i class="fas" v-bind:class="{'fa-check-circle text-success': infos_sup_salarie.paie_envoyee, 'fa-times-circle text-danger': !infos_sup_salarie.paie_envoyee }"></i>
             </div>
           </div>
           <div class="row">
             <div class="col-8">
-              <b>Quotidien :</b>
+              <b>Mensuel :</b>
             </div>
             <div class="col-4">
-              ${mad.duree_travail_quotidien}
+              ${mad.duree_travail_mensuel}
             </div>
           </div>
           <div class="row">
@@ -170,8 +170,7 @@
                   <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
                 </span>
               </div>
-              
-
+            </div>
           </div>
         </div>
       </div> <!-- /card -->

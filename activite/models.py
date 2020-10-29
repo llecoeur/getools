@@ -549,6 +549,7 @@ class InfosSupMoisSalarie(models.Model):
     # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
     heures_theoriques = models.FloatField("heures Théoriques", db_index=True)
     difference_heures = models.FloatField("Différence théorique - travaillé", db_index=True, default=0)
+    paie_envoyee = models.BooleanField("Paie Envoyée ?", db_index=True, default=False) 
     # ???
     # id_detail = models.IntegerField("")
 

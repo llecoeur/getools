@@ -111,8 +111,8 @@ class Salarie(models.Model):
         qs = SaisieActivite.objects.filter(tarif__mise_a_disposition__salarie=self)
         # sur le mois en cours
         qs = qs.filter(date_realisation__year=annee,date_realisation__month=mois)
-        # Uniquement des heures
-        qs = qs.filter(tarif__article__unite="H")
+        # Uniquement ls heures normales
+        qs = qs.filter(tarif__article__code_erp="H NORM")
         # Exclure les primes forfaitaires
         qs = qs.exclude(tarif__article__famille__forfaitaire=True)
         val = qs.aggregate(Sum('quantite')).get('quantite__sum')

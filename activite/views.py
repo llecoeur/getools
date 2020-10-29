@@ -661,6 +661,7 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
         })
     infosup = sal.get_info_sup(mois, annee)
     infosup.heures_theoriques = data['heures_theoriques']
+    infosup.difference_heures = data['difference_heures']
     infosup.save()
     return JsonResponse({
         "class": "bg-success",

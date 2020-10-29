@@ -545,9 +545,10 @@ class InfosSupMoisSalarie(models.Model):
     mois = models.IntegerField("Mois", db_index=True)
     annee = models.IntegerField("Année", db_index=True)
     # Nombre d'heures travaillées sur le mois pour le salarié, quelque soit a MAD
-    # heures_travaillees = models.FloatField("Heures Travaillées")
+    heures_travaillees = models.FloatField("Heures Travaillées", db_index=True, default=0)
     # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
     heures_theoriques = models.FloatField("heures Théoriques", db_index=True)
+    difference_heures = models.FloatField("Différence théorique - travaillé", db_index=True, default=0)
     # ???
     # id_detail = models.IntegerField("")
 

@@ -129,16 +129,45 @@
           </div>
         </div>
         <div class="card-body">
-          <p class="m-0">Mensuel : ${mad.duree_travail_mensuel}</p>
-          <p class="m-0">Quotidien : ${mad.duree_travail_quotidien}</p>
-          <p class="m-0">Heures travaillées : ${infos_sup_salarie.heures_travaillees}</p>
+          <div class="row">
+            <div class="col-8">
+              <b>Mensuel :</b>
+            </div>
+            <div class="col-4">
+              ${mad.duree_travail_mensuel}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <b>Quotidien :</b>
+            </div>
+            <div class="col-4">
+              ${mad.duree_travail_quotidien}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <b>Heures travaillées :</b>
+            </div>
+            <div class="col-4">
+              ${infos_sup_salarie.heures_travaillees}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <b>Différences d'heures :</b>
+            </div>
+            <div class="col-4">
+              ${infos_sup_salarie.difference_heures}
+            </div>
+          </div>
           <div class="form-group row">
-            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques</label>
+            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques : </label>
             <div class="col-sm-4">
               <div class="input-group input-group-sm">
                 <input class="form-control" type="number" id="heures_theoriques_salarie_id" v-model="infos_sup_salarie.heures_theoriques"></input>
                 <span class="input-group-append">
-                  <button class="btn btn-primary btn-flat" v-on:click="saveInfoSupSalarie"><i class="fas fa-save"></i></button>
+                  <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
                 </span>
               </div>
               
@@ -409,6 +438,8 @@ var app = new Vue({
       }).then(function (result) {
         self.mad.infos_sup.heures_travaillees = result.mise_a_disposition.heures_travaillees;
         self.mad.salarie.infos_sup.heures_travaillees = result.salarie.heures_travaillees;
+        self.mad.salarie.infos_sup.difference_heures = self.mad.salarie.infos_sup.heures_theoriques - result.salarie.heures_travaillees;
+        self.saveInfoSupSalarie()
       });
     },
     saveMemo() {

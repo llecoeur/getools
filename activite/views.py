@@ -390,6 +390,8 @@ def ajax_update_rubrique(request):
 def ajax_update_article(request):
     """
         Mise a jour de la liste des rubriques
+        TODO : Exclure les articles fermés
+        TODO : Gérer les articles fermés
     """
     cegid = CegidCloud()
     article_list = cegid.get_article_list()
@@ -575,8 +577,9 @@ def ajax_upload_paie(request, annee, mois):
         paie_list += sal.get_paie(annee, mois)
 
     cegid = CegidCloud()
+    pprint(paie_list)
     response = cegid.save_paie_list(paie_list)
-    if response.status_code == 200:
+    if response.status_code == 200 or response.status_code == 204:
         ret = {
             "class": "bg-success",
             "title": "Paie envoyée",
@@ -638,3 +641,30 @@ def update_memo(request, id_salarie):
             "body": f"Le mémo du salarié {sal} a été mis à jour.",
         }
     return JsonResponse(ret)
+
+
+@csrf_exempt
+@login_required
+def update_infosup_salarie(request, salarie_id, annee, mois):
+    """
+        Sauvegarde les infosup du salarié avec le json passé en paramètre
+        Champs pris en compe :
+    """
+    data = json.loads(request.body.decode("utf-8"))
+    try:
+        sal = Salarie.objects.get(id=salarie_id)
+    except Salarie.DoesNotExist:
+        return JsonResponse({
+            "class": "bg-error",
+            "title": "Erreur",
+            "body": "Le salarié n'existe pas",
+        })
+    infosup = sal.get_info_sup(mois, annee)
+    infosup.heures_theoriques = data['heures_theoriques']
+    infosup.save()
+    return JsonResponse({
+        "class": "bg-success",
+        "title": "Données mises à jour",
+        "body": "Les infos du salarié relatives a cette période ont été enregistrées",
+    })
+    

@@ -139,53 +139,55 @@ class Salarie(models.Model):
         """
 
         # on récupere tous les tarifs du salarié qui ont des saisies sur la période :
-        tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).aggregate(Sum("saisie_activite_list__quantite")).values("mise_a_disposition__code_erp", "article__code_erp", "quantite__sum")
-        for tarif in tarif_list:
-            print(tarif)
-
-        # Il faut lister toutes les rubriques de paie pour lesquelles le salarié a au moins une valeur saisie, et faire la somme de tout cela.
-        """
-        tarif_list = TarifGe.objects.filter(tarif__mise_a_disposition__salarie=self).exclude(article__rubrique_paie=None).exclude(tarif__mise_a_disposition__cloturee=True)
-        # tarif_list = tarif_list.
-        # tarif_list = TarifGe.objects.filter(mise_a_disposition__salarie__id=self.id.filter(article__facturation_uniquement=False).exclude(mise_a_disposition__cloturee=True).exclude(article__rubrique_paie=None).distinct("article__rubrique_paie__code_erp")
-        print(tarif_list)
+        tarif_list = (
+            TarifGe.objects
+            .filter(mise_a_disposition__salarie=self)
+            .filter(mise_a_disposition__cloturee=False)
+            .filter(article__facturation_uniquement=False)
+            .filter(saisie_activite_list__date_realisation__year=annee)
+            .filter(saisie_activite_list__date_realisation__month=mois)
+            .exclude(article__rubrique_paie=None)
+            .annotate(quantites = Sum('saisie_activite_list__quantite'))
+            .exclude(quantites=None)
+            .exclude(quantites=0)
+        )
         rub_list = []
         for tarif in tarif_list:
-            # Somme des valeurs d'activité pour ce mois sur ce tarif
-            # saisies_list = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois)
-            # for saisie in saisies_list:
-            #     print(saisie.quantite)
-            val = SaisieActivite.objects.filter(tarif__article=tarif.article).filter(date_realisation__year=annee, date_realisation__month=mois).aggregate(Sum('quantite'))['quantite__sum']
-            if val is not None:
-                print(f"{tarif.article} - {tarif.article.rubrique_paie.libelle} : {tarif.article}")
-                print(f"{self} : val={val}")
-                try:
-                    forfaitaire = tarif.article.famille.forfaitaire
-                except AttributeError:
-                    forfaitaire = False
+            # On est forfaitaire ?
+            try:
+                forfaitaire = tarif.article.famille.forfaitaire
+            except AttributeError:
+                forfaitaire = False
 
-                if forfaitaire:
-                    base = 1
+            if forfaitaire:
+                base = 1
+                rate = tarif.quantites
+            else:
+                if tarif.tarif_pere:
+                    base = tarif.quantites
+                    rate = tarif.tarif_pere.tarif * tarif.coef
                 else:
-                    base = tarif.tarif
-                d ={
-                    "ImportType": "MHE",
-                    "EmployeeId": self.code_erp,
-                    "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
-                    "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
-                    "NumberOrder": 1,
-                    "Rubric": tarif.article.rubrique_paie.code_erp,
-                    "RubricLabelSubstitution": tarif.article.rubrique_paie.libelle,
-                    "TypeSupplyRubric": "BT",
-                    "PayrollBase": base,
-                    "PayrollRate": val,
-                    
-                }
-                rub_list.append(d)
+                    base = tarif.quantites
+                    rate = tarif.tarif
 
+            d ={
+                "ImportType": "MHE",
+                "EmployeeId": self.code_erp,
+                "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                "NumberOrder": 1,
+                "Rubric": tarif.article.rubrique_paie.code_erp,
+                "RubricLabelSubstitution": tarif.article.rubrique_paie.libelle,
+                "TypeSupplyRubric": "BT",
+                "PayrollBase": base,
+                "PayrollRate": rate,
+                "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                
+            }
+            rub_list.append(d)
         return rub_list
-        """
-
+ 
 
 class Service(models.Model):
     """

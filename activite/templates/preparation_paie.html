@@ -93,7 +93,7 @@
         <div class="card-body">
           <div class="form-group">
             <label for="mois_saisie">Période</label>
-            <div class="input-group date" id="mois_saisie" data-target-input="nearest">
+            <div class="input-group input-group date" id="mois_saisie" data-target-input="nearest">
               <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
               <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
                   <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
@@ -102,7 +102,7 @@
           </div>
           <div class="form-group">
             <label for="salarie_select_id">Salarié</label>
-            <select name="salarie_id" class="form-control" id="salarie_select_id" style="width: 100%;">
+            <select name="salarie_id" class="form-control select2" id="salarie_select_id" style="width: 100%;">
               <option value="">Choisissez un salarié</option>
               {% for salarie in salarie_list %}
               <option value="{{salarie.id}}">{{salarie}}</option>
@@ -129,26 +129,21 @@
           </div>
         </div>
         <div class="card-body">
-          <table class="table table-sm">
-            <tbody>
-              <tr>
-                <td>Mensuel</td>
-                <td>${mad.duree_travail_mensuel}</td>
-              </tr>
-              <tr>
-                <td>Quotidien</td>
-                <td>${mad.duree_travail_quotidien}</td>
-              </tr>
-              <tr>
-                <td>Heures travaillées</td>
-                <td>${infos_sup_salarie.heures_travaillees}</td>
-              </tr>
-              <tr>
-                <td>Heures théoriques</td>
-                <td>${infos_sup_salarie.heures_theoriques}</td>
-              </tr>
-            </tbody>
-          </table>
+          <p class="m-0">Mensuel : ${mad.duree_travail_mensuel}</p>
+          <p class="m-0">Quotidien : ${mad.duree_travail_quotidien}</p>
+          <p class="m-0">Heures travaillées : ${infos_sup_salarie.heures_travaillees}</p>
+          <div class="form-group row">
+            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques</label>
+            <div class="col-sm-4">
+              <div class="input-group input-group-sm">
+                <input class="form-control" type="number" id="heures_theoriques_salarie_id" v-model="infos_sup_salarie.heures_theoriques"></input>
+                <span class="input-group-append">
+                  <button class="btn btn-primary btn-flat" v-on:click="saveInfoSupSalarie"><i class="fas fa-save"></i></button>
+                </span>
+              </div>
+              
+
+          </div>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -182,7 +177,9 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-7">
+
+
+            <div class="col-8">
               <select name="mad_id" class="custom-select form-control" id="mad_prime_forfaitaire_add_id" style="width: 100%;" v-model="prime_forfaitaire_add.id">
                 <option value="0" selected>---</option>
                 <option v-for="prime in mad.primes_forfaitaires" :value="prime.id">
@@ -190,12 +187,16 @@
                 </option>
               </select>
             </div>
-            <div class="col-3">
-              <input type="text" v-model="prime_forfaitaire_add.value" size="3"></input>
-            </div>
-            <div class="col-2">
-              <button class="btn btn-primary" v-on:click="addPrimeForfait"><i class="fas fa-plus-square"></i></button>
-            </div>
+            <div class="col-4">
+              <div class="input-group input-group">
+                <input class="form-control" type="text" v-model="prime_forfaitaire_add.value" size="3"></input>
+                <span class="input-group-append">
+                  <button class="btn btn-primary btn-flat" v-on:click="addPrimeForfait"><i class="fas fa-plus-square"></i></button>
+                </span>
+              </div>
+
+              
+
           </div>
           <div class="row">
             <div class="col-12">
@@ -360,6 +361,8 @@ var app = new Vue({
               class: 'bg-warning', 
               title: "Activité déjà envoyée !",
               body: "Attention<br />Cette valeur a été déjà envoyée dans Cegid.<br /><br /> Pensez a supprimer l'ancienne valeur dans les activité sur affaire !",
+              autohide: true,
+              delay: 3000,
             });
           }
           self.updateInfoSup();
@@ -417,6 +420,26 @@ var app = new Vue({
         body: JSON.stringify({ memo: self.mad.salarie.memo })
       };
       fetch("/act/update_memo/" + self.mad.salarie.id + "/", requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $(document).Toasts('create', {
+          class: result.class, 
+          title: result.title,
+          body: result.body,
+          autohide: true,
+          delay: 3000,
+        });
+      });
+    },
+    saveInfoSupSalarie() {
+      //Poste un json infosup pour mettre a jour les infosup du salarié
+      self = this;
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(self.mad.salarie.infos_sup)
+      };
+      fetch("/act/update_infosup_salarie/" + self.mad.salarie.id + "/" + self.annee + "/" + self.mois + "/", requestOptions).then(function (response) {
         return response.json();
       }).then(function (result) {
         $(document).Toasts('create', {

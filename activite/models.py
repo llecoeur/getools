@@ -118,7 +118,7 @@ class Salarie(models.Model):
         val = qs.aggregate(Sum('quantite')).get('quantite__sum')
         if val is None:
             val = 0
-        return val
+        return round(val, 2)
 
     @staticmethod
     def get_salaries_actuels():

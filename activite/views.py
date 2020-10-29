@@ -660,8 +660,8 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
             "body": "Le salarié n'existe pas",
         })
     infosup = sal.get_info_sup(mois, annee)
-    infosup.heures_theoriques = data['heures_theoriques']
-    infosup.difference_heures = data['difference_heures']
+    infosup.heures_theoriques = round(data['heures_theoriques'], 2)
+    infosup.difference_heures = round(data['difference_heures'], 2)
     infosup.save()
     return JsonResponse({
         "class": "bg-success",

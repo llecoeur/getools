@@ -171,7 +171,8 @@ class Salarie(models.Model):
                     rate = tarif.tarif
 
             d ={
-                "ImportType": "MHE",
+                # "ImportType": "MHE",
+                "ImportType": "MH2",
                 "EmployeeId": self.code_erp,
                 "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
                 "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),

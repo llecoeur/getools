@@ -135,6 +135,7 @@
             </div>
             <div class="col-4">
               <i class="fas" v-bind:class="{'fa-check-circle text-success': infos_sup_salarie.paie_envoyee, 'fa-times-circle text-danger': !infos_sup_salarie.paie_envoyee }"></i>
+              <button type="button" class="btn btn-primary btn-sm" v-on:click="envoiPaie"><i class="fas fa-upload"></i></button>
             </div>
           </div>
           <div class="row">
@@ -146,7 +147,7 @@
             </div>
           </div>
           <div class="form-group row m-0">
-            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques : </label>
+            <label class="col-sm-8 p-0" for="heures_theoriques_salarie_id">Heures théoriques : </label>
             <div class="col-sm-4">
               <div class="input-group input-group-sm">
                 <input class="form-control" type="number" id="heures_theoriques_salarie_id" v-model="infos_sup_salarie.heures_theoriques"></input>
@@ -481,6 +482,35 @@ var app = new Vue({
           delay: 3000,
         });
       });
+    },
+    async envoiPaie() {
+      // envoie la paie du salarié vers Y2
+      self = this;
+      envoi = true;
+      if (self.mad.salarie.infos_sup.paie_envoyee) {
+        if (confirm("La paie de ce salarié sur cette période a déjà été envoyée. \n Etes vous sur de vouloir la réenvoyer ?")) {
+          envoi = true;
+        } else {
+          envoi = false;
+        }
+      }
+      if (envoi = true) {
+        self.loader = true;
+        await fetch("/act/ajax_envoi_paie/" + this.mad.salarie.id  + "/" + self.annee + "/" + self.mois + "/").then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          $(document).Toasts('create', {
+            class: result.class, 
+            title: result.title,
+            body: result.body,
+          });
+          if (result.error == true) {
+            // on marque comme envoyé
+            this.mad.salarie.infos_sup.paie_envoyee = true;
+          }
+        });
+        self.loader = false;
+      }
     },
     class_value: function(tarif) {
       // Retourne la classe a afficher dans la valeur du tarif

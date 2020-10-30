@@ -669,3 +669,37 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
         "body": "Les infos du salarié relatives a cette période ont été enregistrées",
     })
     
+@login_required
+def ajax_envoi_paie(request, salarie_id, annee, mois):
+    """
+        Envoie la paie du salarié vers Y2
+    """
+    try:
+        sal = Salarie.objects.get(id=salarie_id)
+    except Salarie.DoesNotExist:
+        return JsonResponse({
+            "class": "bg-error",
+            "title": "Erreur",
+            "body": "Le salarié n'existe pas",
+            "error": True,
+        })
+    infosup = sal.get_info_sup(mois, annee)
+    paie = sal.get_paie(annee, mois)
+    cloud = CegidCloud()
+    response = cloud.save_paie_list(paie)
+    if response.status_code == 200 or response.status_code == 204:
+        infosup.paie_envoyee = True
+        infosup.save()
+        return JsonResponse({
+            "class": "bg-success",
+            "title": "Paie envoyée",
+            "body": f"la paie du salarié {sal} pour la période {mois}/{annee} a été envoyée",
+            "error": False,
+        })
+    else:
+        return JsonResponse({
+            "class": "bg-error",
+            "title": "Erreur",
+            "body": f"Erreur d'envoi vers l'ERP<br />{response.text}",
+            "error": True,
+        })

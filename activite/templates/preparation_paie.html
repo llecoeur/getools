@@ -123,7 +123,7 @@
 
       <div class="card card-outline card-primary" v-if="mad_id">
         <div class="card-header">
-          <h3 class="card-title">Employé</h3>
+          <h3 class="card-title">Salarié</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -139,10 +139,21 @@
           </div>
           <div class="row">
             <div class="col-8">
-              <b>Mensuel :</b>
+              <b>Mensuel prévu :</b>
             </div>
             <div class="col-4">
               ${mad.duree_travail_mensuel}
+            </div>
+          </div>
+          <div class="form-group row m-0">
+            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques : </label>
+            <div class="col-sm-4">
+              <div class="input-group input-group-sm">
+                <input class="form-control" type="number" id="heures_theoriques_salarie_id" v-model="infos_sup_salarie.heures_theoriques"></input>
+                <span class="input-group-append">
+                  <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
+                </span>
+              </div>
             </div>
           </div>
           <div class="row">
@@ -161,17 +172,7 @@
               ${infos_sup_salarie.difference_heures}
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-8" for="heures_theoriques_salarie_id">Heures théoriques : </label>
-            <div class="col-sm-4">
-              <div class="input-group input-group-sm">
-                <input class="form-control" type="number" id="heures_theoriques_salarie_id" v-model="infos_sup_salarie.heures_theoriques"></input>
-                <span class="input-group-append">
-                  <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
-                </span>
-              </div>
-            </div>
-          </div>
+
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">

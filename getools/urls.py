@@ -30,6 +30,7 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='geauth/login.html'), name='login'),
     path('logout/', logout_view, name='logout'),
     path('act/', include('activite.urls')),
+    path('releve/', include('releve.urls')),
 
 ]   
 

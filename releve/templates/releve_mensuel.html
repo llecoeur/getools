@@ -1,0 +1,96 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block header_css %}
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+.table-sm td {
+  padding: 0;
+}
+
+{% endblock header_css %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Saisie des activités</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-4">
+              <div class="form-group">
+                <label for="mois_saisie">Période</label>
+                <div class="input-group input-group date" id="mois_saisie" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
+                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
+
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+$(function () {
+    $('#mois_saisie').datetimepicker({
+      locale: 'fr',
+      format: 'MMMM YYYY',
+      defaultDate: moment(),
+    });
+});
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return {
+      // loader
+      loader: false,
+      mois: "",
+      annee: "",
+      user: {{user.id}},
+    };
+  },
+  methods: {
+    loadCalendar() {
+      
+    },
+  },
+  mounted: function () {
+      this.mois = moment().format("M");
+      this.annee = moment().format("YYYY");
+  },
+});
+
+//le mois est choisi
+$('#mois_saisie').on('hide.datetimepicker', function (e) { 
+  // console.log('Date event : ' + e.date.format("MM-YYYY"));
+  d = e.date.format("M-YYYY").split("-");
+  app.mois = d[0];
+  app.annee = d[1];
+});
+
+</script>
+{% endblock "footer_js"%}

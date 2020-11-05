@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'adherent',
     'index',
     'activite',
+    'releve',
     'cegid',
     'rest_framework',
     'django_extensions',

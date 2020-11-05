@@ -1,5 +1,5 @@
 from django.db import models
-from geauth.models import User
+# from geauth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import model_to_dict
 from django.utils import timezone
@@ -76,11 +76,14 @@ class Salarie(models.Model):
     # Utilisateur associé, if any :)
     nom = models.CharField("Nom", max_length=200, default="")
     prenom = models.CharField("Prenom", max_length=200, default="")
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True)
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, default=None, db_index=True, related_name="salarie_cegid")
     memo = models.TextField("Mémo", null=True, blank=True, default=None)
 
     date_entree = models.DateField("Date d'entrée", null=True, default=None, blank=True, db_index=True)
     date_sortie = models.DateField("Date de sortie", null=True, default=None, blank=True, db_index=True)
+
+    class Meta:
+        ordering = ['nom']
 
     def __str__(self):
         return "{} {} ({})".format(self.nom, self.prenom, self.code_erp)

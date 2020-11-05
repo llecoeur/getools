@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from activite.models import Salarie
+
 
 class User(AbstractUser):
 
@@ -24,3 +26,8 @@ class User(AbstractUser):
         <text x="6" y="16" style="font-family: Arial; fill: #FFFFFF;font-size : 12px;">{}</text>
         </svg>'''.format(txt)
         return svg
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, verbose_name="Utilisateur", related_name="profile", on_delete=models.CASCADE)
+    salarie = models.OneToOneField(Salarie, verbose_name="Salarié", related_name="user_profile", on_delete=models.SET_NULL, null=True, default=None)

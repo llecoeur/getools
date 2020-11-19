@@ -48,7 +48,36 @@
           </div>
         </div>
       </div>
+
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Téléchargement du fichier de Paie du mois</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-8">
+              <div class="form-group">
+                <div class="input-group input-group date" id="mois_saisie" data-target-input="nearest">
+                  <input type="text" class="form-control datetimepicker-input" data-target="#mois_saisie" />
+                  <div class="input-group-append" data-target="#mois_saisie" data-toggle="datetimepicker">
+                      <div class="input-group-text"><i class="far fa-calendar-alt"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-4">
+            <a class="btn btn-primary" v-bind:href="getDownloadUrl()" download><i class="fas fa-file-download"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
+
   </div>
 </div>
 
@@ -56,6 +85,14 @@
 {% block "footer_js" %}
 <script src="{% static 'vuejs/vue.js' %}"></script>
 <script>
+
+$(function () {
+    $('#mois_saisie').datetimepicker({
+      locale: 'fr',
+      format: 'MMMM YYYY',
+      defaultDate: moment(),
+    });    
+});
 
 var app = new Vue({
   el: '#app',
@@ -68,6 +105,8 @@ var app = new Vue({
       synchroLogGetData: "",
       synchroLogActivites: "",
       mad_list: [],
+      mois: "",
+      annee: "",
     });
   },
 
@@ -155,10 +194,25 @@ var app = new Vue({
       }
       alert("Activités envoyées");
     },
+    getDownloadUrl() {
+      self = this;
+      return "/act/download_paie/" + self.annee + "/" + self.mois + "/"
+    },
   },
-
+  mounted: function () {
+      this.mois = moment().format("M");
+      this.annee = moment().format("YYYY");
+  }
 });
 
+
+//le mois est choisi
+$('#mois_saisie').on('hide.datetimepicker', function (e) { 
+  // console.log('Date event : ' + e.date.format("MM-YYYY"));
+  d = e.date.format("M-YYYY").split("-");
+  app.mois = d[0];
+  app.annee = d[1];
+});
 
 </script>
 {% endblock "footer_js"%}

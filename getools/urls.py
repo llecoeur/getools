@@ -27,11 +27,11 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('', TemplateView.as_view(template_name="base.html"), name='home'),
     path('i18n/', include('django.conf.urls.i18n')),
-    path('login/', auth_views.LoginView.as_view(template_name='geauth/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='base.html'), name='login'),
     path('logout/', logout_view, name='logout'),
     path('act/', include('activite.urls')),
     path('releve/', include('releve.urls')),
-
+    path('auth/', include('geauth.urls')),
 ]   
 
 if settings.DEBUG:

@@ -174,8 +174,8 @@ class Salarie(models.Model):
                     rate = tarif.tarif
 
             d ={
-                # "ImportType": "MHE",
-                "ImportType": "MH2",
+                # "ImportType": "MH2",
+                "ImportType": "MHE",
                 "EmployeeId": self.code_erp,
                 "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
                 "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
@@ -190,7 +190,22 @@ class Salarie(models.Model):
                 
             }
             rub_list.append(d)
+        pprint(rub_list)
         return rub_list
+
+    @property
+    def sorti(self):
+        """
+            True si sorti, False sinon
+        """
+        date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        if self.date_sortie == date(1900,1,1):
+            return False
+        elif self.date_sortie > date_compare:
+            return False
+        else:
+            return True
+
  
 
 class Service(models.Model):

@@ -32,6 +32,7 @@ class CegidCloud:
         items = []
         skip = 0
         url = url_param
+        count_error = 0
         while url:
             if url[:5] == "http:":
                 # Parfois, le NextPageLink est en http au lieu de https. C'est un bug Cegid
@@ -40,38 +41,49 @@ class CegidCloud:
                 print(f"GET : {url}")
             response = requests.get(url, auth=settings.XRP_PRINT_AUTH, headers={"Accept": "application/json"})
             if debug:
-                print(response.text)
+                print(f"{response.status_code} - {response.text}")
             js = json.loads(response.text)
-            try:
-                items += js["value"]
-            except TypeError:
-                # On a directement un tableau, les valeurs ne sont pas dans la propriété "value". Bravo les exceptions CEGID !
-                items += js
-            except KeyError:
-                # n'est pas un odata
+            code = js.get("Code", None)
+            if code == "AuthorizationRequired":
+                # retry
+                count_error += 1
+                print(f"nouvel essai : {count_error}")
+                # {"Code":"AuthorizationRequired","Message":"Vous n'avez pas accès à cette fonctionnalité."}
+                if count_error == 10:
+                    # trop d'erreur...
+                    return js
+            else:
+                count_error = 0
                 try:
-                    items += js["Items"]
+                    items += js["value"]
+                except TypeError:
+                    # On a directement un tableau, les valeurs ne sont pas dans la propriété "value". Bravo les exceptions CEGID !
+                    items += js
                 except KeyError:
-                    # Pas sur API non plus, on arrete la boucle et on retourne ce qu'on a trouvé d'ici la
+                    # n'est pas un odata
+                    try:
+                        items += js["Items"]
+                    except KeyError:
+                        # Pas sur API non plus, on arrete la boucle et on retourne ce qu'on a trouvé d'ici la
+                        url = False
+                try:
+                    url = js["@odata.nextLink"]
+                except TypeError:
+                    # pas de pagination
                     url = False
-            try:
-                url = js["@odata.nextLink"]
-            except TypeError:
-                # pas de pagination
-                url = False
-            except KeyError:
-                # N'est pas sur Odata
-                if debug:
-                    print("Pas de Odata Next page")
-                try:
-                    url = js["NextPageLink"]
                 except KeyError:
+                    # N'est pas sur Odata
                     if debug:
-                        print("Pas de API Next page")
-                    # pas sur API non plus, on arrete la aussi
-                    url = False
-            
-            # sleep(settings.API_TIME_SLEEP)
+                        print("Pas de Odata Next page")
+                    try:
+                        url = js["NextPageLink"]
+                    except KeyError:
+                        if debug:
+                            print("Pas de API Next page")
+                        # pas sur API non plus, on arrete la aussi
+                        url = False
+                
+            sleep(settings.API_TIME_SLEEP)
         return items
 
     def _set_api_data(self, url_param, data, debug=False):

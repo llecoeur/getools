@@ -25,5 +25,11 @@ if __name__ == "__main__":
     TarifGe.objects.filter(article__libelle__startswith="ABSENCE").delete()
     TarifGe.objects.filter(article__libelle__startswith="ACCIDENT").delete()
     TarifGe.objects.filter(article__libelle__startswith="CONGES PAYES").delete()
-
+    TarifGe.objects.filter(mise_a_disposition__cloturee=True).delete()
+    MiseADisposition.objects.filter(cloturee=True).delete()
+    salarie_list = Salarie.objects.all()
+    for salarie in salarie_list:
+        if salarie.sorti:
+            print(f"{salarie} est sorti")
+            salarie.delete()
 

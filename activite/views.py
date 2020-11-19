@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import Http404
 from .models import Salarie
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
@@ -345,6 +345,7 @@ def ajax_update_salaries(request):
     """
     cegid = CegidCloud()
     salarie_list = cegid.get_salarie_list()
+    print(salarie_list)
     count = len(salarie_list)
     ajoute = 0
     for salarie_cegid in salarie_list:
@@ -703,3 +704,39 @@ def ajax_envoi_paie(request, salarie_id, annee, mois):
             "body": f"Erreur d'envoi vers l'ERP<br />{response.text}",
             "error": True,
         })
+
+
+@login_required
+def download_paie(request, annee, mois):
+    """
+        Télécharge un fichier de paie a importer dans Y2
+    """
+    # Salariés ayant fait des saisies dans le mois
+    buletin_lines = "***DEBUT***\r\n000;000000;01/01/2020;31/12/2020\r\n"
+    salarie_list = (
+        TarifGe.objects
+        .filter(mise_a_disposition__cloturee=False)
+        .filter(article__facturation_uniquement=False)
+        .filter(saisie_activite_list__date_realisation__year=annee)
+        .filter(saisie_activite_list__date_realisation__month=mois)
+        .exclude(article__rubrique_paie=None)
+        .annotate(quantites = Sum('saisie_activite_list__quantite'))
+        .exclude(quantites=None)
+        .exclude(quantites=0)
+        .values('mise_a_disposition__salarie')
+        .distinct()
+    )
+    for salarie in salarie_list:
+        sal = Salarie.objects.get(id=salarie['mise_a_disposition__salarie'])
+        b = sal.get_paie(annee, mois)
+        for line in b:
+            debut = line['BeginDatePayroll'][8:10] + "/" + line['BeginDatePayroll'][5:7]+ "/" + line['BeginDatePayroll'][:4]
+            fin = line['EndDatePayroll'][8:10] + "/" + line['EndDatePayroll'][5:7]+ "/" + line['EndDatePayroll'][:4]
+            print(debut)
+            buletin_lines += f"{line['ImportType']};{line['EmployeeId']};{debut};{fin};{line['NumberOrder']};{line['Rubric']};{line['RubricLabelSubstitution']};{line['TypeSupplyRubric']};{line['PayrollBase']};{line['PayrollRate']};;\r\n"
+    buletin_lines += "***FIN***\r\n"
+    print(buletin_lines)
+    resp = HttpResponse(content_type='application/force-download')
+    resp['Content-Disposition'] = f"attachment; filename={annee}-{mois}-paie.trt"
+    resp.write(buletin_lines)
+    return resp

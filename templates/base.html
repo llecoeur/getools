@@ -33,7 +33,7 @@
 <body class="{% block body_class %}hold-transition sidebar-mini layout-fixed{% endblock body_class %}">
 {% block body %}
 <div class="wrapper">
-
+  {% block navbar %}
   <!-- Navbar -->
   <nav class="main-header navbar navbar-expand navbar-white navbar-light">
     <!-- Left navbar links -->
@@ -70,9 +70,9 @@
     </ul>
   </nav>
   <!-- /.navbar -->
-
+  {% endblock navbar %}
   <!-- Main Sidebar Container -->
-  
+  {% block sidebar %}
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="{% url 'home' %}" class="brand-link">
@@ -123,26 +123,66 @@
                   <p>Tarifs</p>
                 </a>
               </li>
-            </ul>
-          </li>
-          {% endif %}
-          <li class="nav-item has-treeview">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-cog"></i>
-              <p>
-                Paramètres
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="{% url 'sort_article' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Ordre des articles</p>
                 </a>
               </li>
+              <li class="nav-item">
+                <a href="{% url 'synchronisation' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Synchro Cegid</p>
+                </a>
+              </li>
             </ul>
           </li>
+          {% endif %}
+          {% if perms.geauth.add_user %}
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-users"></i>
+              <p>
+                Salariés
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'user_create' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Entrée</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'user_create' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Sortie</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          {% endif %}
+          {% if perms.releve.add_relevesalarie %}
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="far fa-calendar-plus nav-icon"></i>
+              <p>
+                Relevé mensuel
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'releve_mensuel' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Saisie</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
           
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
@@ -246,14 +286,7 @@
           -->
 
         </ul>
-        <ul class="nav nav-pills nav-sidebar flex-column">
-          <li class="nav-item">
-            <a href="{% url 'synchronisation' %}" class="nav-link">
-              <i class="fas fa-exchange-alt nav-icon"></i>
-              <p>Synchronisation</p>
-            </a>
-          </li>
-        </ul>
+        {% if user.is_authenticated %}
         <ul class="nav nav-pills nav-sidebar flex-column">
           <li class="nav-item">
             <a href="{% url 'logout' %}" class="nav-link">
@@ -262,12 +295,13 @@
             </a>
           </li>
         </ul>
+        {% endif %}
       </nav>
       <!-- /.sidebar-menu -->
     </div>
     <!-- /.sidebar -->
   </aside>
-
+  {% endblock sidebar %}
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->

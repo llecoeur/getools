@@ -14,14 +14,49 @@ from pprint import pprint
 import requests
 import json
 from cegid.xrp_sprint import CegidCloud
+from django.db.models import Q, Sum
 
 
 if __name__ == "__main__":
 
+    annee = 2020
+    mois = 11
+    salarie_list = (
+        TarifGe.objects
+        .filter(mise_a_disposition__cloturee=False)
+        .filter(article__facturation_uniquement=False)
+        .filter(saisie_activite_list__date_realisation__year=annee)
+        .filter(saisie_activite_list__date_realisation__month=mois)
+        .exclude(article__rubrique_paie=None)
+        .annotate(quantites = Sum('saisie_activite_list__quantite'))
+        .exclude(quantites=None)
+        .exclude(quantites=0)
+        .values('mise_a_disposition__salarie')
+        .distinct()
+    )
+    for salarie in salarie_list:
+        sal = Salarie.objects.get(id=salarie['mise_a_disposition__salarie'])
+        print(sal)
+
+    """
+    c = CegidCloud()
+    print(f"Tentative de récupération des articles ODATA : {settings.ODATA_ARTICLE_LIST_URL}")
+    art = c.get_article_list()
+    print(f"Réponse ODATA : {art}")
+    print(f"Tentative de récupération des clients ODATA : {settings.ODATA_CLIENT_LIST_URL}")
+    cli = c.get_client_list()
+    print(f"Réponse ODATA : {cli}")
+    print(f"Tentative de récupération des affaires ODATA : {settings.ODATA_AFFAIRE_LIST_URL}")
+    aff = c.get_affaire_list()
+    print(f"Réponse ODATA : {aff}")
+    # r = c._get_api_data("https://cegid-data-service.cegid.com/CegidDataService/odata/90262451%20-%20GE%20PROGRESSIS__90262451_101/ARTICLES_PRESTA", debug=True)
+    # print(r)
+    """
+    """
     loic = Salarie.objects.get(code_erp="0000000008")
     print(loic)
     pprint(loic.get_paie(2020,10))
-
+    """
     # pprint(loic.get_paie(2020,10))
     """
     # Purge des saisies et des tarifs

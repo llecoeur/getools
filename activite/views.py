@@ -7,8 +7,8 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormVi
 from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.core import serializers
 from django.forms.models import model_to_dict
@@ -28,7 +28,7 @@ pendulum.set_locale('fr')
 
 
 # Create your views here.
-@login_required
+@permission_required('activite.add_saisieactivite')
 def sort_article(request):
     """
         Page permettant de définir l'ordre des articles a afficher dans la page de préparation paie
@@ -36,7 +36,8 @@ def sort_article(request):
     template = "sort_article.html"
     return render(request, template, {})
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_load_article_list(request):
     """
         Charge les articles a ranger dans la page des articles
@@ -45,7 +46,8 @@ def ajax_load_article_list(request):
     article_list = list(Article.objects.all().order_by('ordre').values())
     return JsonResponse(article_list, safe=False)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_switch_article_ordre(request, article1_id, article2_id):
     """
         Inverse la position des articles 1 et 2.
@@ -62,7 +64,8 @@ def ajax_switch_article_ordre(request, article1_id, article2_id):
     article_list = list(Article.objects.all().order_by('ordre').values())
     return JsonResponse(article_list, safe=False)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def preparation_paie(request):
     """
         Vue pour la page de préparation paie
@@ -75,7 +78,7 @@ def preparation_paie(request):
     return render(request, template, context)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def synchronisation(request):
     """
         Vue pour la page de synchronisation
@@ -84,7 +87,7 @@ def synchronisation(request):
     return render(request, template, {})
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_mad_for_salarie(request, salarie_id, termine):
     """
         Retourne un json avec la liste des mise a dispo du salarié donné.
@@ -104,7 +107,8 @@ def ajax_mad_for_salarie(request, salarie_id, termine):
         })
     return JsonResponse(ret, safe=False)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_load_saisie_mad(request, mois, annee, mad_id):
     """
         Retourne un json avec :
@@ -148,7 +152,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     return JsonResponse(ret)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
     """
         Enregistre ou met a jour la valeur pour la saisie d'activité souhaitée.
@@ -195,7 +199,7 @@ def ajax_save_saisie(request, valeur, tarif_id, annee, mois, jour):
     return JsonResponse(ret)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def tarifs(request):
     """
         Page pour lister, modifier, créer, supprimer des tarifs
@@ -214,11 +218,12 @@ def tarifs(request):
     return render(request, template, context)
 
 
-class TarifGeCreate(LoginRequiredMixin, CreateView):
+class TarifGeCreate(PermissionRequiredMixin, CreateView):
     model = TarifGe
     template_name = "tarifs_form.html"
     success_url = "/act/tarif/add/"
     success_message = "Tarif ajouté 👏"
+    permission_required = 'activite.add_saisieactivite'
 
     fields = ['article', 'mise_a_disposition', 'tarif']
 
@@ -234,12 +239,13 @@ class TarifGeCreate(LoginRequiredMixin, CreateView):
 
 
 
-class TarifGeUpdate(LoginRequiredMixin, UpdateView):
+class TarifGeUpdate(PermissionRequiredMixin, UpdateView):
     model = TarifGe
     # form_class = TarifGeEditForm
     template_name = "tarifs_form.html"
     fields = ['tarif', 'coef_paie', 'tarif_pere', 'coef', 'archive']
     success_message = "Tarif modifié 👏"
+    permission_required = 'activite.add_saisieactivite'
 
     def get_form(self, *args, **kwargs):
         form = super().get_form(*args, **kwargs)
@@ -255,18 +261,19 @@ class TarifGeUpdate(LoginRequiredMixin, UpdateView):
         return response
 
 
-class TarifGeDelete(LoginRequiredMixin, DeleteView):
+class TarifGeDelete(PermissionRequiredMixin, DeleteView):
     model = TarifGe
     template_name = "tarifge_confirm_delete.html"
     success_url = reverse_lazy('tarifs')
     success_message = "Le tarif a été supprimé."
+    permission_required = 'activite.add_saisieactivite'
     
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_update_famille_article(request):
     """
         Lit les familles XPR Print, et met a jour la table des familles articles
@@ -292,7 +299,7 @@ def ajax_update_famille_article(request):
     return JsonResponse(ret)
     
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_update_service(request):
     """
         Mise a jour de a liste des services
@@ -315,7 +322,7 @@ def ajax_update_service(request):
     return JsonResponse(ret)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_update_poste(request):
     """
         Mise a jour de a liste des services
@@ -338,7 +345,7 @@ def ajax_update_poste(request):
     return JsonResponse(ret)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_update_salaries(request):
     """
         Mise a joru de a liste des salariés
@@ -364,7 +371,7 @@ def ajax_update_salaries(request):
     ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_update_rubrique(request):
     """
         Mise a jour de la liste des rubriques
@@ -387,7 +394,8 @@ def ajax_update_rubrique(request):
     ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_update_article(request):
     """
         Mise a jour de la liste des rubriques
@@ -437,7 +445,8 @@ def ajax_update_article(request):
     ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_update_adherent(request):
     """
         Mise a jour de la liste des adhérents
@@ -458,7 +467,8 @@ def ajax_update_adherent(request):
     ret = { "result": "ok", "count": count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_update_mad(request):
     """
         Mise a jour des mises à disposition
@@ -522,7 +532,8 @@ def ajax_update_mad(request):
     ret = { "result": "ok", "count": count, "error_count": error_count, "ajoute": ajoute, }
     return JsonResponse(ret)
 
-@login_required
+
+@permission_required('activite.add_saisieactivite')
 def ajax_upload_activite(request, mad_id):
     """
         Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
@@ -553,7 +564,7 @@ def ajax_upload_activite(request, mad_id):
     return HttpResponse(response.text)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_get_mad_to_upload(request):
     """
         Envoie les activités non envoyées pour l'instant vers XRP Sprint, pour la mad en paramètre
@@ -569,7 +580,7 @@ def ajax_get_mad_to_upload(request):
     return JsonResponse(mad_array, safe=False)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_upload_paie(request, annee, mois):
     # liste les salariés, puis envoie la paie
     sal_list = Salarie.objects.all()
@@ -595,7 +606,7 @@ def ajax_upload_paie(request, annee, mois):
     return JsonResponse(ret)
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
     """
         Retourne un json contenant des infos sup a mettre a jour
@@ -621,7 +632,7 @@ def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
 
 
 @csrf_exempt
-@login_required
+@permission_required('activite.add_saisieactivite')
 def update_memo(request, id_salarie):
     print(str(request.body))
     data = json.loads(request.body.decode("utf-8"))
@@ -645,7 +656,7 @@ def update_memo(request, id_salarie):
 
 
 @csrf_exempt
-@login_required
+@permission_required('activite.add_saisieactivite')
 def update_infosup_salarie(request, salarie_id, annee, mois):
     """
         Sauvegarde les infosup du salarié avec le json passé en paramètre
@@ -669,8 +680,9 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
         "title": "Données mises à jour",
         "body": "Les infos du salarié relatives a cette période ont été enregistrées",
     })
-    
-@login_required
+
+
+@permission_required('activite.add_saisieactivite')
 def ajax_envoi_paie(request, salarie_id, annee, mois):
     """
         Envoie la paie du salarié vers Y2
@@ -706,7 +718,7 @@ def ajax_envoi_paie(request, salarie_id, annee, mois):
         })
 
 
-@login_required
+@permission_required('activite.add_saisieactivite')
 def download_paie(request, annee, mois):
     """
         Télécharge un fichier de paie a importer dans Y2

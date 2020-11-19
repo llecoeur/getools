@@ -25,7 +25,7 @@ from geauth.models import User, UserProfile
 if __name__ == "__main__":
     user_list = User.objects.filter(profile=None)
     for user in user_list:
-        print(f"Entrez code Cegid de {user} :")
+        print(f"Entrez code Cegid de {user.username} :")
         salarie_code = input()
         salarie = Salarie.objects.get(code_erp=salarie_code)
         profile = UserProfile()

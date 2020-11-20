@@ -18,17 +18,48 @@
 {% block "main_content" %}
 <div id="app">
   <div class="row">
-    <div class="col-12">
+    <div class="col-10">
+      <div class="card card-outline card-primary" v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Saisie de l'Activité</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Jour</th>
+                <th v-for="mad in releve.mad_list">${mad.adherent.raison_sociale}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
+                <td class="text-nowrap">${j.str}</td>
+                <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
+                  <input v-bind:value="saisie.heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-2">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Saisie des activités</h3>
+          <h3 class="card-title">Mois a saisir</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-4">
+            <div class="col-12">
               <div class="form-group">
                 <label for="mois_saisie">Période</label>
                 <div class="input-group input-group date" id="mois_saisie" data-target-input="nearest">
@@ -70,12 +101,57 @@ var app = new Vue({
       loader: false,
       mois: "",
       annee: "",
-      user: {{user.id}},
+      releve: {},
+      releve_loaded: false,
     };
   },
   methods: {
-    loadCalendar() {
-      
+    async loadCalendar() {
+      // Charge la saisie de la mise a disposition
+      self = this;
+      self.loader = true;
+      await fetch("/releve/ajax_load_saisie_releve/" + this.mois + "/" + this.annee + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        // console.log(result['jours']);
+        self.releve = {};
+        self.releve = result;
+        self.releve_loaded = true;
+      });
+      // suppression de la couleur verte des input
+      // $("input").removeClass("bg-success");
+      self.loader = false;
+    },
+    saveSaisieValue(value, id) {
+      self = this;
+      [numero_jour, saisie_id, index_jour, index_saisie] = id.split("-");
+      if (value == '') {
+        // il faut effacer la valeur dans ce cas
+        value = "0";
+      }
+
+      fetch("/releve/ajax_save_saisie/" + value + "/" + saisie_id + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        if (result['result'] == 'error') {
+          $(document).Toasts('create', {
+            class: 'bg-danger', 
+            title: "Erreur d'enregistrement",
+            body: result['message'],
+          });
+          $("#"+id).addClass("bg-danger");
+        } else {
+          self.releve.jours_list[index_jour].saisie_list[index_saisie].valeur = value;
+          $("#"+id).addClass("bg-success");
+        }
+      });
+    },
+    class_value(saisie) {
+      if (saisie.heures == 0) {
+        return '';
+      } else {
+        return 'bg-primary';
+      }
     },
   },
   mounted: function () {

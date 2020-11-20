@@ -4,4 +4,6 @@ from releve import views
 urlpatterns = [
     # path('prepa/', preparation_paie, name='prepa_paie'),
     path('', views.ReleveMensuelView.as_view(), name='releve_mensuel'),
+    path('ajax_load_saisie_releve/<int:mois>/<int:annee>/', views.ajax_load_saisie_releve, name="ajax_load_saisie_releve"),
+    path('ajax_save_saisie/<value>/<int:saisie_id>/', views.ajax_save_saisie, name="ajax_save_saisie"),
 ]

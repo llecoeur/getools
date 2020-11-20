@@ -88,6 +88,48 @@ class Salarie(models.Model):
     def __str__(self):
         return "{} {} ({})".format(self.nom, self.prenom, self.code_erp)
 
+    def get_saisies_releve_mois_dict_all(self, mois, annee):
+        """
+            returne le calendrier et les valeurs de saisies des relevés mensuels pour le mois donné en param
+        """
+        start, end = calendar.monthrange(annee, mois)
+
+        # CHargement du relevé, et création si il n'existe pas
+        try:
+            releve = self.releve_heures_list.get(mois=mois, annee=annee)
+        except ReleveSalarie.DoesNotExist:
+            releve = self.releve_heures_list.create(mois=mois, annee=annee)
+
+        d = []
+        for num_jour in range(1, end + 1):
+            date_saisie = date(annee, mois, num_jour)
+            # Liste des saisies du jour
+
+            s = []
+            mad_list = self.current_mad_list
+            for mad in mad_list:
+                saisie = releve.get_saisie(mad.adherent, date_saisie)
+                s.append(model_to_dict(saisie))
+            pen_day = pendulum.date(annee, mois, num_jour)
+            ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
+            samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
+            j = {
+                "num": num_jour,
+                "str": pen_day.format("dddd D").capitalize(),
+                "non_travaille": samedi_dimanche or ferie,
+                "saisie_list": s 
+            }
+            d.append(j)
+        return d
+
+
+    @property
+    def current_mad_list(self):
+        """
+            retourne la liste des mads ouvertes du salarié
+        """
+        return self.mise_a_disposition_list.filter(cloturee=False).order_by('adherent__raison_sociale')
+
     def get_info_sup(self, mois, annee):
         """
             Retourne l'objet InfoSupMois associé au salarié

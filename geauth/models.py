@@ -19,28 +19,23 @@ class User(AbstractUser):
             Sinon, on prend le nom, prenom enregistré dans l'utilisateur,
             enfin, on prend le login
         """
-        try:
-            if self.profile.salarie:
-                return f"{self.profile.salarie.prenom.title()} {self.profile.salarie.nom.title()}"
-            elif self.first_name == "" and self.last_name == "":
-                return self.username
-            else:
-                return f"{self.first_name.title()} {self.last_name.title()}"
-        except self.RelatedObjectDoesNotExist:
+        if self.profile.salarie:
+            return f"{self.profile.salarie.prenom.title()} {self.profile.salarie.nom.title()}"
+        elif self.first_name == "" and self.last_name == "":
             return self.username
+        else:
+            return f"{self.first_name.title()} {self.last_name.title()}"
+
 
     @property
     def svg_avatar_mini(self):
-        try:
-            if self.profile.salarie:
-                txt = self.profile.salarie.prenom[0] + self.profile.salarie.nom[0]
-            else:
-                try:
-                    txt = (self.first_name[0] + self.last_name[0]).capitalize()
-                except IndexError:
-                    txt = self.username[:2].capitalize()
-        except self.RelatedObjectDoesNotExist:
-            txt = self.username[:2].capitalize()
+        if self.profile.salarie:
+            txt = self.profile.salarie.prenom[0] + self.profile.salarie.nom[0]
+        else:
+            try:
+                txt = (self.first_name[0] + self.last_name[0]).capitalize()
+            except IndexError:
+                txt = self.username[:2].capitalize()
         svg = '''<svg width="24" height="24">
         <circle cx="12" cy="12" r="12" fill="#004eFF" />
         <text x="6" y="16" style="font-family: Arial; fill: #FFFFFF;font-size : 12px;">{}</text>

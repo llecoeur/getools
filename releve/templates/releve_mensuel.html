@@ -178,7 +178,9 @@ var app = new Vue({
           $("#"+id).addClass("bg-danger");
         } else {
           self.releve.jours_list[index_jour].saisie_list[index_saisie].valeur = value;
-          $("#"+id).addClass("bg-success");
+          if (value != 0) {
+            $("#"+id).addClass("bg-success");
+          }
         }
       });
     },

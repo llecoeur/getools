@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.forms.models import model_to_dict
 from releve.models import ReleveSalarie, SaisieSalarie
 from django.http import JsonResponse, HttpResponse
+from releve.serializers import SaisieSalarieSerializer
 
 
 class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
@@ -65,3 +66,7 @@ def ajax_save_saisie(request, value, saisie_id):
         "title": "Enregistrement OK",
         "body": "Valeur enregistrée",
     })
+
+class SaisieSalarieViewSet(viewsets.ModelViewSet):
+    queryset = SaisieSalarie.objects.all()
+    serializer_class = SaisieSalarieSerializer

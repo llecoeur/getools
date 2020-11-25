@@ -38,7 +38,13 @@
               <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
-                  <input v-bind:value="saisie.heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <div class="input-group input-group-sm">
+                    <input v-bind:value="saisie.heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                    <span class="input-group-append">
+                      <button type="button" class="btn btn-info btn-flat" v-on:click="showCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i><span class="badge badge-danger" v-if="saisie.commentaire != ''">*</span></button>
+                    </span>
+                  </div>
+                  
                 </td>
               </tr>
             </tbody>
@@ -80,6 +86,26 @@
       </div>
     </div>
   </div>
+  <!-- Modal pour édition des commentaires -->
+  <div class="modal fade" id="commentaireModal" tabindex="-1" role="dialog" aria-labelledby="commentaireModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Commentaire ${commentaireModalData.adherent_txt} du ${commentaireModalData.jour_txt}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" name="commentaire" id="id_commentaire" v-model="commentaireModalData.commentaire"></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+          <button type="button" class="btn btn-primary" v-on:click="saveCommentModal">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock "main_content"%}
 {% block "footer_js" %}
@@ -91,6 +117,7 @@ $(function () {
       format: 'MMMM YYYY',
       defaultDate: moment(),
     });
+    $('[data-toggle="tooltip"]').tooltip()
 });
 var app = new Vue({
   el: '#app',
@@ -103,6 +130,14 @@ var app = new Vue({
       annee: "",
       releve: {},
       releve_loaded: false,
+      commentaireModalData: {
+        index_jour: 0,
+        index_saisie: 0,
+        saisieId: 0,
+        commentaire: "",
+        jour_txt: "",
+        adherent_txt: "",
+      },
     };
   },
   methods: {
@@ -123,6 +158,7 @@ var app = new Vue({
       self.loader = false;
     },
     saveSaisieValue(value, id) {
+      // Enregistre la valeur saisie dans la case
       self = this;
       [numero_jour, saisie_id, index_jour, index_saisie] = id.split("-");
       if (value == '') {
@@ -145,6 +181,41 @@ var app = new Vue({
           $("#"+id).addClass("bg-success");
         }
       });
+    },
+    showCommentModal(id, index_jour, index_saisie) {
+      // Charge les données dans le modal et afflche
+      self = this;
+      self.commentaireModalData.saisieId = id;
+      self.commentaireModalData.index_jour = index_jour;
+      self.commentaireModalData.index_saisie = index_saisie;
+      self.commentaireModalData.jour_txt = moment({ year :self.annee, month :self.mois, day :self.releve.jours_list[index_jour].num}).format("dddd D MMMM");
+      self.commentaireModalData.commentaire = self.releve.jours_list[index_jour].saisie_list[index_saisie].commentaire;
+      self.commentaireModalData.adherent_txt = self.releve.mad_list[index_saisie].adherent.raison_sociale;
+
+      $('#commentaireModal').modal("show");
+    },
+    saveCommentModal() {
+      // Enregistre le commentaire saisi dans le modal, et actualise le commentaire chargé
+      self = this;
+      self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie].commentaire = self.commentaireModalData.commentaire
+      const requestOptions = {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Accept": "application/json",
+        },
+        body: JSON.stringify(self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie]),
+        credentials: 'same-origin',
+      };
+      fetch("/api/saisie_salarie/" + self.commentaireModalData.saisieId + "/", requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        console.log("OK !", result);
+      }).catch(function(ex) {
+        console.log("parsing failed", ex);
+      });
+      $('#commentaireModal').modal("hide");
     },
     class_value(saisie) {
       if (saisie.heures == 0) {

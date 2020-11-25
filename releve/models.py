@@ -49,6 +49,7 @@ class SaisieSalarie(models.Model):
     heures = models.FloatField("Heures", db_index=True, default=0, null=False)
     releve = models.ForeignKey(ReleveSalarie, verbose_name="Relevé", related_name="saisie_salarie_list", on_delete=models.CASCADE, db_index=True)
     adherent = models.ForeignKey(Adherent, verbose_name="Adhérent", related_name="saisie_salarie_list", on_delete=models.CASCADE, db_index=True)
+    commentaire = models.TextField("Commentaire", null=False, default="")
     created = models.DateTimeField("Date de création", db_index=True)
     updated = models.DateTimeField("Date de modification", db_index=True)
 

@@ -1,6 +1,7 @@
 {% extends 'base.html'%}
 {% load static %}
 {% block header_css %}
+/*
 .form-control-sm {
     height: calc(1.3rem + 2px);
     padding: .1rem .5rem;
@@ -8,9 +9,9 @@
     line-height: 1;
     border-radius: .2rem;
 }
-
+*/
 .table-sm td {
-  padding: 0;
+  padding: 2px;
 }
 
 {% endblock header_css %}
@@ -32,23 +33,52 @@
               <tr>
                 <th>Jour</th>
                 <th v-for="mad in releve.mad_list">${mad.adherent.raison_sociale}</th>
+                <th>ABSENCE</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
-                  <div class="input-group input-group-sm">
-                    <input v-bind:value="saisie.heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
-                    <span class="input-group-append">
-                      <button type="button" class="btn btn-info btn-flat" v-on:click="showCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i><span class="badge badge-danger" v-if="saisie.commentaire != ''">*</span></button>
-                    </span>
-                  </div>
-                  
+                  <template v-if="saisie.adherent">
+                    <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
+                  </template>
+                  <template v-else>
+                    <div class="input-group" data-toggle="tooltip" data-placement="top" title="Les commentaires sont obligatoires sur les absences">
+                      <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
+                      <span class="input-group-append" v-if="saisie.saved">
+                        <button type="button" class="btn btn-flat" v-bind:class="[saisie.commentaire == '' ? 'btn-danger' : 'btn-success']" v-on:click="showCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i></button>
+                      </span>
+                    </div>
+                  </template>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+      <div class="card card-outline card-primary" v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Commentaires <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Ces commentaires sont destinés a la paie du mois"></i></h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <textarea class="form-control" rows="5" v-model="releve.commentaire"></textarea>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12 d-flex justify-content-center p-2">
+              <button class="btn btn-success" v-on:click="saveReleveSalarie"><i class="fas fa-save"></i> Enregistrer</button>
+            </div>
+          </div>
+          
         </div>
         <div class="overlay" v-show="loader">
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
@@ -86,12 +116,13 @@
       </div>
     </div>
   </div>
+
   <!-- Modal pour édition des commentaires -->
   <div class="modal fade" id="commentaireModal" tabindex="-1" role="dialog" aria-labelledby="commentaireModal" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Commentaire ${commentaireModalData.adherent_txt} du ${commentaireModalData.jour_txt}</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Raison de l'absence du ${commentaireModalData.jour_txt}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
@@ -117,7 +148,6 @@ $(function () {
       format: 'MMMM YYYY',
       defaultDate: moment(),
     });
-    $('[data-toggle="tooltip"]').tooltip()
 });
 var app = new Vue({
   el: '#app',
@@ -138,6 +168,16 @@ var app = new Vue({
         jour_txt: "",
         adherent_txt: "",
       },
+      requestOptions: {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Accept": "application/json",
+        },
+        body: "",
+        credentials: 'same-origin',
+      },
     };
   },
   methods: {
@@ -156,32 +196,55 @@ var app = new Vue({
       // suppression de la couleur verte des input
       // $("input").removeClass("bg-success");
       self.loader = false;
+      
     },
-    saveSaisieValue(value, id) {
+    saveSaisieValue(id) {
       // Enregistre la valeur saisie dans la case
+      // L'enregistrement se fait via un PUT dans l'API
+
       self = this;
       [numero_jour, saisie_id, index_jour, index_saisie] = id.split("-");
-      if (value == '') {
+      if (self.releve.jours_list[index_jour].saisie_list[index_saisie].heures == '') {
         // il faut effacer la valeur dans ce cas
-        value = "0";
+        self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = "0";
       }
+      if (self.releve.jours_list[index_jour].saisie_list[index_saisie].heures == 0) {
+        self.releve.jours_list[index_jour].saisie_list[index_saisie].saved = false;
+      } else {
+        self.releve.jours_list[index_jour].saisie_list[index_saisie].saved = true;
+      }
+      // self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = value;
+      saisie = { ...self.releve.jours_list[index_jour].saisie_list[index_saisie] };
+      delete saisie.created
+      delete saisie.updated
 
-      fetch("/releve/ajax_save_saisie/" + value + "/" + saisie_id + "/").then(function (response) {
+      console.log(saisie);
+      self.requestOptions.body = JSON.stringify(saisie);
+      fetch("/api/saisie_salarie/" + saisie_id + "/", self.requestOptions).then(function (response) {
         return response.json();
       }).then(function (result) {
         if (result['result'] == 'error') {
           $(document).Toasts('create', {
             class: 'bg-danger', 
             title: "Erreur d'enregistrement",
-            body: result['message'],
+            body: result['body'],
           });
-          $("#"+id).addClass("bg-danger");
+          $("#"+id).addClass("is-invalid");
+          console.log(result)
         } else {
-          self.releve.jours_list[index_jour].saisie_list[index_saisie].valeur = value;
-          if (value != 0) {
-            $("#"+id).addClass("bg-success");
+          if (saisie.heures != 0) {
+            $("#"+id).addClass("is-valid");
+          } else {
+            // Enlever toutes les classes de couleurs dans ce cas
+            $("#"+id).removeClass("is-valid").removeClass("is-invalid").removeClass("bg-warning");
           }
         }
+      }).catch(function(ex) {
+        $(document).Toasts('create', {
+          class: 'bg-danger', 
+          title: "Erreur d'enregistrement",
+          body: ex,
+        });
       });
     },
     showCommentModal(id, index_jour, index_saisie) {
@@ -192,7 +255,6 @@ var app = new Vue({
       self.commentaireModalData.index_saisie = index_saisie;
       self.commentaireModalData.jour_txt = moment({ year :self.annee, month :self.mois, day :self.releve.jours_list[index_jour].num}).format("dddd D MMMM");
       self.commentaireModalData.commentaire = self.releve.jours_list[index_jour].saisie_list[index_saisie].commentaire;
-      self.commentaireModalData.adherent_txt = self.releve.mad_list[index_saisie].adherent.raison_sociale;
 
       $('#commentaireModal').modal("show");
     },
@@ -200,17 +262,12 @@ var app = new Vue({
       // Enregistre le commentaire saisi dans le modal, et actualise le commentaire chargé
       self = this;
       self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie].commentaire = self.commentaireModalData.commentaire
-      const requestOptions = {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "X-CSRFToken": getCookie("csrftoken"),
-          "Accept": "application/json",
-        },
-        body: JSON.stringify(self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie]),
-        credentials: 'same-origin',
-      };
-      fetch("/api/saisie_salarie/" + self.commentaireModalData.saisieId + "/", requestOptions).then(function (response) {
+      saisie = { ...self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie] };
+      delete saisie.created;
+      delete saisie.updated;
+
+      self.requestOptions.body = JSON.stringify(saisie);
+      fetch("/api/saisie_salarie/" + self.commentaireModalData.saisieId + "/", self.rrequestOptions).then(function (response) {
         return response.json();
       }).then(function (result) {
         console.log("OK !", result);
@@ -219,11 +276,43 @@ var app = new Vue({
       });
       $('#commentaireModal').modal("hide");
     },
+    saveReleveSalarie() {
+      self = this;
+      releve = {... self.releve }
+      delete releve.jours_list;
+      delete releve.mad_list;
+      delete releve.salarie;
+      releve.salarie = self.releve.salarie.id;
+      self.requestOptions.body = JSON.stringify(releve);
+      fetch("/api/releve_salarie/" + releve.id + "/", self.requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $(document).Toasts('create', {
+          class: 'bg-success', 
+          title: "Relevé enregistré",
+          body: "Votre relevé a été enregistré",
+        });
+      }).catch(function(ex) {
+        $(document).Toasts('create', {
+          class: 'bg-danger', 
+          title: "Echec d'entregistrement",
+          body: ex,
+        });
+      });
+      $('#commentaireModal').modal("hide");
+    },
     class_value(saisie) {
-      if (saisie.heures == 0) {
+      if (!saisie.saved) {
         return '';
       } else {
-        return 'bg-primary';
+        if (saisie.adherent == null) {
+          // case de commentaire
+          if (saisie.commentaire == "") {
+            // Il faut saisir un commentaire
+            return 'is-invalid';
+          }
+        }
+        return 'bg-warning is-valid';
       }
     },
   },

@@ -110,6 +110,9 @@ class Salarie(models.Model):
             for mad in mad_list:
                 saisie = releve.get_saisie(mad.adherent, date_saisie)
                 s.append(model_to_dict(saisie))
+            # Ajout des absences
+            absence = releve.get_saisie(None, date_saisie)
+            s.append(model_to_dict(absence))
             pen_day = pendulum.date(annee, mois, num_jour)
             ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
             samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY

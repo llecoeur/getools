@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.forms.models import model_to_dict
 from releve.models import ReleveSalarie, SaisieSalarie
 from django.http import JsonResponse, HttpResponse
-from releve.serializers import SaisieSalarieSerializer
+from releve.serializers import SaisieSalarieSerializer, ReleveSalarieSerializer
 
 
 class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
@@ -47,26 +47,11 @@ def ajax_load_saisie_releve(request, mois, annee):
     # TODO : Créer la liste des jours. Voir get_saisies_from_mois_dict_all sans activite_mise a dispo   
     return JsonResponse(releve_dict) 
 
-def ajax_save_saisie(request, value, saisie_id):
-    valeur = float(value)
-    try:
-        saisie = SaisieSalarie.objects.get(id=saisie_id)
-    except SaisieSalarie.DoesNotExist:
-        return JsonResponse({
-            "result": "error",
-            "class": 'bg-danger', 
-            "title": "Erreur d'enregistrement",
-            "body": "Impossible de trouver la saisie. Veuillez actualiser la page et recommencer",
-        })
-    saisie.heures = value
-    saisie.save()
-    return JsonResponse({
-        "result": "success",
-        "class": 'bg-success', 
-        "title": "Enregistrement OK",
-        "body": "Valeur enregistrée",
-    })
 
 class SaisieSalarieViewSet(viewsets.ModelViewSet):
     queryset = SaisieSalarie.objects.all()
     serializer_class = SaisieSalarieSerializer
+
+class ReleveSalarieViewSet(viewsets.ModelViewSet):
+    queryset = ReleveSalarie.objects.all()
+    serializer_class = ReleveSalarieSerializer

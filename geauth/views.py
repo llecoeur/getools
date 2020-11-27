@@ -46,6 +46,7 @@ class CreateUserView(CreateView, PermissionRequiredMixin):
         subject = "Création de mot de passe pour GeTools Progressis"
         email_template_name = "email_password_create.txt"
         c = {
+            "username": self.object.username,
             "nom": self.object.profile.salarie.nom.title(),
             "prenom": self.object.profile.salarie.prenom.title(),
             'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,

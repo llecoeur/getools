@@ -28,7 +28,7 @@
 {% block "main_content" %}
 <div id="app">
   <div class="row">
-    <div class="col-10">
+    <div class="col-9">
       <div class="card card-outline card-primary" v-if="releve_loaded">
         <div class="card-header">
           <h3 class="card-title">Saisie de l'Activité</h3>
@@ -46,8 +46,9 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
-                <td class="text-nowrap">${j.str}</td>
+              <!-- <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num"> -->
+              <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="[ j.non_travaille ? 'bg-secondary disabled color-palette' : '' ]" :key="j.num">
+                <td class="text-nowrap bg-gray color-palette">${j.str}</td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
                   <template v-if="saisie.adherent">
                     <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
@@ -71,7 +72,7 @@
       </div>
       <div class="card card-outline card-primary" v-if="releve_loaded">
         <div class="card-header">
-          <h3 class="card-title">Commentaires <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Ces commentaires sont destinés a la paie du mois"></i></h3>
+          <h3 class="card-title">Commentaires <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Ces commentaires sont destinés à l’équipe Progressis en charge de comptabiliser les heures des salariés "></i></h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -84,7 +85,7 @@
           </div>
           <div class="row">
             <div class="col-12 d-flex justify-content-center p-2">
-              <button class="btn btn-success" v-on:click="saveReleveSalarie"><i class="fas fa-save"></i> Enregistrer</button>
+              <button class="btn btn-success" v-on:click="saveReleveSalarie"><i class="fas fa-save"></i> Enregistrer le commentaire</button>
             </div>
           </div>
           
@@ -94,7 +95,7 @@
         </div>
       </div>
     </div>
-    <div class="col-2">
+    <div class="col-3">
       <div class="card card-outline card-primary">
         <div class="card-header">
           <h3 class="card-title">Mois a saisir</h3>
@@ -125,12 +126,13 @@
       </div>
       <div class="card card-outline card-primary"  v-if="releve_loaded">
         <div class="card-header">
-          <h3 class="card-title">Totaux</h3>
+          <h3 class="card-title">Statistiques</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
         </div>
         <div class="card-body">
+          Total saisi : ${totalHeureSaisies} h
           <canvas id="heuresMadPieId" width="300" height="300"></canvas>
         </div>
         <div class="overlay" v-show="loader">
@@ -151,6 +153,9 @@
           </button>
         </div>
         <div class="modal-body">
+        <p>
+          Veuillez ici expliquer ou commenter l'absence. <br />Par exemple : CP, Garde d'enfant, Maladie, Chomage partiel, etc...
+        </p>
           <textarea class="form-control" name="commentaire" id="id_commentaire" v-model="commentaireModalData.commentaire"></textarea>
         </div>
         <div class="modal-footer">
@@ -243,6 +248,20 @@ var app = new Vue({
           },
         },
       };
+    },
+    totalHeureSaisies () {
+      self = this;
+      total_heures = 0;
+      var cpt = 0;
+      if (this.releve_loaded) {
+        this.releve.mad_list.forEach(function(mad){
+          total_heures += self.totalColonne(cpt);
+          cpt += 1;
+        });
+        // Absences
+        total_heures += self.totalColonne(cpt);
+      }
+      return total_heures;
     },
   },
   methods: {
@@ -399,6 +418,7 @@ var app = new Vue({
   mounted: function () {
       this.mois = moment().format("M");
       this.annee = moment().format("YYYY");
+      this.loadCalendar();
   },
 });
 

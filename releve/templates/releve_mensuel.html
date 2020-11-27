@@ -31,7 +31,7 @@
     <div class="col-9">
       <div class="card card-outline card-primary" v-if="releve_loaded">
         <div class="card-header">
-          <h3 class="card-title">Saisie de l'Activité</h3>
+          <h3 class="card-title">Saisissez vos heures travaillées chez chaque adhérent Progressis</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -40,7 +40,8 @@
           <table class="table table-sm">
             <thead>
               <tr>
-                <th>Jour</th>
+                <th>Jour</th> 
+                <th> </th>
                 <th v-for="mad in releve.mad_list">${mad.adherent.raison_sociale}</th>
                 <th>ABSENCE</th>
               </tr>
@@ -49,6 +50,7 @@
               <!-- <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num"> -->
               <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="[ j.non_travaille ? 'bg-secondary disabled color-palette' : '' ]" :key="j.num">
                 <td class="text-nowrap bg-gray color-palette">${j.str}</td>
+                <td class="text-nowrap bg-gray color-palette"><button class="btn btn-flat form-control-sm btn-default"><i class="far fa-comment"></i></button></td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
                   <template v-if="saisie.adherent">
                     <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">

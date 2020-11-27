@@ -123,6 +123,20 @@
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
+      <div class="card card-outline card-primary"  v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Totaux</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="heuresMadPieId" width="300" height="300"></canvas>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -157,7 +171,11 @@ $(function () {
       format: 'MMMM YYYY',
       defaultDate: moment(),
     });
+    
 });
+
+
+
 var app = new Vue({
   el: '#app',
   delimiters: ['${','}'],
@@ -187,7 +205,45 @@ var app = new Vue({
         body: "",
         credentials: 'same-origin',
       },
+      heuresMadPie: {},
+      ctxMadPie: {},
     };
+  },
+  computed: {
+    heuresMadPieData () {
+      // Construit et retourne l'object data pour le graphique camembert des temps passés
+      // Data : valeurs des sommes des labels
+      self=this;
+      var data_values = [];
+      var labels_values = [];
+      cpt = 0;
+      if (this.releve_loaded) {
+        this.releve.mad_list.forEach(function(mad){
+          labels_values.push(mad.adherent.raison_sociale + " " + String(self.totalColonne(cpt)));
+          data_values.push(self.totalColonne(cpt));
+          cpt += 1;
+        });
+      }
+      labels_values.push("ABSENCE " + String(self.totalColonne(cpt)));
+      data_values.push(self.totalColonne(cpt));
+      return {
+        datasets: [{
+          data: data_values,
+          label: "Heures passées",
+        }],
+        labels: labels_values,
+      };
+    },
+    heuresMadPieOptions () {
+      // Construit et retourne l'object options pour le graphique camembert des temps passés
+      return {  
+        plugins: {
+          colorschemes: {
+            scheme: 'tableau.Classic20',
+          },
+        },
+      };
+    },
   },
   methods: {
     async loadCalendar() {
@@ -204,6 +260,12 @@ var app = new Vue({
       });
       // suppression de la couleur verte des input
       // $("input").removeClass("bg-success");
+      self.ctx = document.getElementById('heuresMadPieId');
+      self.heuresMadPie = new Chart(self.ctx, {
+        type: 'pie',
+        data: this.heuresMadPieData,
+        options: this.heuresMadPieOptions,
+      });
       self.loader = false;
       
     },
@@ -227,7 +289,6 @@ var app = new Vue({
       delete saisie.created
       delete saisie.updated
 
-      console.log(saisie);
       self.requestOptions.body = JSON.stringify(saisie);
       fetch("/api/saisie_salarie/" + saisie_id + "/", self.requestOptions).then(function (response) {
         return response.json();
@@ -239,7 +300,6 @@ var app = new Vue({
             body: result['body'],
           });
           $("#"+id).addClass("is-invalid");
-          console.log(result)
         } else {
           if (saisie.heures != 0) {
             $("#"+id).addClass("is-valid");
@@ -255,6 +315,8 @@ var app = new Vue({
           body: ex,
         });
       });
+      this.heuresMadPie.data = self.heuresMadPieData;
+      this.heuresMadPie.update(0);
     },
     showCommentModal(id, index_jour, index_saisie) {
       // Charge les données dans le modal et afflche
@@ -309,6 +371,15 @@ var app = new Vue({
         });
       });
       $('#commentaireModal').modal("hide");
+    },
+    totalColonne(index) {
+      // Retourne le total des heures saisies sur la colonne
+      self = this;
+      total = 0;
+      for (index_jour in self.releve.jours_list) {
+        total += Number(self.releve.jours_list[index_jour].saisie_list[index].heures);
+      }
+      return total;
     },
     class_value(saisie) {
       if (!saisie.saved) {

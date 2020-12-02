@@ -66,6 +66,7 @@
                 <th>Salarié</th>
                 <th>Adhérent</th>
                 <th>Article</th>
+                <th>MAD</th>
                 <th>Tarif</th>
                 <th>Action</th>
               </tr>
@@ -77,6 +78,7 @@
                   <td>{{tarif.mise_a_disposition.salarie}}</td>
                   <td>{{tarif.mise_a_disposition.adherent}}</td>
                   <td>{{tarif.article}}</td>
+                  <td>{{tarif.mise_a_disposition.code_erp}}</td>
                   <td>{{tarif.tarif}}</td>
                   <td>
                     <a href="{% url 'tarifge-update' pk=tarif.id %}" class="btn btn-primary btn-xs"><i class="fas fa-edit"></i></a>

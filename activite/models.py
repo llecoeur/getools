@@ -235,6 +235,8 @@ class Salarie(models.Model):
                 
             }
             rub_list.append(d)
+
+        
         pprint(rub_list)
         return rub_list
 

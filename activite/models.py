@@ -236,7 +236,68 @@ class Salarie(models.Model):
             }
             rub_list.append(d)
 
-        
+        # Ajout des rublriques standard : 9903, 
+        info_sup = self.get_info_sup(mois, annee)
+        # 9901 et 9903
+        tmp_rub_list = RubriquePaie.objects.filter(code_erp__in=["9901", "9903"])
+        for rub in tmp_rub_list:
+            d ={
+                # "ImportType": "MH2",
+                "ImportType": "MHE",
+                "EmployeeId": self.code_erp,
+                "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                "NumberOrder": 1,
+                "Rubric": rub.code_erp,
+                "RubricLabelSubstitution": rub.libelle,
+                "TypeSupplyRubric": "BT",
+                "PayrollBase": round(info_sup.heures_travaillees, 2),
+                "PayrollRate": 0,
+                "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                
+            }
+            rub_list.append(d)
+        if info_sup.difference_heures < 0:
+            # Différence d'heure négatif
+            rub = RubriquePaie.objects.get(code_erp="9913")
+            d ={
+                # "ImportType": "MH2",
+                "ImportType": "MHE",
+                "EmployeeId": self.code_erp,
+                "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                "NumberOrder": 1,
+                "Rubric": rub.code_erp,
+                "RubricLabelSubstitution": rub.libelle,
+                "TypeSupplyRubric": "BT",
+                "PayrollBase": round(abs(info_sup.difference_heures), 2),
+                "PayrollRate": 0,
+                "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                
+            }
+            rub_list.append(d)
+        if info_sup.difference_heures > 0:
+            # différence heures positif
+            rub = RubriquePaie.objects.get(code_erp="9911")
+            d ={
+                # "ImportType": "MH2",
+                "ImportType": "MHE",
+                "EmployeeId": self.code_erp,
+                "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                "NumberOrder": 1,
+                "Rubric": rub.code_erp,
+                "RubricLabelSubstitution": rub.libelle,
+                "TypeSupplyRubric": "BT",
+                "PayrollBase": round(abs(info_sup.difference_heures), 2),
+                "PayrollRate": 0,
+                "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                
+            }
+            rub_list.append(d)
         pprint(rub_list)
         return rub_list
 

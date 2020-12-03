@@ -185,58 +185,67 @@ class Salarie(models.Model):
         """
             Crée le tableau de paie du salarié
         """
-
-        # on récupere tous les tarifs du salarié qui ont des saisies sur la période :
-        tarif_list = (
-            TarifGe.objects
-            .filter(mise_a_disposition__salarie=self)
-            .filter(mise_a_disposition__cloturee=False)
-            .filter(article__facturation_uniquement=False)
-            .filter(saisie_activite_list__date_realisation__year=annee)
-            .filter(saisie_activite_list__date_realisation__month=mois)
-            .exclude(article__rubrique_paie=None)
-            .annotate(quantites = Sum('saisie_activite_list__quantite'))
-            .exclude(quantites=None)
-            .exclude(quantites=0)
-        )
+        mad_list = self.mise_a_disposition_list.filter(cloturee=False).order_by("adherent__raison_sociale")
+        # stockage de tous les dicts des rubriques a envoyer en paie
         rub_list = []
-        for tarif in tarif_list:
-            # On est forfaitaire ?
-            try:
-                forfaitaire = tarif.article.famille.forfaitaire
-            except AttributeError:
-                forfaitaire = False
+        # Compteur de rubrique, pour gérer les incréments
+        compteur_rubrique_paie = RubriquePaieCodeCompteur()
+        for mad in mad_list:
+            # on liste les tarifs avec leurs sommes pour cette mad
+            print(f"Adhérent : {mad.adherent.raison_sociale}")
+            tarif_list = (
+                TarifGe.objects
+                .filter(mise_a_disposition=mad)
+                .filter(article__facturation_uniquement=False)
+                .filter(saisie_activite_list__date_realisation__year=annee, saisie_activite_list__date_realisation__month=mois)
+                .exclude(article__rubrique_paie=None)
+                .annotate(quantites = Sum('saisie_activite_list__quantite'))
+                .exclude(quantites=None)
+                .exclude(quantites=0)
+                .order_by("mise_a_disposition__adherent__raison_sociale")
+            )
 
-            if forfaitaire:
-                base = 1
-                rate = tarif.quantites
-            else:
-                if tarif.tarif_pere:
-                    base = tarif.quantites
-                    rate = tarif.tarif_pere.tarif * tarif.coef
+            for tarif in tarif_list:
+                # On est forfaitaire ?
+                try:
+                    forfaitaire = tarif.article.famille.forfaitaire
+                except AttributeError:
+                    forfaitaire = False
+
+                if forfaitaire:
+                    base = 1
+                    rate = tarif.quantites
                 else:
-                    base = tarif.quantites
-                    rate = tarif.tarif
+                    if tarif.tarif_pere:
+                        base = tarif.quantites
+                        rate = tarif.tarif_pere.tarif * tarif.coef
+                    else:
+                        base = tarif.quantites
+                        rate = tarif.tarif
 
-            d ={
-                # "ImportType": "MH2",
-                "ImportType": "MHE",
-                "EmployeeId": self.code_erp,
-                "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
-                "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
-                "NumberOrder": 1,
-                "Rubric": tarif.article.rubrique_paie.code_erp,
-                "RubricLabelSubstitution": tarif.article.rubrique_paie.libelle,
-                "TypeSupplyRubric": "BT",
-                "PayrollBase": base,
-                "PayrollRate": rate,
-                "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
-                "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
-                
-            }
-            rub_list.append(d)
+                rubrique_code = compteur_rubrique_paie.get_code(tarif.article.rubrique_paie.code_erp)
+                # On prend le libelle de la nouvelle rubrique
+                label_rubrique = RubriquePaie.get_libelle(rubrique_code, tarif.article.rubrique_paie.code_erp)
+                label_substitution = (label_rubrique + " " + tarif.mise_a_disposition.adherent.raison_sociale)[:35]
+                print(f"{rubrique_code} : {label_substitution}")
+                d ={
+                    # "ImportType": "MH2",
+                    "ImportType": "MHE",
+                    "EmployeeId": self.code_erp,
+                    "BeginDatePayroll": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                    "EndDatePayroll": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                    "NumberOrder": 1,
+                    "Rubric": rubrique_code,
+                    "RubricLabelSubstitution": label_substitution,
+                    "TypeSupplyRubric": "BT",
+                    "PayrollBase": round(base, 2),
+                    "PayrollRate": rate,
+                    "BeginDateDSN": date(annee, mois, 1).strftime("%Y-%m-%d"),
+                    "EndDateDSN": date(annee, mois, 1).strftime("%Y-%m-") + str(calendar.monthrange(annee, mois)[1]),
+                }
+                rub_list.append(d)
 
-        # Ajout des rublriques standard : 9903, 
+        # Ajout des rublriques standard : 9903, etc...
         info_sup = self.get_info_sup(mois, annee)
         # 9901 et 9903
         tmp_rub_list = RubriquePaie.objects.filter(code_erp__in=["9901", "9903"])
@@ -345,6 +354,61 @@ class RubriquePaie(models.Model):
 
     def __str__(self):
         return "{} ({})".format(self.libelle, self.code_erp)
+
+    @staticmethod
+    def get_libelle(code_erp, code_defaut):
+        """
+            Retourne le libellé du code_erp. Si non trovué, retourne le libellé de la rubrique par défaut
+        """
+        try:
+            rub = RubriquePaie.objects.get(code_erp=code_erp)
+        except RubriquePaie.DoesNotExist:
+            try:
+                rub = RubriquePaie.objects.get(code_erp=code_defaut)
+            except RubriquePaie.DoesNotExist:
+                return "ERREUR : RURBIQUES INCONNUES"
+        return rub.libelle
+
+
+
+class RubriquePaieCodeCompteur():
+    """
+        Classe servant a générer les codes des rubriques incrémentés pour la paie
+        rubrique_dict est un dictionnaire des codes. La clef est le code de rubrique, la valeur est le prochain code a utiliser
+    """
+    
+    def __init__(self):
+        self.rubrique_code_dict = {}
+
+    def increment(self, code):
+        """
+            incrémente le code de 2, et le positionne si il n'existe pas, et complété avec des 0 si < en longueur
+        """
+        inc_code = self.rubrique_code_dict[code]
+
+        inc_code = str(int(inc_code) + 2)
+        # On complète les 0 initiaux pour faire 4 caractères
+        while len(inc_code) != 4:
+            inc_code = '0' + inc_code
+
+        self.rubrique_code_dict[code] = inc_code
+        return inc_code
+        
+
+
+    def get_code(self, code):
+        """
+            Retourne le code de rubrique a utiliser pour le code initial donné
+        """
+        try:
+            next_code = self.rubrique_code_dict[code]
+        except KeyError:
+            # Le code n'existe pas, on le positionne, et on retourne le code actuel
+            self.rubrique_code_dict[code] = code
+            next_code = code
+        # On incrémente le code
+        self.increment(code)
+        return next_code
 
 
 class MiseADisposition(models.Model):

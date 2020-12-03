@@ -76,3 +76,21 @@ class SaisieSalarie(models.Model):
         super().save(*args, **kwargs)
 
 
+class ReleveSalarieCommentaire(models.Model):
+
+    # Numéro du jour auquel est rattaché ce commentaire
+    jour = models.IntegerField("Jour", db_index=True, null=False, default=1)
+    commentaire = models.TextField("Commentaire", default="", blank=True)
+    releve = models.ForeignKey(ReleveSalarie, verbose_name="Relevé", related_name="commentaire_list", on_delete=models.CASCADE, db_index=True)
+    # Champs automatiques
+    created = models.DateTimeField("Date de création", db_index=True, editable=False)
+    updated = models.DateTimeField("Date de modification", db_index=True, editable=False)
+
+    def __str__(self):
+        return self.commentaire
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.created = timezone.now()
+        self.updated = timezone.now()
+        super().save(*args, **kwargs)

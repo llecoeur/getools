@@ -352,7 +352,7 @@ def ajax_update_salaries(request):
     """
     cegid = CegidCloud()
     salarie_list = cegid.get_salarie_list()
-    print(salarie_list)
+    # print(salarie_list)
     count = len(salarie_list)
     ajoute = 0
     for salarie_cegid in salarie_list:
@@ -430,11 +430,10 @@ def ajax_update_article(request):
         try:
             rub_paie = RubriquePaie.objects.get(code_erp=article_cegid['UserFieldItem1_GA'])
         except AttributeError:
-            pass
+            rub_paie = None
         except RubriquePaie.DoesNotExist:
-            pass
-        else:
-            art.rubrique_paie = rub_paie
+            rub_paie = None
+        art.rubrique_paie = rub_paie
         # La famille
         try:
             famille = FamilleArticle.objects.get(code_erp=article_cegid['FamilyLevel1_GA'])

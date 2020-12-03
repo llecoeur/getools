@@ -24,6 +24,7 @@ from pprint import pprint
 from django.forms.models import modelform_factory
 from django.forms import ModelChoiceField
 from django.views.decorators.csrf import csrf_exempt
+import unicodedata
 pendulum.set_locale('fr')
 
 
@@ -758,5 +759,5 @@ def download_paie(request, annee, mois):
     print(buletin_lines)
     resp = HttpResponse(content_type='application/force-download')
     resp['Content-Disposition'] = f"attachment; filename={annee}-{mois}-paie.trt"
-    resp.write(buletin_lines)
+    resp.write(unicodedata.normalize('NFKD', buletin_lines).encode('iso-8859-1', 'ignore'))
     return resp

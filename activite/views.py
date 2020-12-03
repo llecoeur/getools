@@ -511,6 +511,15 @@ def ajax_update_mad(request):
                 mad.salarie = salarie
                 mad.cloturee = False
                 ajoute += 1
+
+            # On vérifie le code. Si différent, il faudra voir quelle mad on garde
+            if mad.code_erp != affaire_cegid['Project_AFF']:
+                # On abandonne la suite si l'affaire est close
+                print(f"EE:{affaire_cegid['Project_AFF']} : Une affaire porte déja ce nom avec un code différent : {mad.code_erp}")
+                if affaire_cegid['State_AFF'] == "CLO":
+                    print(f"EE : L'affaire {affaire_cegid['Project_AFF']} est fermée. On ne l'enregistre pas")
+                    pprint(affaire_cegid)
+                    continue
             mad.code_erp = affaire_cegid['Project_AFF']
             mad.duree_travail_mensuel = affaire_cegid['UserFieldNumeric2_AFF']
             mad.duree_travail_quotidien = affaire_cegid['UserFieldNumeric3_AFF']

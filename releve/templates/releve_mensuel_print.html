@@ -1,0 +1,92 @@
+{% extends 'base_print.html'%}
+{% load static %}
+  {% block header_css %}
+  <style type="text/css">
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Pacifico|Source+Sans+Pro:400,700");
+@page {
+  margin: 2cm;
+}
+
+html {
+  color: #14213d;
+  font-family: Source Sans Pro;
+  font-size: 11pt;
+  line-height: 1.6; }
+  html body {
+    margin: 0; }
+  html h1 {
+    font-family: Source Sans Pro;
+    font-size: 20pt;
+    font-weight: bold;
+    margin: 0; }
+  
+  html body article {
+    break-after: left;
+  }
+
+  html table {
+    border-collapse: collapse;
+    width: 100%; }
+    html table th {
+      border-bottom: .2mm solid #a9a;
+      color: #a9a;
+      font-weight: 400;
+      padding-bottom: .15cm;
+      text-transform: uppercase; }
+
+    html table th, html table td {
+      text-align: center; }
+      html table th:first-of-type, html table td:first-of-type {
+        text-align: left; }
+      html table th:last-of-type, html table td:last-of-type {
+        text-align: right; }
+
+  html #commentaire {
+    white-space: pre-line;
+  }
+
+.non-travaille td {
+  background-color: #e6e6e6;
+}
+  </style>
+  {% endblock header_css %}
+{% block body %}
+<article>
+  <h1>Relevé {{date_str | date:"F Y"}} {{releve.salarie.prenom}} {{releve.salarie.nom}} </h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>JOUR</th>
+        {% for mad in releve.mad_list  %}
+          <th>{{mad.adherent.raison_sociale}}</th>
+        {% endfor %}
+        <th>ABSENCE</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for j in releve.jours_list %}
+        {% if j.non_travaille %}
+          <tr class="non-travaille">
+        {% else %}
+          <tr>
+        {% endif %}
+          <td>{{j.str}}</td>
+          {% for saisie in j.saisie_list %}
+              <td>
+                {% if saisie.heures != 0 %}
+                  {{saisie.heures}}
+                {% endif %}
+              </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div id="commentaire">
+  <b>Commentaires : </b>
+  {{releve.commentaire}}
+  </div>
+</article>
+{% endblock body %}

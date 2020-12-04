@@ -189,6 +189,11 @@
           <div class="row">
             <div class="col-12" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
           </div>
+          <div class="row">
+            <div class="col-12">
+              <a class="btn btn-primary" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="fas fa-print"></i> PDF relevé</a>
+            </div>
+          </div>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -316,6 +321,9 @@ var app = new Vue({
     },
   },
   computed: {
+    printReleveSalarieUrl: function() {
+      return "/releve/releve_mensuel_print_pdf/" + this.salarie_id + "/";
+    },
     totaux_tarif: function() {
       // Calcule les tarifs total en bas de colonne du mois
       tar = {};

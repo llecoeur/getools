@@ -170,6 +170,23 @@ class Salarie(models.Model):
             val = 0
         return round(val, 2)
 
+    def get_releve_dict(self, releve, mois, annee):
+        """
+            Retourne le relevé et les infos associées, sous forme de dict
+        """
+        
+        releve_dict = model_to_dict(releve)
+        releve_dict['salarie'] = model_to_dict(self)
+        releve_dict['mad_list'] = []
+        mad_list = self.current_mad_list
+        for mad in mad_list:
+            m = model_to_dict(mad)
+            m['adherent'] = model_to_dict(mad.adherent)
+            releve_dict['mad_list'].append(m)
+
+        releve_dict['jours_list'] = self.get_saisies_releve_mois_dict_all(mois, annee)
+        return releve_dict
+
     @staticmethod
     def get_salaries_actuels():
         """

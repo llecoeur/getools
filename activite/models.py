@@ -116,11 +116,13 @@ class Salarie(models.Model):
             pen_day = pendulum.date(annee, mois, num_jour)
             ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
             samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
+            commentaire = model_to_dict(releve.get_commentaire(num_jour))
             j = {
                 "num": num_jour,
                 "str": pen_day.format("dddd D").capitalize(),
                 "non_travaille": samedi_dimanche or ferie,
-                "saisie_list": s 
+                "saisie_list": s,
+                "commentaire": commentaire,
             }
             d.append(j)
         return d

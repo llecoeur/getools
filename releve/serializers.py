@@ -3,7 +3,7 @@
 """
 
 from rest_framework import serializers
-from releve.models import SaisieSalarie, ReleveSalarie
+from releve.models import SaisieSalarie, ReleveSalarie, ReleveSalarieCommentaire
 
 class SaisieSalarieSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,4 +13,9 @@ class SaisieSalarieSerializer(serializers.ModelSerializer):
 class ReleveSalarieSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReleveSalarie
+        fields = '__all__'
+
+class ReleveSalarieCommentaireSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReleveSalarieCommentaire
         fields = '__all__'

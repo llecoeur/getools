@@ -50,7 +50,7 @@
               <!-- <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num"> -->
               <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="[ j.non_travaille ? 'bg-secondary disabled color-palette' : '' ]" :key="j.num">
                 <td class="text-nowrap bg-gray color-palette">${j.str}</td>
-                <td class="text-nowrap bg-gray color-palette"><button class="btn btn-flat form-control-sm btn-default"><i class="far fa-comment"></i></button></td>
+                <td class="text-nowrap bg-gray color-palette"><button class="btn btn-flat form-control-sm" v-bind:class="[j.commentaire.text == '' ? 'btn-default' : 'btn-success']" v-on:click="showJourCommentModal(index_jour)"><i class="far fa-comment"></i></button></td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
                   <template v-if="saisie.adherent">
                     <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
@@ -59,7 +59,7 @@
                     <div class="input-group" data-toggle="tooltip" data-placement="top" title="Les commentaires sont obligatoires sur les absences">
                       <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
                       <span class="input-group-append" v-if="saisie.saved">
-                        <button type="button" class="btn btn-flat form-control-sm" v-bind:class="[saisie.commentaire == '' ? 'btn-danger' : 'btn-success']" v-on:click="showCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i></button>
+                        <button type="button" class="btn btn-flat form-control-sm" v-bind:class="[saisie.commentaire == '' ? 'btn-danger' : 'btn-success']" v-on:click="showAbsenceCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i></button>
                       </span>
                     </div>
                   </template>
@@ -149,14 +149,14 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Raison de l'absence du ${commentaireModalData.jour_txt}</h5>
+          <h5 class="modal-title" id="exampleModalLabel">${commentaireModalData.title}</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
         <p>
-          Veuillez ici expliquer ou commenter l'absence. <br />Par exemple : CP, Garde d'enfant, Maladie, Chomage partiel, etc...
+          ${commentaireModalData.aide}
         </p>
           <textarea class="form-control" name="commentaire" id="id_commentaire" v-model="commentaireModalData.commentaire"></textarea>
         </div>
@@ -201,6 +201,9 @@ var app = new Vue({
         commentaire: "",
         jour_txt: "",
         adherent_txt: "",
+        absence: false,
+        title: "",
+        aide: "",
       },
       requestOptions: {
         method: "PUT",
@@ -339,33 +342,62 @@ var app = new Vue({
       this.heuresMadPie.data = self.heuresMadPieData;
       this.heuresMadPie.update(0);
     },
-    showCommentModal(id, index_jour, index_saisie) {
+    showAbsenceCommentModal(id, index_jour, index_saisie) {
       // Charge les données dans le modal et afflche
       self = this;
       self.commentaireModalData.saisieId = id;
+      self.commentaireModalData.absence = true;
       self.commentaireModalData.index_jour = index_jour;
       self.commentaireModalData.index_saisie = index_saisie;
-      self.commentaireModalData.jour_txt = moment({ year :self.annee, month :self.mois, day :self.releve.jours_list[index_jour].num}).format("dddd D MMMM");
+      self.commentaireModalData.jour_txt = moment({ year :Number(self.annee), month :Number(self.mois) - 1, day :self.releve.jours_list[index_jour].num}).format("dddd D MMMM");
       self.commentaireModalData.commentaire = self.releve.jours_list[index_jour].saisie_list[index_saisie].commentaire;
-
+      self.commentaireModalData.title = "Raison de l'absence du " + self.commentaireModalData.jour_txt;
+      self.commentaireModalData.aide = "Veuillez ici expliquer ou commenter l'absence. Par exemple : CP, Garde d'enfant, Maladie, Chomage partiel, etc..."
+      $('#commentaireModal').modal("show");
+    },
+    showJourCommentModal(index_jour) {
+      // Charge les données dans le modal et afflche
+      self = this;
+      self.commentaireModalData.absence = false;
+      self.commentaireModalData.index_jour = index_jour;
+      console.log({ year :Number(self.annee), month :Number(self.mois) - 1, day :self.releve.jours_list[index_jour].num});
+      self.commentaireModalData.jour_txt = moment({ year :Number(self.annee), month :Number(self.mois) - 1, day :self.releve.jours_list[index_jour].num}).format("dddd D MMMM");
+      self.commentaireModalData.commentaire = self.releve.jours_list[index_jour].commentaire.text;
+      self.commentaireModalData.id = self.releve.jours_list[index_jour].commentaire.id;
+      self.commentaireModalData.title = "Commentaire du " + self.commentaireModalData.jour_txt;
+      self.commentaireModalData.aide = ""
       $('#commentaireModal').modal("show");
     },
     saveCommentModal() {
       // Enregistre le commentaire saisi dans le modal, et actualise le commentaire chargé
       self = this;
-      self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie].commentaire = self.commentaireModalData.commentaire
-      saisie = { ...self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie] };
-      delete saisie.created;
-      delete saisie.updated;
+      if (self.commentaireModalData.absence) {
+        self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie].commentaire = self.commentaireModalData.commentaire
+        saisie = { ...self.releve.jours_list[self.commentaireModalData.index_jour].saisie_list[self.commentaireModalData.index_saisie] };
+        delete saisie.created;
+        delete saisie.updated;
 
-      self.requestOptions.body = JSON.stringify(saisie);
-      fetch("/api/saisie_salarie/" + self.commentaireModalData.saisieId + "/", self.rrequestOptions).then(function (response) {
-        return response.json();
-      }).then(function (result) {
-        console.log("OK !", result);
-      }).catch(function(ex) {
-        console.log("parsing failed", ex);
-      });
+        self.requestOptions.body = JSON.stringify(saisie);
+        fetch("/api/saisie_salarie/" + self.commentaireModalData.saisieId + "/", self.requestOptions).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          console.log("OK !", result);
+        }).catch(function(ex) {
+          console.log("parsing failed", ex);
+        });
+      } else {
+        self.releve.jours_list[self.commentaireModalData.index_jour].commentaire.text = self.commentaireModalData.commentaire;
+        commentaire = { ...self.releve.jours_list[self.commentaireModalData.index_jour].commentaire };
+
+        self.requestOptions.body = JSON.stringify(commentaire);
+        fetch("/api/releve_salarie_commentaire/" + commentaire.id + "/", self.requestOptions).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          console.log("OK !", result);
+        }).catch(function(ex) {
+          console.log("parsing failed", ex);
+        });
+      }
       $('#commentaireModal').modal("hide");
     },
     saveReleveSalarie() {

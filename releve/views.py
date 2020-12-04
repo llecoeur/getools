@@ -5,9 +5,10 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.forms.models import model_to_dict
-from releve.models import ReleveSalarie, SaisieSalarie
+from releve.models import ReleveSalarie, SaisieSalarie, ReleveSalarieCommentaire
 from django.http import JsonResponse, HttpResponse
-from releve.serializers import SaisieSalarieSerializer, ReleveSalarieSerializer
+from django.shortcuts import get_object_or_404
+from releve.serializers import SaisieSalarieSerializer, ReleveSalarieSerializer, ReleveSalarieCommentaireSerializer
 
 
 class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
@@ -55,3 +56,15 @@ class SaisieSalarieViewSet(viewsets.ModelViewSet):
 class ReleveSalarieViewSet(viewsets.ModelViewSet):
     queryset = ReleveSalarie.objects.all()
     serializer_class = ReleveSalarieSerializer
+
+class ReleveSalarieCommentaireSerializerViewSet(viewsets.ModelViewSet):
+    queryset = ReleveSalarieCommentaire.objects.all().order_by("jour")
+    serializer_class = ReleveSalarieCommentaireSerializer
+
+    def get_queryset(self):
+        # Permet de filtrer par relevé salarié, en spécifiant dans l'url ?releve=pk
+        id_releve = self.request.GET.get('releve', None)
+        if id_releve:
+            releve = get_object_or_404(ReleveSalarie, pk=id_releve)
+            return ReleveSalarieCommentaire.objects.filter(releve=releve).order_by("jour")
+        return super().get_queryset()

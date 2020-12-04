@@ -522,6 +522,10 @@ class MiseADisposition(models.Model):
         start, end = calendar.monthrange(annee, mois)
         # print(calendar.monthrange(annee, mois))
         d = []
+
+        # Récupération du relevé :
+        releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)
+
         for num_jour in range(1, end + 1):
             date_saisie = date(annee, mois, num_jour)
             # récupérer les tarids de la mise a disposition
@@ -537,11 +541,15 @@ class MiseADisposition(models.Model):
             pen_day = pendulum.date(annee, mois, num_jour)
             ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
             samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
+
             j = {
                 "num": num_jour,
                 "str": pen_day.format("dddd D").capitalize(),
                 "non_travaille": samedi_dimanche or ferie,
-                "saisie_list": s 
+                "releve_adherent": model_to_dict(releve.get_saisie(self.adherent, date_saisie)),
+                "releve_commentaire": model_to_dict(releve.get_commentaire(num_jour)),
+                "releve_absence": model_to_dict(releve.get_saisie(None, date_saisie)),
+                "saisie_list": s, 
             }
             d.append(j)
 

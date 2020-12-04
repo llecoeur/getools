@@ -5,6 +5,7 @@ from django.db.models import Q, Sum
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
 from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
+from releve.models import ReleveSalarie
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
 from django.contrib.auth.decorators import login_required, permission_required
@@ -121,8 +122,22 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     mad = MiseADisposition.objects.get(pk=mad_id)
 
 
+
     mad_dict = model_to_dict(mad)
+
+    # releve
+    # récupérétion du relevé du mois, et création si il n'existe pas
+    try:
+        releve = ReleveSalarie.objects.get(salarie=mad.salarie, annee=annee, mois=mois)
+    except ReleveSalarie.DoesNotExist:
+        releve = ReleveSalarie()
+        releve.salarie = salarie
+        releve.mois = mois
+        releve.annee = annee
+        releve.save()
     
+    mad_dict['releve'] = model_to_dict(releve)
+
     # salarie = Salarie.objects.get(pk=salarie_id)
     salarie_dict = model_to_dict(mad.salarie)
     mad_dict['salarie'] = salarie_dict

@@ -31,6 +31,8 @@
             <thead>
               <tr>
                 <th></th>
+                <th data-toggle="tooltip" data-placement="top" title="Heures saisies chez l'adhérent par le salarié">R</th>
+                <th data-toggle="tooltip" data-placement="top" title="Heures d'absence saisies par le salarié ce jour">A</th>
                 <th v-for="tarif in mad.tarifs_ge">
                   ${tarif.article.libelle}
                 </th>
@@ -39,12 +41,16 @@
             <tbody>
               <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
+                <td><span v-bind:class="[ j.releve_adherent.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_adherent.heures}</span> <span v-if="j.releve_commentaire.text != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_commentaire.text"><i class="far fa-comment"></i></span></td>
+                <td><span v-bind:class="[ j.releve_absence.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_absence.heures}</span> <span v-if="j.releve_absence.commentaire != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_absence.commentaire"><i class="far fa-comment"></i></span></td>
                 <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
                   <input v-bind:value="tarif.valeur" v-bind:class="class_value(tarif)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
               <tr>
                 <td>Total</td>
+                <td></td>
+                <td></td>
                 <td v-for="tarifTotal in mad.tarifs_ge">
                   ${totaux_tarif[tarifTotal.id]}
                 </td>
@@ -175,7 +181,14 @@
               ${infos_sup_salarie.difference_heures}
             </div>
           </div>
-
+          <div class="row">
+            <div class="col-12">
+              <b>Commentaires du relevé d'heures :</b>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
+          </div>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -431,7 +444,6 @@ var app = new Vue({
       } else {
         console.log("id=0 ou value=0")
       }
-
     },
     updateInfoSup() {
       // Met a jour les heures et éventuellement d'autres trucs

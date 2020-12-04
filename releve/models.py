@@ -3,6 +3,7 @@ from django.utils import timezone
 from activite.models import Adherent, Salarie
 from django.forms.models import model_to_dict
 from django.conf import settings
+from django.forms.models import model_to_dict
 
 
 class ReleveSalarie(models.Model):

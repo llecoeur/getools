@@ -95,9 +95,9 @@ class Salarie(models.Model):
         start, end = calendar.monthrange(annee, mois)
 
         # CHargement du relevé, et création si il n'existe pas
-        try:
-            releve = self.releve_heures_list.get(mois=mois, annee=annee)
-        except ReleveSalarie.DoesNotExist:
+        
+        releve = self.releve_heures_list.filter(mois=mois, annee=annee).first()
+        if releve is None:
             releve = self.releve_heures_list.create(mois=mois, annee=annee)
 
         d = []
@@ -541,14 +541,10 @@ class MiseADisposition(models.Model):
         d = []
 
         # Récupération du relevé :
-        try:
-            releve = ReleveSalarie.objects.get(salarie=self.salarie, annee=annee, mois=mois)
-        except ReleveSalarie.DoesNotExist:
-            releve = ReleveSalarie()
-            releve.salarie = self.salarie
-            releve.mois = mois
-            releve.annee = annee
-            releve.save()
+        # CHargement du relevé, et création si il n'existe pas
+        releve = self.salarie.releve_heures_list.filter(mois=mois, annee=annee).first()
+        if releve is None:
+            releve = self.salarie.releve_heures_list.create(mois=mois, annee=annee)
         
 
         # releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)

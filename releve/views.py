@@ -70,7 +70,7 @@ class ReleveMensuelPrintView(TemplateView, PermissionRequiredMixin):
         # ajout année et mois au context. Si pas spécifié, prend le mois et l'année courante
         mois = int(self.request.GET.get("mois", timezone.now().month))
         annee = int(self.request.GET.get("annee", timezone.now().year))
-        salarie = salarie = self.request.user.profile.salarie
+        salarie = self.request.user.profile.salarie
         releve = ReleveSalarie.objects.get(salarie=salarie, annee=annee, mois=mois)
 
         context["date_str"] = date(annee, mois, 1)

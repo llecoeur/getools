@@ -121,7 +121,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     """
     mad = MiseADisposition.objects.get(pk=mad_id)
 
-
+    salarie = request.user.profile.salarie
 
     mad_dict = model_to_dict(mad)
 

@@ -541,7 +541,17 @@ class MiseADisposition(models.Model):
         d = []
 
         # Récupération du relevé :
-        releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)
+        try:
+            releve = ReleveSalarie.objects.get(salarie=self.salarie, annee=annee, mois=mois)
+        except ReleveSalarie.DoesNotExist:
+            releve = ReleveSalarie()
+            releve.salarie = self.salarie
+            releve.mois = mois
+            releve.annee = annee
+            releve.save()
+        
+
+        # releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)
 
         for num_jour in range(1, end + 1):
             date_saisie = date(annee, mois, num_jour)

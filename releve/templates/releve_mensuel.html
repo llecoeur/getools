@@ -27,6 +27,10 @@
 {% load widget_tweaks %}
 {% block "main_content" %}
 <div id="app">
+  <div class="alert alert-danger" v-if="releve_loaded && releve.gele">
+    <h5><i class="icon fas fa-snowflake"></i> Relevé gelé</h5>
+    Ce relevé n'est plus modifiable : Il a été gelé par le service paie et facturation Progressis.<br />Si vous avez des informations complémentaires à transmettre pour ce mois, contactez Progressis.
+  </div>
   <div class="row">
     <div class="col-9">
       <div class="card card-outline card-primary" v-if="releve_loaded">
@@ -53,11 +57,11 @@
                 <td class="text-nowrap bg-gray color-palette"><button class="btn btn-flat form-control-sm" v-bind:class="[j.commentaire.text == '' ? 'btn-default' : 'btn-success']" v-on:click="showJourCommentModal(index_jour)"><i class="far fa-comment"></i></button></td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
                   <template v-if="saisie.adherent">
-                    <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
+                    <input v-bind:disabled="releve.gele" v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
                   </template>
                   <template v-else>
                     <div class="input-group" data-toggle="tooltip" data-placement="top" title="Les commentaires sont obligatoires sur les absences">
-                      <input v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
+                      <input v-bind:disabled="releve.gele" v-model="releve.jours_list[index_jour].saisie_list[index_saisie].heures" v-bind:class="class_value(saisie)" type="text" class="form-control form-control-sm rounded-0" v-bind:id="j.num + '-' + saisie.id + '-' + index_jour + '-' + index_saisie" v-on:focusout="saveSaisieValue($event.target.id)">
                       <span class="input-group-append" v-if="saisie.saved">
                         <button type="button" class="btn btn-flat form-control-sm" v-bind:class="[saisie.commentaire == '' ? 'btn-danger' : 'btn-success']" v-on:click="showAbsenceCommentModal(saisie.id, index_jour, index_saisie)"><i class="far fa-comment"></i></button>
                       </span>
@@ -82,12 +86,12 @@
         <div class="card-body">
           <div class="row">
             <div class="col-12">
-              <textarea class="form-control" rows="5" v-model="releve.commentaire"></textarea>
+              <textarea class="form-control" rows="5" v-model="releve.commentaire" v-bind:disabled="releve.gele"></textarea>
             </div>
           </div>
           <div class="row">
             <div class="col-12 d-flex justify-content-center p-2">
-              <button class="btn btn-success" v-on:click="saveReleveSalarie"><i class="fas fa-save"></i> Enregistrer le commentaire</button>
+              <button class="btn btn-success" v-on:click="saveReleveSalarie" v-bind:disabled="releve.gele"><i class="fas fa-save"></i> Enregistrer le commentaire</button>
             </div>
           </div>
           
@@ -158,11 +162,11 @@
         <p>
           ${commentaireModalData.aide}
         </p>
-          <textarea class="form-control" name="commentaire" id="id_commentaire" v-model="commentaireModalData.commentaire"></textarea>
+          <textarea class="form-control" name="commentaire" id="id_commentaire" v-model="commentaireModalData.commentaire" v-bind:disabled="releve.gele"></textarea>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
-          <button type="button" class="btn btn-primary" v-on:click="saveCommentModal">Enregistrer</button>
+          <button type="button" class="btn btn-primary" v-on:click="saveCommentModal" v-bind:disabled="releve.gele">Enregistrer</button>
         </div>
       </div>
     </div>

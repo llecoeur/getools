@@ -51,7 +51,7 @@
 
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Téléchargement du fichier de Paie du mois</h3>
+          <h3 class="card-title">Actions mensuelles</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -74,6 +74,8 @@
             <div class="col-12">
               <a class="btn btn-primary" v-bind:href="getDownloadUrl()" target="_blank" download><i class="fas fa-file-download"></i> Fichier d'import paie</a>
               <a class="btn btn-primary" v-bind:href="getDownloadUrlRelevePdf()" target="_blank" download><i class="fas fa-file-pdf"></i> PDF relevés salariés</a>
+              <button class="btn btn-primary" v-on:click="gelReleve"><i class="fas fa-snowflake"></i> Geler les relevés</button>
+              <button class="btn btn-danger" v-on:click="degelReleve"><i class="fas fa-fire"></i> Dégeler les relevés</button>
             </div>
           </div>
         </div>
@@ -205,7 +207,23 @@ var app = new Vue({
     getDownloadUrlRelevePdf() {
       self = this;
       return "/releve/releve_mensuel_print_all_pdf/" + self.annee + "/" + self.mois + "/"
-    }
+    },
+    async gelReleve() {
+      self=this;
+      await fetch("/releve/gel_releve/" + self.annee + "/" + self.mois + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        alert("Nombre de relevés gelés : " + result['num_rows'])
+      });
+    },
+    async degelReleve() {
+      self=this;
+      await fetch("/releve/degel_releve/" + self.annee + "/" + self.mois + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        alert("Nombre de relevés dégelés : " + result['num_rows'])
+      });
+    },
   },
   mounted: function () {
       this.mois = moment().format("M");

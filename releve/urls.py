@@ -5,7 +5,8 @@ urlpatterns = [
     # path('prepa/', preparation_paie, name='prepa_paie'),
     path('', views.ReleveMensuelView.as_view(), name='releve_mensuel'),
     path('ajax_load_saisie_releve/<int:mois>/<int:annee>/', views.ajax_load_saisie_releve, name="ajax_load_saisie_releve"),
-    path('releve_mensuel_print/', views.ReleveMensuelPrintView.as_view(), name="releve_mensuel_print"),
     path('releve_mensuel_print_pdf/<int:id_salarie>/', views.releve_mensuel_print_pdf, name="releve_mensuel_print_pdf"),
-    path('releve_mensuel_print_all_pdf/<int:annee>/<int:mois>/', views.releve_mensuel_print_all_pdf, name="releve_mensuel_print_all_pdf")
+    path('releve_mensuel_print_all_pdf/<int:annee>/<int:mois>/', views.releve_mensuel_print_all_pdf, name="releve_mensuel_print_all_pdf"),
+    path('gel_releve/<int:annee>/<int:mois>/', views.gel_releve, name="gel_releve"),
+    path('degel_releve/<int:annee>/<int:mois>/', views.degel_releve, name="degel_releve"),
 ]

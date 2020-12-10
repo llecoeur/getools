@@ -135,17 +135,6 @@
           </div>
         </div>
         <div class="card-body">
-          <!--
-          <div class="row">
-            <div class="col-8">
-              <b>Paie envoyée :</b>
-            </div>
-            <div class="col-4">
-              <i class="fas" v-bind:class="{'fa-check-circle text-success': infos_sup_salarie.paie_envoyee, 'fa-times-circle text-danger': !infos_sup_salarie.paie_envoyee }"></i>
-              <button type="button" class="btn btn-primary btn-sm" v-on:click="envoiPaie"><i class="fas fa-upload"></i></button>
-            </div>
-          </div>
-          -->
           <div class="row">
             <div class="col-8">
               <b>Mensuel prévu :</b>
@@ -181,19 +170,6 @@
               ${infos_sup_salarie.difference_heures}
             </div>
           </div>
-          <div class="row">
-            <div class="col-12">
-              <b>Commentaires du relevé d'heures :</b>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
-          </div>
-          <div class="row">
-            <div class="col-12">
-              <a class="btn btn-primary" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="fas fa-print"></i> PDF relevé</a>
-            </div>
-          </div>
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -216,6 +192,35 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div> <!-- /card -->
+      <div class="card card-outline card-primary" v-if="mad.releve">
+        <div class="card-header">
+          <h3 class="card-title">Relevé salarié</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              Statut du relevé : <b>${mad.releve.gele ? 'Gelé' : 'Modifiable'}</b> <button class="btn btn-primary btn-sm" v-on:click="gelDegelReleve"><i class="fas" v-bind:class="[!mad.releve.gele ? 'fa-snowflake' : 'fa-fire']"></i></button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              PDF du relevé : <a class="btn btn-primary btn-sm" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="fas fa-print"></i></a>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <b>Commentaires du relevé d'heures :</b>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
+          </div>
+
         </div>
       </div> <!-- /card -->
       <div class="card card-outline card-primary" v-if="mad_id">
@@ -318,6 +323,16 @@ var app = new Vue({
     prime_forfaitaire_add: {
       id: 0,
       value: 0,
+    },
+    requestOptions: {
+      method: "PUT",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Accept": "application/json",
+      },
+      body: "",
+      credentials: 'same-origin',
     },
   },
   computed: {
@@ -423,7 +438,42 @@ var app = new Vue({
       });
       
     },
-    
+    async gelDegelReleve() {
+      // Gel ou dégel le releva salarié asoscié
+      self = this;
+
+      self.mad.releve.gele = !self.mad.releve.gele
+
+      releve = { ...self.mad.releve };
+
+      delete releve.created
+      delete releve.updated
+      self.requestOptions.body = JSON.stringify(releve);
+      await fetch("/api/releve_salarie/" + self.mad.releve.id + "/", self.requestOptions).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        if (result['result'] == 'error') {
+          $(document).Toasts('create', {
+            class: 'bg-danger', 
+            title: "Erreur d'enregistrement",
+            body: result['body'],
+          });
+        } else {
+          $(document).Toasts('create', {
+            class: 'bg-success', 
+            title: self.mad.releve.gele ? "Relevé Gelé" : "Relevé Dégelé",
+            body: result['body'],
+          });
+        }
+      }).catch(function(ex) {
+        $(document).Toasts('create', {
+          class: 'bg-danger', 
+          title: "Erreur d'enregistrement",
+          body: ex,
+        });
+      });
+
+    },
     async addPrimeForfait () {
       self = this;
       // Ajoute une prime forfaitaire
@@ -505,35 +555,7 @@ var app = new Vue({
         });
       });
     },
-    async envoiPaie() {
-      // envoie la paie du salarié vers Y2
-      self = this;
-      envoi = true;
-      if (self.mad.salarie.infos_sup.paie_envoyee) {
-        if (confirm("La paie de ce salarié sur cette période a déjà été envoyée. \n Etes vous sur de vouloir la réenvoyer ?")) {
-          envoi = true;
-        } else {
-          envoi = false;
-        }
-      }
-      if (envoi = true) {
-        self.loader = true;
-        await fetch("/act/ajax_envoi_paie/" + this.mad.salarie.id  + "/" + self.annee + "/" + self.mois + "/").then(function (response) {
-          return response.json();
-        }).then(function (result) {
-          $(document).Toasts('create', {
-            class: result.class, 
-            title: result.title,
-            body: result.body,
-          });
-          if (result.error == true) {
-            // on marque comme envoyé
-            this.mad.salarie.infos_sup.paie_envoyee = true;
-          }
-        });
-        self.loader = false;
-      }
-    },
+    
     class_value: function(tarif) {
       // Retourne la classe a afficher dans la valeur du tarif
       if (tarif.valeur == 0) {

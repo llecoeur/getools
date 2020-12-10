@@ -63,26 +63,6 @@ def ajax_load_saisie_releve(request, mois, annee):
     return JsonResponse(releve_dict) 
 
 
-class ReleveMensuelPrintView(TemplateView, PermissionRequiredMixin):
-    """
-        Test de relevé mensuel. a a dapter et / ou supprimer
-    """
-    template_name = "releve_mensuel_print.html"
-    permission_required = 'activite.add_saisieactivite'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # ajout année et mois au context. Si pas spécifié, prend le mois et l'année courante
-        mois = int(self.request.GET.get("mois", timezone.now().month))
-        annee = int(self.request.GET.get("annee", timezone.now().year))
-        salarie = self.request.user.profile.salarie
-        releve = ReleveSalarie.objects.get(salarie=salarie, annee=annee, mois=mois)
-
-        context["date_str"] = date(annee, mois, 1)
-        context['releve'] = salarie.get_releve_dict(releve, mois, annee)
-        return context
-
-
 class SaisieSalarieViewSet(viewsets.ModelViewSet):
     queryset = SaisieSalarie.objects.all()
     serializer_class = SaisieSalarieSerializer
@@ -104,6 +84,7 @@ class ReleveSalarieCommentaireSerializerViewSet(viewsets.ModelViewSet):
         return super().get_queryset()
 
 
+@permission_required('activite.add_saisieactivite')
 def releve_mensuel_print_pdf(request, id_salarie):
     """
         Génère un PDF du relevé d'activité du salarié
@@ -132,6 +113,29 @@ def releve_mensuel_print_pdf(request, id_salarie):
     # response['Content-Transfer-Encoding'] = 'binary'
     return response
 
+@permission_required('activite.add_saisieactivite')
+def gel_releve(request, annee, mois):
+    """
+        Gèle tous les relevés du mois, pour empêcher la modification
+    """
+    num_rows = ReleveSalarie.objects.filter(annee=annee, mois=mois).update(gele=True)
+    ret = {
+        "num_rows": num_rows,
+    }
+    return JsonResponse(ret)
+
+@permission_required('activite.add_saisieactivite')
+def degel_releve(request, annee, mois):
+    """
+        dégèle tous les relevés du mois, pour empêcher la modification
+    """
+    num_rows = ReleveSalarie.objects.filter(annee=annee, mois=mois).update(gele=False)
+    ret = {
+        "num_rows": num_rows,
+    }
+    return JsonResponse(ret)
+
+@permission_required('activite.add_saisieactivite')
 def releve_mensuel_print_all_pdf(request, annee, mois):
     """
         Génère un PDF de tous les relevés des salariés, pour toutes les mises a disposition ou du du temps a été saisi

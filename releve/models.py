@@ -12,9 +12,9 @@ class ReleveSalarie(models.Model):
     mois = models.IntegerField("Mois", db_index=True)
     annee = models.IntegerField("Année", db_index=True)
     salarie = models.ForeignKey(Salarie, verbose_name="Salarié", related_name="releve_heures_list", on_delete=models.CASCADE)
-    saisie_complete = models.BooleanField("Saisie Complète ?", db_index=True, default=False)
-    saisie_complete_date = models.DateTimeField("Date de Saisie Complete", null=True, default=None)
-    commentaire = models.TextField("Commentaires", default="")
+    # Un releve nele ne peut plus être modifié par le salarié, aussi bien les commentaires, les saisies, et metadata
+    gele = models.BooleanField("La saisie est gelée ?", db_index=True, default=False)
+    commentaire = models.TextField("Commentaires", default="", blank=True)
 
     created = models.DateTimeField("Date de création", db_index=True, editable=False)
     updated = models.DateTimeField("Date de modification", db_index=True, editable=False)

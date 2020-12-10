@@ -2,6 +2,7 @@ from django.urls import include, path
 from .views import ajax_upload_activite, ajax_update_mad, ajax_update_adherent, ajax_update_article, preparation_paie, ajax_mad_for_salarie, ajax_load_saisie_mad, ajax_save_saisie, tarifs, synchronisation
 from .views import TarifGeCreate, TarifGeDelete, TarifGeUpdate, sort_article, ajax_load_article_list, ajax_switch_article_ordre, ajax_update_famille_article, ajax_update_service, ajax_update_poste, ajax_update_salaries, ajax_update_rubrique
 from .views import ajax_maj_heures_travaillees, ajax_get_mad_to_upload, update_memo, ajax_upload_paie, update_infosup_salarie, ajax_envoi_paie, download_paie
+from .views import infosup_salarie_mois_precedent
 
 urlpatterns = [
     path('prepa/', preparation_paie, name='prepa_paie'),
@@ -32,4 +33,6 @@ urlpatterns = [
     path('update_infosup_salarie/<int:salarie_id>/<int:annee>/<int:mois>/', update_infosup_salarie, name="update_infosup_salarie"),
     path('ajax_envoi_paie/<int:salarie_id>/<int:annee>/<int:mois>/', ajax_envoi_paie, name="ajax_envoi_paie"),
     path('download_paie/<int:annee>/<int:mois>/', download_paie, name="download_paie"),
+    path('infosup_salarie_mois_precedent/<int:salarie_id>/<int:annee>/<int:mois>/', infosup_salarie_mois_precedent, name="infosup_salarie_mois_precedent"),
+    
 ]

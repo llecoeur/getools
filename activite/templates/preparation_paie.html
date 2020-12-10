@@ -76,14 +76,14 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-4"></div>
-            <div class="col-2">
-              <button class="btn btn-success" style="width:100%;overflow:auto;" v-on:click="saveMemo"><i class="fas fa-comments"></i> Mettre a jour</button>
+            <div class="col-3"></div>
+            <div class="col-3">
+              <button class="btn btn-success btn-block" v-on:click="saveMemo"><i class="fas fa-comments"></i> Mettre a jour</button>
             </div>
-            <div class="col-2">
-              <button class="btn btn-success" style="width:100%;overflow:auto;" v-on:click="recupMemoMoisPrecedent"><i class="fas fa-history"></i> Récup mois précédent</button>
+            <div class="col-3">
+              <button class="btn btn-default btn-block" v-on:click="recupMemoMoisPrecedent"><i class="fas fa-history"></i> Récup mois précédent</button>
             </div>
-            <div class="col-4"></div>
+            <div class="col-3"></div>
           </div>
         </div>
         <div class="overlay" v-show="loader">
@@ -122,7 +122,7 @@
             <label for="mad_select_id">Mise a disposition</label>
             <select name="mad_id" class="select2 form-control" id="mad_select_id" style="width: 100%;"></select>
           </div>
-          <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button>
+          <!-- <button name="button_id" class="btn btn-primary" v-on:click="loadCalendar"><i class="far fa-edit"></i></button> -->
 
         </div>
         <div class="overlay" v-show="loader">
@@ -390,11 +390,11 @@ var app = new Vue({
       });
       self.loader = false;
     },
-    loadCalendar: function() {
+    loadCalendar: async function() {
       // Charge la saisie de la mise a disposition
       self = this;
       self.loader = true;
-      fetch("/act/ajax_load_saisie_mad/" + this.mois + "/" + this.annee + "/" + this.mad_id+ "/").then(function (response) {
+      await fetch("/act/ajax_load_saisie_mad/" + this.mois + "/" + this.annee + "/" + this.mad_id+ "/").then(function (response) {
         return response.json();
       }).then(function (result) {
         // console.log(result['jours']);
@@ -539,7 +539,12 @@ var app = new Vue({
       });
     },
     recupMemoMoisPrecedent() {
-      alert("test");
+      // retourne et positionne le mémo du mois précédent, et le place a la suite du mémo actuel, sans enregistrer
+      fetch("/act/infosup_salarie_mois_precedent/" + self.mad.salarie.id + "/" + self.annee + "/" + self.mois + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.mad.salarie.infos_sup.memo += "\n" + result["memo"]
+      });
     },
     saveInfoSupSalarie() {
       //Poste un json infosup pour mettre a jour les infosup du salarié
@@ -601,6 +606,7 @@ $('#mad_select_id').on('select2:select', function (e) {
   // console.log('select event : ' + $(this).val());
 
   app.mad_id = $(this).val();
+  app.loadCalendar();
 });
 
 </script>

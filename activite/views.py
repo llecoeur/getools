@@ -19,7 +19,7 @@ import json
 import calendar
 import pendulum
 from jours_feries_france import JoursFeries
-from datetime import date
+from datetime import date, timedelta
 from cegid.xrp_sprint import CegidCloud
 from pprint import pprint
 from django.forms.models import modelform_factory
@@ -704,6 +704,25 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
         "title": "Données mises à jour",
         "body": "Les infos du salarié relatives a cette période ont été enregistrées",
     })
+
+@permission_required('activite.add_saisieactivite')
+def infosup_salarie_mois_precedent(request, salarie_id, annee, mois):
+    """
+        Retourne le mémo du mois précédent, si il y a. 
+    """
+    date_actu = date(annee, mois, 1)
+    date_precedent = date_actu - timedelta(days=3)
+    # Récupération de l'infosup correpondant
+    try:
+        salarie = Salarie.objects.get(id=salarie_id)
+    except Salarie.DoesNotExist:
+        return JsonResponse({"memo": ""})
+    try:
+        infosup = InfosSupMoisSalarie.objects.get(salarie=salarie, mois=date_precedent.month, annee=date_precedent.year)
+    except InfosSupMoisSalarie.DoesNotExist:
+        return JsonResponse({"memo": ""})
+    
+    return JsonResponse({"memo": infosup.memo})
 
 
 @permission_required('activite.add_saisieactivite')

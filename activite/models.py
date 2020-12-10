@@ -69,6 +69,16 @@ class Adherent(models.Model):
     def __str__(self):
         return "{} ({})".format(self.raison_sociale, self.code_erp)
 
+    def get_releve_list(self, annee, mois):
+        """
+            Retourne tous les relevés salariés ou cet adhérent est listé, trié par nom de salarié
+        """
+        saisie_list = self.saisie_salarie_list.filter(date__month=mois, date__year=annee).distinct("releve")
+        releve_list = []
+        for saisie in saisie_list:
+            releve_list.append(saisie.releve)
+        return releve_list
+
 
 class Salarie(models.Model):
     # Identifiant unique de l'ERP

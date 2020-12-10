@@ -5,6 +5,7 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
 from django.forms.models import model_to_dict
+from django.db.models import Q, Sum
 from releve.models import ReleveSalarie, SaisieSalarie, ReleveSalarieCommentaire
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -13,10 +14,14 @@ from django.utils import timezone
 from datetime import date
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from activite.models import Salarie
+from activite.models import Salarie, MiseADisposition, Adherent
 from weasyprint import HTML
 from io import BytesIO
 import tempfile
+import calendar
+from jours_feries_france import JoursFeries
+import pendulum
+from pprint import pprint
 
 
 
@@ -126,3 +131,69 @@ def releve_mensuel_print_pdf(request, id_salarie):
     response.write(pdf)
     # response['Content-Transfer-Encoding'] = 'binary'
     return response
+
+def releve_mensuel_print_all_pdf(request, annee, mois):
+    """
+        Génère un PDF de tous les relevés des salariés, pour toutes les mises a disposition ou du du temps a été saisi
+    """
+    # On récupère tous les adhérents pour lesquelles du temps a été saisi
+    output = request.GET.get("t", None)
+    adh_list = []
+    adherent_list = (Adherent.objects
+        .filter(saisie_salarie_list__date__month=mois, saisie_salarie_list__date__year=annee)
+        .annotate(somme_saisies=Sum('saisie_salarie_list__heures'))
+        .exclude(somme_saisies=0)
+        .exclude(somme_saisies=None)
+        .exclude(raison_sociale="PROGRESSIS")
+        .order_by("raison_sociale")
+    )
+    for adherent in adherent_list:
+
+        # Liste des relevés ayant des saisies
+        # print(f"{adherent.raison_sociale}, {adherent.somme_saisies}")
+        releve_list = adherent.get_releve_list(annee, mois)
+        start, end = calendar.monthrange(annee, mois)
+        jour_list = []
+        for num_jour in range(1, end + 1):
+            date_saisie = date(annee, mois, num_jour)
+            d = []
+            pen_day = pendulum.date(annee, mois, num_jour)
+            ferie = JoursFeries.is_bank_holiday(date(annee, mois, num_jour), zone="Métropole")
+            samedi_dimanche = pen_day.day_of_week == pendulum.SUNDAY or pen_day.day_of_week == pendulum.SATURDAY
+            for releve in releve_list:
+                saisie = releve.get_saisie(adherent, date_saisie)
+                # print(saisie.heures)
+                d.append(saisie.heures)
+
+            jour = {
+                "jour": date_saisie,
+                "non_travaille": samedi_dimanche or ferie,
+                "saisie_list": d,
+            }
+            jour_list.append(jour)
+        adh = {
+            "adherent": adherent,
+            "jour_list": jour_list,
+            "releve_list": releve_list,
+        }
+        adh_list.append(adh)
+
+    context = {
+        "date_impression": date(annee, mois, 1),
+        "adherent_list": adh_list,
+    }
+    if output == "html":
+        return render(request, 'releve_mensuel_print_all.html', context)
+    else:
+        html_string = render_to_string('releve_mensuel_print_all.html', context)
+        html = HTML(string=html_string)
+        in_memory_pdf = BytesIO(html.write_pdf())
+        pdf = in_memory_pdf.getvalue()
+        in_memory_pdf.close()
+
+        response = HttpResponse(content_type='application/pdf; charset=utf-8')
+        response['Content-Disposition'] = 'inline; filename=releve.pdf'
+        response['Content-Transfer-Encoding'] = 'binary'
+        response.write(pdf)
+        # response['Content-Transfer-Encoding'] = 'binary'
+        return response

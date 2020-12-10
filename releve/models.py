@@ -6,6 +6,7 @@ from django.conf import settings
 from django.forms.models import model_to_dict
 
 
+
 class ReleveSalarie(models.Model):
 
     mois = models.IntegerField("Mois", db_index=True)

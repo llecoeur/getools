@@ -68,8 +68,12 @@
                 </div>
               </div>
             </div>
-            <div class="col-4">
-            <a class="btn btn-primary" v-bind:href="getDownloadUrl()" target="_blank" download><i class="fas fa-file-download"></i></a>
+
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <a class="btn btn-primary" v-bind:href="getDownloadUrl()" target="_blank" download><i class="fas fa-file-download"></i> Fichier d'import paie</a>
+              <a class="btn btn-primary" v-bind:href="getDownloadUrlRelevePdf()" target="_blank" download><i class="fas fa-file-pdf"></i> PDF relevés salariés</a>
             </div>
           </div>
         </div>
@@ -198,6 +202,10 @@ var app = new Vue({
       self = this;
       return "/act/download_paie/" + self.annee + "/" + self.mois + "/"
     },
+    getDownloadUrlRelevePdf() {
+      self = this;
+      return "/releve/releve_mensuel_print_all_pdf/" + self.annee + "/" + self.mois + "/"
+    }
   },
   mounted: function () {
       this.mois = moment().format("M");

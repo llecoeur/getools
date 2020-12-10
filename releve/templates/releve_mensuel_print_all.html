@@ -1,0 +1,81 @@
+{% extends 'base_print.html'%}
+{% load static %}
+  {% block header_css %}
+  <style type="text/css">
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css?family=Pacifico|Source+Sans+Pro:400,700");
+@page {
+  margin: 2cm;
+}
+
+html {
+  color: #14213d;
+  font-family: Source Sans Pro;
+  font-size: 11pt;
+  line-height: 1.6; }
+  html body {
+    margin: 0; }
+  html h1 {
+    font-family: Source Sans Pro;
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0; }
+  
+  html body article {
+    break-after: left;
+  }
+
+  html table {
+    border-collapse: collapse;
+    width: 100%; }
+    html table th {
+      border-bottom: .2mm solid #a9a;
+      color: #a9a;
+      font-weight: 400;
+      padding-bottom: .15cm;
+      text-transform: uppercase; }
+
+    html table th, html table td {
+      text-align: center; }
+      html table th:first-of-type, html table td:first-of-type {
+        text-align: left; }
+
+
+.non-travaille td {
+  background-color: #e6e6e6;
+}
+  </style>
+  {% endblock header_css %}
+{% block body %}{% for adherent in adherent_list %}<article>
+  <h1>Relevé {{adherent.adherent.raison_sociale}},  {{date_impression | date:"F Y"}}  </h1>
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        {% for releve in adherent.releve_list  %}
+          <th>{{releve.salarie.prenom}} {{releve.salarie.nom}}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for jour in adherent.jour_list %}
+        {% if jour.non_travaille %}
+        <tr class="non-travaille">
+        {% else %}
+        <tr>
+        {% endif %}
+          <td>{{jour.jour | date:"l j"}}</td>
+          {% for saisie in jour.saisie_list %}
+            <td>
+              {% if saisie != 0 %}
+                {{saisie}}
+              {% endif %}
+            </td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</article>
+{% endfor %}
+{% endblock body %}

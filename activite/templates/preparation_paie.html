@@ -72,15 +72,18 @@
         <div class="card-body" style="height:100%;overflow:auto;">
           <div class="row">
             <div class="col-12">
-              <textarea class="form-control" rows="4" v-model="mad.salarie.memo"></textarea>
+              <textarea class="form-control" rows="4" v-model="mad.salarie.infos_sup.memo"></textarea>
             </div>
           </div>
           <div class="row">
-            <div class="col-5"></div>
+            <div class="col-4"></div>
             <div class="col-2">
               <button class="btn btn-success" style="width:100%;overflow:auto;" v-on:click="saveMemo"><i class="fas fa-comments"></i> Mettre a jour</button>
             </div>
-            <div class="col-5"></div>
+            <div class="col-2">
+              <button class="btn btn-success" style="width:100%;overflow:auto;" v-on:click="recupMemoMoisPrecedent"><i class="fas fa-history"></i> Récup mois précédent</button>
+            </div>
+            <div class="col-4"></div>
           </div>
         </div>
         <div class="overlay" v-show="loader">
@@ -521,9 +524,9 @@ var app = new Vue({
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ memo: self.mad.salarie.memo })
+        body: JSON.stringify({ memo: self.mad.salarie.infos_sup.memo })
       };
-      fetch("/act/update_memo/" + self.mad.salarie.id + "/", requestOptions).then(function (response) {
+      fetch("/act/update_memo/" + self.mad.salarie.infos_sup.id + "/", requestOptions).then(function (response) {
         return response.json();
       }).then(function (result) {
         $(document).Toasts('create', {
@@ -534,6 +537,9 @@ var app = new Vue({
           delay: 3000,
         });
       });
+    },
+    recupMemoMoisPrecedent() {
+      alert("test");
     },
     saveInfoSupSalarie() {
       //Poste un json infosup pour mettre a jour les infosup du salarié

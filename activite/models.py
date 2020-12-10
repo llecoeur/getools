@@ -12,6 +12,7 @@ from jours_feries_france import JoursFeries
 import pendulum
 pendulum.set_locale('fr')
 from django.db.models import Q, Sum
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class FamilleArticle(models.Model):
@@ -105,9 +106,9 @@ class Salarie(models.Model):
         start, end = calendar.monthrange(annee, mois)
 
         # CHargement du relevé, et création si il n'existe pas
-        
-        releve = self.releve_heures_list.filter(mois=mois, annee=annee).first()
-        if releve is None:
+        try:
+            releve = self.releve_heures_list.get(mois=mois, annee=annee)
+        except ObjectDoesNotExist:
             releve = self.releve_heures_list.create(mois=mois, annee=annee)
 
         d = []
@@ -221,7 +222,7 @@ class Salarie(models.Model):
         compteur_rubrique_paie = RubriquePaieCodeCompteur()
         for mad in mad_list:
             # on liste les tarifs avec leurs sommes pour cette mad
-            print(f"Adhérent : {mad.adherent.raison_sociale}")
+            # print(f"Adhérent : {mad.adherent.raison_sociale}")
             tarif_list = (
                 TarifGe.objects
                 .filter(mise_a_disposition=mad)
@@ -256,7 +257,7 @@ class Salarie(models.Model):
                 # On prend le libelle de la nouvelle rubrique
                 label_rubrique = RubriquePaie.get_libelle(rubrique_code, tarif.article.rubrique_paie.code_erp)
                 label_substitution = (label_rubrique + " " + tarif.mise_a_disposition.adherent.raison_sociale)[:35]
-                print(f"{rubrique_code} : {label_substitution}")
+                # print(f"{rubrique_code} : {label_substitution}")
                 d ={
                     # "ImportType": "MH2",
                     "ImportType": "MHE",
@@ -336,7 +337,7 @@ class Salarie(models.Model):
                 
             }
             rub_list.append(d)
-        pprint(rub_list)
+        # pprint(rub_list)
         return rub_list
 
     @property
@@ -552,10 +553,11 @@ class MiseADisposition(models.Model):
 
         # Récupération du relevé :
         # CHargement du relevé, et création si il n'existe pas
-        releve = self.salarie.releve_heures_list.filter(mois=mois, annee=annee).first()
-        if releve is None:
+        try:
+            releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)
+        except ObjectDoesNotExist:
             releve = self.salarie.releve_heures_list.create(mois=mois, annee=annee)
-        
+       
 
         # releve = self.salarie.releve_heures_list.get(mois=mois, annee=annee)
 
@@ -784,6 +786,8 @@ class InfosSupMoisSalarie(models.Model):
     heures_theoriques = models.FloatField("heures Théoriques", db_index=True)
     difference_heures = models.FloatField("Différence théorique - travaillé", db_index=True, default=0)
     paie_envoyee = models.BooleanField("Paie Envoyée ?", db_index=True, default=False) 
+    # Memo, modifiable et récupérable d'un mois sur l'autre
+    memo = models.TextField("Memo", default="", blank=True)
     # ???
     # id_detail = models.IntegerField("")
 
@@ -807,6 +811,8 @@ class InfosSupMoisMad(models.Model):
     heures_theoriques = models.FloatField("heures mensuelles")
     # Est ce que la saisie est complète ? None : Non démarré, False : En cours, True : Terminée
     saisie_complete = models.BooleanField("Saise Comlète ?", null=True, default=None, db_index=True)
+    # Memo, modifiable et récupérable d'un mois sur l'autre
+    memo = models.TextField("Memo", default="", blank=True)
 
 
 

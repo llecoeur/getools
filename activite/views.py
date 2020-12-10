@@ -4,7 +4,7 @@ from .models import Salarie
 from django.db.models import Q, Sum
 from django.utils import timezone
 from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
-from .models import RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
+from .models import InfosSupMoisMad, InfosSupMoisSalarie, RubriquePaie, MiseADisposition, Salarie, Article, SaisieActivite, TarifGe, Adherent, FamilleArticle, Service, Poste
 from releve.models import ReleveSalarie
 from .forms import TarifGeEditForm
 from .filters import TarifGeFilter
@@ -121,7 +121,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
     """
     mad = MiseADisposition.objects.get(pk=mad_id)
 
-    salarie = request.user.profile.salarie
+    # salarie = request.user.profile.salarie
 
     mad_dict = model_to_dict(mad)
 
@@ -131,7 +131,7 @@ def ajax_load_saisie_mad(request, mois, annee, mad_id):
         releve = ReleveSalarie.objects.get(salarie=mad.salarie, annee=annee, mois=mois)
     except ReleveSalarie.DoesNotExist:
         releve = ReleveSalarie()
-        releve.salarie = salarie
+        releve.salarie = mad.salarie
         releve.mois = mois
         releve.annee = annee
         releve.save()
@@ -657,24 +657,24 @@ def ajax_maj_heures_travaillees(request, mad_id, annee, mois):
 
 @csrf_exempt
 @permission_required('activite.add_saisieactivite')
-def update_memo(request, id_salarie):
+def update_memo(request, id_info_sup):
     print(str(request.body))
     data = json.loads(request.body.decode("utf-8"))
     try:
-        sal = Salarie.objects.get(id=id_salarie)
-    except Salarie.DoesNotExist:
+        ismm = InfosSupMoisSalarie.objects.get(id=id_info_sup)
+    except InfosSupMoisSalarie.DoesNotExist:
         ret = {
             "class": "bg-error",
             "title": "Erreur",
-            "body": "Le salarié n'existe pas",
+            "body": "Info Sup n'existe pas",
         }
     else:
-        sal.memo = data['memo']
-        sal.save()
+        ismm.memo = data['memo']
+        ismm.save()
         ret = {
             "class": "bg-success",
             "title": "memo mis à jour",
-            "body": f"Le mémo du salarié {sal} a été mis à jour.",
+            "body": f"Le mémo a été mis à jour.",
         }
     return JsonResponse(ret)
 

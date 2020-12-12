@@ -1,0 +1,230 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block header_css %}
+
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+/*
+.form-control-sm button {
+  height: calc(1.3rem + 2px);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+*/
+
+.table-sm td {
+  padding: 2px;
+  border-top: 0px;
+}
+
+{% endblock header_css %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  <div class="alert alert-danger" v-if="releve_loaded && releve.gele">
+    <h5><i class="icon fas fa-snowflake"></i> Relevé gelé</h5>
+    Ce relevé n'est plus modifiable : Il a été gelé par le service paie et facturation Progressis.<br />Si vous avez des informations complémentaires à transmettre pour ce mois, contactez Progressis.
+  </div>
+  <div class="row">
+    <div class="col-9">
+      <div class="card card-outline card-primary" v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Relevé du mois ${releve.mois} de ${releve.annee} pour ${releve.salarie.prenom} ${releve.salarie.nom} (${releve.salarie.code_erp})</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Jour</th> 
+                <th> </th>
+                <th v-for="mad in releve.mad_list">${mad.adherent.raison_sociale}</th>
+                <th>ABSENCE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num"> -->
+              <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="[ j.non_travaille ? 'bg-secondary disabled color-palette' : '' ]" :key="j.num">
+                <td class="text-nowrap bg-gray color-palette">${j.str}</td>
+                <td class="text-nowrap bg-gray color-palette"><i class="far fa-comment" v-if="j.commentaire.text != ''"></i></td>
+                <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
+                  ${releve.jours_list[index_jour].saisie_list[index_saisie].heures == 0 ? '' : releve.jours_list[index_jour].saisie_list[index_saisie].heures} <i class="far fa-comment" v-if="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire != ''">
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+      <div class="card card-outline card-primary" v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Commentaires <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Ces commentaires sont destinés à l’équipe Progressis en charge de comptabiliser les heures des salariés "></i></h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              <textarea class="form-control" rows="5" v-model="releve.commentaire" v-bind:disabled="releve.gele"></textarea>
+            </div>
+          </div>
+          
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-3">
+      
+      <div class="card card-outline card-primary"  v-if="releve_loaded">
+        <div class="card-header">
+          <h3 class="card-title">Statistiques</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          Total saisi : ${totalHeureSaisies} h
+          <canvas id="heuresMadPieId" width="300" height="300"></canvas>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+</div>
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return {
+      // loader
+      loader: false,
+      releve: {},
+      releve_loaded: false,
+      requestOptions: {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+          "Accept": "application/json",
+        },
+        body: "",
+        credentials: 'same-origin',
+      },
+      heuresMadPie: {},
+      ctxMadPie: {},
+      releve_id: {{releve_id}},
+    };
+  },
+  computed: {
+    heuresMadPieData () {
+      // Construit et retourne l'object data pour le graphique camembert des temps passés
+      // Data : valeurs des sommes des labels
+      self=this;
+      var data_values = [];
+      var labels_values = [];
+      cpt = 0;
+      if (this.releve_loaded) {
+        this.releve.mad_list.forEach(function(mad){
+          labels_values.push(mad.adherent.raison_sociale + " " + String(self.totalColonne(cpt)));
+          data_values.push(self.totalColonne(cpt));
+          cpt += 1;
+        });
+      }
+      labels_values.push("ABSENCE " + String(self.totalColonne(cpt)));
+      data_values.push(self.totalColonne(cpt));
+      return {
+        datasets: [{
+          data: data_values,
+          label: "Heures passées",
+        }],
+        labels: labels_values,
+      };
+    },
+    heuresMadPieOptions () {
+      // Construit et retourne l'object options pour le graphique camembert des temps passés
+      return {  
+        plugins: {
+          colorschemes: {
+            scheme: 'tableau.Classic20',
+          },
+        },
+      };
+    },
+    totalHeureSaisies () {
+      self = this;
+      total_heures = 0;
+      var cpt = 0;
+      if (this.releve_loaded) {
+        this.releve.mad_list.forEach(function(mad){
+          total_heures += self.totalColonne(cpt);
+          cpt += 1;
+        });
+        // Absences
+        total_heures += self.totalColonne(cpt);
+      }
+      return total_heures;
+    },
+  },
+  methods: {
+    async loadCalendar() {
+      // Charge la saisie de la mise a disposition
+      self = this;
+      self.loader = true;
+      await fetch("/releve/ajax_load_saisie_releve_id/" + this.releve_id + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        // console.log(result['jours']);
+        self.releve = {};
+        self.releve = result;
+        self.releve_loaded = true;
+      });
+      // suppression de la couleur verte des input
+      // $("input").removeClass("bg-success");
+      self.ctx = document.getElementById('heuresMadPieId');
+      self.heuresMadPie = new Chart(self.ctx, {
+        type: 'pie',
+        data: this.heuresMadPieData,
+        options: this.heuresMadPieOptions,
+      });
+      self.loader = false;
+      
+    },
+    totalColonne(index) {
+      // Retourne le total des heures saisies sur la colonne
+      self = this;
+      total = 0;
+      for (index_jour in self.releve.jours_list) {
+        total += Number(self.releve.jours_list[index_jour].saisie_list[index].heures);
+      }
+      return total;
+    },
+  },
+  mounted: function () {
+      this.loadCalendar();
+  },
+});
+
+</script>
+{% endblock "footer_js"%}

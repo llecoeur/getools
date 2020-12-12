@@ -4,7 +4,7 @@ from activite.models import Adherent, Salarie
 from django.forms.models import model_to_dict
 from django.conf import settings
 from django.forms.models import model_to_dict
-
+from django.db.models import Sum
 
 
 class ReleveSalarie(models.Model):
@@ -18,6 +18,9 @@ class ReleveSalarie(models.Model):
 
     created = models.DateTimeField("Date de création", db_index=True, editable=False)
     updated = models.DateTimeField("Date de modification", db_index=True, editable=False)
+
+    class Meta:
+        ordering = ['-annee', '-mois', '-created']
 
     def __str__(self):
         return f"{self.annee}-{self.mois} {self.salarie}"
@@ -55,6 +58,13 @@ class ReleveSalarie(models.Model):
             return self.commentaire_list.create(
                 jour=jour,
             )
+    
+    def total_heures(self):
+        """
+            Retourne le temps total enregistré dans ce relevé
+        """
+        return self.saisie_salarie_list.all().aggregate(somme=Sum("heures"))['somme']
+
 
 
 class SaisieSalarie(models.Model):

@@ -35,10 +35,44 @@ class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
         return context
     """
 
+class ReleveMensuelReadOnlyView(TemplateView, PermissionRequiredMixin):
+    template_name = "releve_mensuel_read_only.html"
+    permission_required = 'activite.add_relevesalarie'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        releve_id = self.request.GET.get("id", None)
+        context['releve_id'] = releve_id
+        return context
+
+class ReleveMensuelListView(TemplateView, PermissionRequiredMixin):
+    template_name = "releve_mensuel_list.html"
+    permission_required = 'activite.add_relevesalarie'
+
+
+@permission_required('releve.add_relevesalarie')
+def ajax_load_saisie_releve_id(request, id_releve):
+    """
+        Charge le relevé d'id passé en paramètre
+        404 si non trouvé
+    """
+    releve  = get_object_or_404(ReleveSalarie, id=id_releve)
+    salarie = releve.salarie
+    mois = releve.mois
+    annee = releve.annee
+    releve_dict = salarie.get_releve_dict(releve, mois, annee)
+    return JsonResponse(releve_dict)
+
+
 @permission_required('releve.add_relevesalarie')
 def ajax_load_saisie_releve(request, mois, annee):
+    """
+        Charge le relevé du salarié connecté, pour le jour et le mois donné
+        Si i ln'existe pas, il le crée
+
+       
+    """
     salarie = request.user.profile.salarie
-    # récupérétion du relevé du mois, et création si il n'existe pas
     try:
         releve = ReleveSalarie.objects.get(salarie=salarie, annee=annee, mois=mois)
     except ReleveSalarie.DoesNotExist:
@@ -47,18 +81,9 @@ def ajax_load_saisie_releve(request, mois, annee):
         releve.mois = mois
         releve.annee = annee
         releve.save()
-    """    
-    releve_dict = model_to_dict(releve)
-    releve_dict['salarie'] = model_to_dict(salarie)
-    releve_dict['mad_list'] = []
-    mad_list = salarie.current_mad_list
-    for mad in mad_list:
-        m = model_to_dict(mad)
-        m['adherent'] = model_to_dict(mad.adherent)
-        releve_dict['mad_list'].append(m)
 
-    releve_dict['jours_list'] = salarie.get_saisies_releve_mois_dict_all(mois, annee)
-    """
+    # récupérétion du relevé du mois, et création si il n'existe pas
+
     releve_dict = salarie.get_releve_dict(releve, mois, annee)
     return JsonResponse(releve_dict) 
 

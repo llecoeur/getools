@@ -1,0 +1,152 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block header_css %}
+
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+/*
+.form-control-sm button {
+  height: calc(1.3rem + 2px);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+*/
+
+.table-sm td {
+  padding: 2px;
+  border-top: 0px;
+}
+
+{% endblock header_css %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary" v-if="search">
+        <div class="card-header">
+          <h3 class="card-title">Liste des relevés des salariés</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.previous }" v-on:click="go_previous"><i class="fas fa-angle-double-left"></i></button>
+            </div>
+            <div class="col-10">
+            </div>
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.next }"v-on:click="go_next"><i class="fas fa-angle-double-right"></i></button>
+            </div>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Salarie</th>
+                <th>Mois</th>
+                <th>Heures saisies</th>
+                <th>Gelé</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="releve in search.results">
+                <th><a v-bind:href="releveUrl(releve.id)">${releve.id}</a></th>
+                <td><a v-bind:href="releveUrl(releve.id)">${releve.salarie.prenom} ${releve.salarie.nom} (${releve.salarie.code_erp})</a></td>
+                <td>${releve.mois} - ${releve.annee}</td>
+                <td>${releve.total_heures == 0 ? '.' : releve.total_heures}</td>
+                <td><span v-if="releve.gele"><i class="fas fa-snowflake"></i></span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="row">
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.previous }" v-on:click="go_previous"><i class="fas fa-angle-double-left"></i></button>
+            </div>
+            <div class="col-10">
+            </div>
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.next }"v-on:click="go_next"><i class="fas fa-angle-double-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return {
+      // loader
+      loader: false,
+      search: {},
+    };
+  },
+  computed: {
+ 
+  },
+  methods: {
+    async go_search() {
+      // Charge la saisie de la mise a disposition
+      self = this;
+      self.loader = true;
+      await fetch("/api/releve_salarie/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.search = result;
+      });
+      self.loader = false;
+      
+    },
+    go_next() {
+      self = this;
+      if (self.search.next) {
+        fetch(self.search.next).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          self.search = result;
+        });
+      }
+    },
+    go_previous() {
+      self = this;
+      if (self.search.previous) {
+        fetch(self.search.previous).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          self.search = result;
+        });
+      }
+    },
+    releveUrl(id){
+      return "/releve/ro/?id=" + id;
+    }
+  },
+  mounted: function () {
+      this.go_search();
+  },
+});
+
+</script>
+{% endblock "footer_js"%}

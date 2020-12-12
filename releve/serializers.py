@@ -11,9 +11,13 @@ class SaisieSalarieSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ReleveSalarieSerializer(serializers.ModelSerializer):
+    
+    total_heures = serializers.ReadOnlyField()
+    
     class Meta:
         model = ReleveSalarie
         fields = '__all__'
+        depth = 1
 
 class ReleveSalarieCommentaireSerializer(serializers.ModelSerializer):
     class Meta:

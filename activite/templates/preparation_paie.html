@@ -41,8 +41,16 @@
             <tbody>
               <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
-                <td><span v-bind:class="[ j.releve_adherent.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_adherent.heures}</span> <span v-if="j.releve_commentaire.text != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_commentaire.text"><i class="far fa-comment"></i></span></td>
-                <td><span v-bind:class="[ j.releve_absence.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_absence.heures}</span> <span v-if="j.releve_absence.commentaire != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_absence.commentaire"><i class="far fa-comment"></i></span></td>
+                <td>
+                  <span v-bind:class="[ j.releve_adherent.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_adherent.heures}</span>
+                  <commentaire v-bind:id="'id_saisie' + j.releve_commentaire.id" v-bind:texte="j.releve_commentaire.text" v-if="j.releve_commentaire.text != ''"> 
+                  <!-- <span v-if="j.releve_commentaire.text != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_commentaire.text"><i class="far fa-comment"></i></span> -->
+                </td>
+                <td>
+                  <span v-bind:class="[ j.releve_absence.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_absence.heures}</span>
+                  <commentaire v-bind:id="'id_saisie' + j.releve_absence.id" v-bind:texte="j.releve_absence.commentaire" v-if="j.releve_absence.commentaire != ''">
+                  <!-- <span v-if="j.releve_absence.commentaire != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_absence.commentaire"><i class="far fa-comment"></i></span> -->
+                </td>
                 <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
                   <input v-bind:value="tarif.valeur" v-bind:class="class_value(tarif)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
@@ -206,13 +214,16 @@
         </div>
         <div class="card-body">
           <div class="row">
+
             <div class="col-12">
               Statut du relevé : <b>${mad.releve.gele ? 'Gelé' : 'Modifiable'}</b> <button class="btn btn-primary btn-sm" v-on:click="gelDegelReleve"><i class="fas" v-bind:class="[!mad.releve.gele ? 'fa-snowflake' : 'fa-fire']"></i></button>
             </div>
           </div>
           <div class="row">
             <div class="col-12">
-              PDF du relevé : <a class="btn btn-primary btn-sm" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="fas fa-print"></i></a>
+              Ouvrir le relevé : 
+              <a class="btn btn-primary btn-sm" v-bind:href="'/releve/ro/?id=' + mad.releve.id" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+              <a class="btn btn-danger btn-sm" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="far fa-file-pdf"></i></a>
             </div>
           </div>
           <div class="row">
@@ -302,6 +313,28 @@ $(function () {
     
 });
 
+Vue.component('commentaire', {
+  delimiters: ['${','}'],
+  props: ['texte', 'id'],
+  
+  data: function () {
+    return {
+    }
+  },
+  mounted () {
+    console.log("tippy : " + this.id + " " + this.texte)
+    tippy("#"+this.id, {
+      arrow: true,
+      duration: [0, 250],
+      trigger: 'click',
+      interactive: true,
+      placement: 'right',
+      content: this.texte,
+    });
+  },
+  // v-if="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire != ''">
+  template: '<span v-bind:id="id"><i class="far fa-comment"></i></span>',
+})
 
 var app = new Vue({
   el: '#app',

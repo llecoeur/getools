@@ -54,13 +54,30 @@
               <!-- <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num"> -->
               <tr v-for="(j, index_jour) in releve.jours_list" v-bind:class="[ j.non_travaille ? 'bg-secondary disabled color-palette' : '' ]" :key="j.num">
                 <td class="text-nowrap bg-gray color-palette">${j.str}</td>
-                <td class="text-nowrap bg-gray color-palette"><i class="far fa-comment" v-if="j.commentaire.text != ''"></i></td>
+                <td class="text-nowrap bg-gray color-palette">
+                  <commentaire v-bind:id="'id_releve_commentaire_' + j.commentaire.id" v-bind:texte="j.commentaire.text" v-if="j.commentaire.text != ''">
+                </td>
                 <td v-for="(saisie, index_saisie) in j.saisie_list" :key="saisie.id">
-                  ${releve.jours_list[index_jour].saisie_list[index_saisie].heures == 0 ? '' : releve.jours_list[index_jour].saisie_list[index_saisie].heures} <i class="far fa-comment" v-if="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire != ''">
+                  ${releve.jours_list[index_jour].saisie_list[index_saisie].heures == 0 ? '' : releve.jours_list[index_jour].saisie_list[index_saisie].heures} 
+                  <!-- <span id="id_test"><i class="far fa-comment"></i></span> -->
+                  <commentaire v-bind:id="'id_saisie' + releve.jours_list[index_jour].saisie_list[index_saisie].id" v-bind:texte="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire" v-if="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire != ''">
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+      <div v-else class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Alignement des planètes...</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
         </div>
         <div class="overlay" v-show="loader">
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
@@ -113,6 +130,31 @@
 <script src="{% static 'vuejs/vue.js' %}"></script>
 <script>
 
+
+Vue.component('commentaire', {
+  delimiters: ['${','}'],
+  props: ['texte', 'id'],
+  
+  data: function () {
+    return {
+    }
+  },
+  mounted () {
+    console.log("tippy : " + this.id + " " + this.texte)
+    tippy("#"+this.id, {
+      arrow: true,
+      duration: [0, 250],
+      trigger: 'click',
+      interactive: true,
+      placement: 'right',
+      content: this.texte,
+    });
+  },
+  // v-if="releve.jours_list[index_jour].saisie_list[index_saisie].commentaire != ''">
+  template: '<span v-bind:id="id"><i class="far fa-comment"></i></span>',
+})
+
+// tippy("#id_test", {content: "Texte de test",});
 var app = new Vue({
   el: '#app',
   delimiters: ['${','}'],

@@ -22,7 +22,8 @@
   <!-- Select 2 -->
   <link rel="stylesheet" href="{% static 'select2/css/select2.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/select2-bootstrap4.css' %}">
-
+  <link rel="stylesheet" href="{% static 'tippy.js/index.css' %}">
+  
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <style>
@@ -398,6 +399,8 @@
   }
   $.widget.bridge('uibutton', $.ui.button)
 </script>
+<!-- Popper 2 -->
+<script src="{% static 'popper/umd/popper.js' %}"></script>
 <!-- Axios -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <!-- Bootstrap 4 -->
@@ -423,6 +426,9 @@
 <script src="{% static 'overlayScrollbars/js/jquery.overlayScrollbars.min.js' %}"></script>
 <!-- Select 2 -->
 <script src="{% static 'select2/js/select2.full.js' %}"></script>
+
+<!-- Tippy 2 -->
+<script src="{% static 'tippy.js/umd/index.all.js' %}"></script>
 <!-- AdminLTE App -->
 <script src="{% static 'adminlte/js/adminlte.js' %}"></script>
 

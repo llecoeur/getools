@@ -18,6 +18,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, include
 from .routers import router
 from django.views.generic import TemplateView
+from index.views import IndexView
 from django.conf import settings
 from geauth.views import logout_view
 
@@ -25,7 +26,8 @@ from geauth.views import logout_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
-    path('', TemplateView.as_view(template_name="base.html"), name='home'),
+    # path('', TemplateView.as_view(template_name="base.html"), name='home'),
+    path('', IndexView.as_view(), name='home'),
     path('i18n/', include('django.conf.urls.i18n')),
     path('login/', auth_views.LoginView.as_view(template_name='base.html'), name='login'),
     path('logout/', logout_view, name='logout'),

@@ -80,6 +80,21 @@ class Adherent(models.Model):
             releve_list.append(saisie.releve)
         return releve_list
 
+    def total_heures_mois(self, annee, mois):
+        """
+            retourne le nombre d'heures total passé chez cet adhérent dans le mois donné en heures normales et heures supplémentaires
+            
+        """
+        q = (
+            SaisieActivite.objects
+            .filter(date_realisation__month=mois, date_realisation__year=annee)
+            .filter(tarif__mise_a_disposition__adherent=self)
+            .filter(Q(tarif__article__libelle="HEURES NORMALES") | Q(tarif__article__libelle__startswith="HEURES SUPPLEMENTAIRES") )
+            .exclude(tarif__article__famille__forfaitaire=True)
+            .aggregate(Sum("quantite"))
+        )
+        return q['quantite__sum']
+
 
 class Salarie(models.Model):
     # Identifiant unique de l'ERP

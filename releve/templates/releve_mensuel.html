@@ -76,6 +76,19 @@
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
+      <div v-else class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Alignement des planètes...</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
       <div class="card card-outline card-primary" v-if="releve_loaded">
         <div class="card-header">
           <h3 class="card-title">Commentaires <i class="fas fa-question-circle" data-toggle="tooltip" data-placement="top" title="Ces commentaires sont destinés à l’équipe Progressis en charge de comptabiliser les heures des salariés "></i></h3>

@@ -4,7 +4,7 @@ from releve.views import SaisieSalarieViewSet, ReleveSalarieViewSet, ReleveSalar
 
 router = routers.DefaultRouter()
 router.register(r'saisie_salarie', SaisieSalarieViewSet)
-router.register(r'releve_salarie', ReleveSalarieViewSet)
+router.register(r'releve_salarie', ReleveSalarieViewSet, basename="releve_salarie")
 router.register(r'releve_salarie_commentaire', ReleveSalarieCommentaireSerializerViewSet)
 
 # router.register(r'article', ArticleViewSet)

@@ -15,6 +15,7 @@ class ReleveSalarie(models.Model):
     # Un releve nele ne peut plus être modifié par le salarié, aussi bien les commentaires, les saisies, et metadata
     gele = models.BooleanField("La saisie est gelée ?", db_index=True, default=False)
     commentaire = models.TextField("Commentaires", default="", blank=True)
+    total_h = models.FloatField("Total des heures", db_index=True, editable=False, default=0)
 
     created = models.DateTimeField("Date de création", db_index=True, editable=False)
     updated = models.DateTimeField("Date de modification", db_index=True, editable=False)
@@ -29,6 +30,10 @@ class ReleveSalarie(models.Model):
         if not self.id:
             self.created = timezone.now()
         self.updated = timezone.now()
+        # Mise a jour du total d'heures
+        somme = self.saisie_salarie_list.all().aggregate(somme=Sum("heures"))['somme']
+        if (somme):
+            self.total_h = somme
         super().save(*args, **kwargs)
 
     def get_saisie(self, adherent, date_saisie):
@@ -59,13 +64,6 @@ class ReleveSalarie(models.Model):
                 jour=jour,
             )
     
-    def total_heures(self):
-        """
-            Retourne le temps total enregistré dans ce relevé
-        """
-        return self.saisie_salarie_list.all().aggregate(somme=Sum("heures"))['somme']
-
-
 
 class SaisieSalarie(models.Model):
     """

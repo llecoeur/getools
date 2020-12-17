@@ -42,7 +42,7 @@
               <tr v-for="(j, index_jour) in mad.jour_list" v-bind:class="{ 'bg-secondary disabled color-palette': j.non_travaille }" :key="j.num">
                 <td class="text-nowrap">${j.str}</td>
                 <td>
-                  <span v-bind:class="[ j.releve_adherent.heures == 0 ? 'text-secondary' : 'text-danger font-weight-bold' ]">${j.releve_adherent.heures}</span>
+                  <span v-bind:class="[ j.releve_adherent.heures == 0 ? 'text-secondary' : 'text-primary font-weight-bold' ]">${j.releve_adherent.heures}</span>
                   <commentaire v-bind:id="'id_saisie' + j.releve_commentaire.id" v-bind:texte="j.releve_commentaire.text" v-if="j.releve_commentaire.text != ''"> 
                   <!-- <span v-if="j.releve_commentaire.text != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_commentaire.text"><i class="far fa-comment"></i></span> -->
                 </td>
@@ -57,8 +57,8 @@
               </tr>
               <tr>
                 <td>Total</td>
-                <td></td>
-                <td></td>
+                <td>${total_heures_releve_adherent}</td>
+                <td>${total_heures_releve_absence}</td>
                 <td v-for="tarifTotal in mad.tarifs_ge">
                   ${totaux_tarif[tarifTotal.id]}
                 </td>
@@ -70,7 +70,7 @@
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
         </div>
       </div>
-      <div class="card" class="card-success" v-if="mad.salarie.id">
+      <div class="card card-outline card-primary" v-if="mad.salarie.id">
         <div class="card-header">
           <h3 class="card-title">Memo Salarié</h3>
           <div class="card-tools">
@@ -93,6 +93,21 @@
             </div>
             <div class="col-3"></div>
           </div>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+      <div class="card card-outline card-danger" v-if="mad.salarie.id && mad.releve.commentaire != ''">
+        <div class="card-header">
+          <h3 class="card-title">Commentaire du relevé d'heures salarié</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body" style="height:100%;overflow:auto;">
+          
+          <span style="white-space: pre-line;">${mad.releve.commentaire}</span>
         </div>
         <div class="overlay" v-show="loader">
           <i class="fas fa-2x fa-sync-alt fa-spin"></i>
@@ -214,25 +229,37 @@
         </div>
         <div class="card-body">
           <div class="row">
-
-            <div class="col-12">
-              Statut du relevé : <b>${mad.releve.gele ? 'Gelé' : 'Modifiable'}</b> <button class="btn btn-primary btn-sm" v-on:click="gelDegelReleve"><i class="fas" v-bind:class="[!mad.releve.gele ? 'fa-snowflake' : 'fa-fire']"></i></button>
+            <div class="col-8"><b>Heures Adhérent : </b></div> 
+            <div class="col-4">${total_heures_releve_adherent}</div>
+          </div>
+          <div class="row">
+            <div class="col-8"><b>Heures Absences : </b></div>
+            <div class="col-4">${total_heures_releve_absence}</div>
+          </div>
+          <div class="row">
+            <div class="col-8">
+              <b>Statut du relevé : </b>
+            </div>
+            <div class="col-4">
+              ${mad.releve.gele ? 'Gelé' : 'Modifiable'} <button class="btn btn-primary btn-xs" v-on:click="gelDegelReleve"><i class="fas" v-bind:class="[!mad.releve.gele ? 'fa-snowflake' : 'fa-fire']"></i></button>
             </div>
           </div>
           <div class="row">
-            <div class="col-12">
-              Ouvrir le relevé : 
-              <a class="btn btn-primary btn-sm" v-bind:href="'/releve/ro/?id=' + mad.releve.id" target="_blank"><i class="fas fa-external-link-alt"></i></a>
-              <a class="btn btn-danger btn-sm" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="far fa-file-pdf"></i></a>
+            <div class="col-8">
+              <b>Ouvrir le relevé : </b>
+            </div>
+            <div class="col-4">
+              <a class="btn btn-primary btn-xs" v-bind:href="'/releve/ro/?id=' + mad.releve.id" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+              <a class="btn btn-danger btn-xs" target="_blank" v-bind:href="printReleveSalarieUrl"><i class="far fa-file-pdf"></i></a>
             </div>
           </div>
-          <div class="row">
+          <div class="row" v-if="mad.releve.commentaire != ''">
             <div class="col-12">
               <b>Commentaires du relevé d'heures :</b>
             </div>
           </div>
-          <div class="row">
-            <div class="col-12" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
+          <div class="row" v-if="mad.releve.commentaire != ''">
+            <div class="col-12 border border-danger rounded" v-if="mad.releve" style="white-space: pre-line;">${mad.releve.commentaire}</div>
           </div>
 
         </div>
@@ -402,6 +429,22 @@ var app = new Vue({
       } else {
         return this.mad.salarie.infos_sup;
       }
+    },
+    total_heures_releve_adherent() {
+      // Retourne le total d'heures saisies dans le relevé du salarié pour cette MAD
+      let ret = 0;
+      for (jour of this.mad.jour_list) {
+        ret += jour.releve_adherent.heures;
+      }
+      return ret;
+    },
+    total_heures_releve_absence() {
+      // Retourne le total d'heures saisies dans le relevé du salarié pour cette MAD
+      let ret = 0;
+      for (jour of this.mad.jour_list) {
+        ret += jour.releve_absence.heures;
+      }
+      return ret;
     },
   },
 

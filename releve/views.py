@@ -48,6 +48,10 @@ class ReleveMensuelReadOnlyView(TemplateView, PermissionRequiredMixin):
 class ReleveMensuelListView(TemplateView, PermissionRequiredMixin):
     template_name = "releve_mensuel_list.html"
     permission_required = 'activite.add_relevesalarie'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['salarie_list'] = Salarie.objects.all()
+        return context
 
 
 @permission_required('releve.add_relevesalarie')
@@ -92,22 +96,34 @@ class SaisieSalarieViewSet(viewsets.ModelViewSet):
     queryset = SaisieSalarie.objects.all()
     serializer_class = SaisieSalarieSerializer
 
+    def partial_update(self, request, *args, **kwargs):
+        # On applique un save() sur le relevé correspondant, pour mettre a jour le nombre d'heures
+        response_with_updated_instance = super().partial_update(request, *args, **kwargs)
+        saisie = self.get_object()
+        saisie.releve.save()
+        return response_with_updated_instance
+
+
 class ReleveSalarieViewSet(viewsets.ModelViewSet):
     queryset = ReleveSalarie.objects.all()
     serializer_class = ReleveSalarieSerializer
 
+    def get_queryset(self):
+        qs = ReleveSalarie.objects.all()
+        salarie_id = self.request.query_params.get('salarie_id', None)
+        no_saisie = self.request.query_params.get('no_saisie', None)
+
+        if salarie_id is not None:
+            qs = qs.filter(salarie__id=salarie_id)
+
+        if no_saisie is not None:
+            qs = qs.exclude(total_h=0)
+        
+        return qs
+
 class ReleveSalarieCommentaireSerializerViewSet(viewsets.ModelViewSet):
     queryset = ReleveSalarieCommentaire.objects.all().order_by("jour")
     serializer_class = ReleveSalarieCommentaireSerializer
-
-    def get_queryset(self):
-        # Permet de filtrer par relevé salarié, en spécifiant dans l'url ?releve=pk
-        id_releve = self.request.GET.get('releve', None)
-        if id_releve:
-            releve = get_object_or_404(ReleveSalarie, pk=id_releve)
-            return ReleveSalarieCommentaire.objects.filter(releve=releve).order_by("jour")
-        return super().get_queryset()
-
 
 @permission_required('activite.add_saisieactivite')
 def releve_mensuel_print_pdf(request, id_salarie):

@@ -10,34 +10,13 @@
         <span class="info-box-icon bg-info"><i class="far fa-clock"></i></span>
 
         <div class="info-box-content">
-          <span class="info-box-text">Heures PROGRESSIS en {{date_mois_precedent | date:"F"}}</span>
-          <span class="info-box-number">{{total_heures_progressis|floatformat}}</span>
+          <span class="info-box-text">Heures PROGRESSIS/AUTRES en {{date_mois_precedent | date:"F"}}</span>
+          <span class="info-box-number">{{total_heures_progressis|floatformat}}/{{total_heures_adherent|floatformat}} ({{pourcent_heures_progressis |floatformat}} %)</span>
         </div>
         <!-- /.info-box-content -->
       </div>
     </div>
-    <div class="col-3">
-      <div class="info-box">
-        <span class="info-box-icon bg-info"><i class="far fa-clock"></i></span>
 
-        <div class="info-box-content">
-          <span class="info-box-text">Heures chez les adhérents en {{date_mois_precedent | date:"F"}}</span>
-          <span class="info-box-number">{{total_heures_adherent|floatformat}}</span>
-        </div>
-        <!-- /.info-box-content -->
-      </div>
-    </div>
-    <div class="col-3">
-      <div class="info-box">
-        <span class="info-box-icon bg-info"><i class="far fa-clock"></i></span>
-
-        <div class="info-box-content">
-          <span class="info-box-text">Heures Progressis sur total {{date_mois_precedent | date:"F"}}</span>
-          <span class="info-box-number">{{pourcent_heures_progressis |floatformat}} %</span>
-        </div> 
-        <!-- /.info-box-content -->
-      </div>
-    </div>
   </div>
   {% endif %}
 </div>

@@ -30,7 +30,7 @@
   
 
   <div class="row">
-    <div class="col-12">
+    <div class="col-8">
       <div class="card card-outline card-primary" v-if="search">
         <div class="card-header">
           <h3 class="card-title">Liste des relevés des salariés</h3>
@@ -49,7 +49,7 @@
               <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.next }"v-on:click="go_next"><i class="fas fa-angle-double-right"></i></button>
             </div>
           </div>
-          <table class="table">
+          <table class="table table-condensed">
             <thead>
               <tr>
                 <th>Code</th>
@@ -64,7 +64,7 @@
                 <th><a v-bind:href="releveUrl(releve.id)">${releve.id}</a></th>
                 <td><a v-bind:href="releveUrl(releve.id)">${releve.salarie.prenom} ${releve.salarie.nom} (${releve.salarie.code_erp})</a></td>
                 <td>${releve.mois} - ${releve.annee}</td>
-                <td>${releve.total_heures == 0 ? '.' : releve.total_heures}</td>
+                <td>${releve.total_h == 0 ? '.' : releve.total_h}</td>
                 <td><span v-if="releve.gele"><i class="fas fa-snowflake"></i></span></td>
               </tr>
             </tbody>
@@ -86,12 +86,52 @@
       </div>
       
     </div>
+    <div class="col-4">
+      <div class="card card-outline card-primary" v-if="search">
+        <div class="card-header">
+          <h3 class="card-title">Filtre</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="salarie_select_id">Salarié</label>
+            <select name="salarie_id" class="form-control select2" id="salarie_select_id" style="width: 100%;">
+              <option value="">Choisissez un salarié</option>
+              {% for salarie in salarie_list %}
+              <option value="{{salarie.id}}">{{salarie}}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="custom-control custom-switch">
+              <input type="checkbox" class="custom-control-input" id="no_saisie" v-model="filter.no_saisie">
+              <label class="custom-control-label" for="no_saisie">Exclure les relevés sans saisies</label>
+            </div>
+          </div>
+          <button name="button_id" class="btn btn-primary btn-block" v-on:click="go_search"><i class="far fa-edit"></i></button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock "main_content"%}
 {% block "footer_js" %}
 <script src="{% static 'vuejs/vue.js' %}"></script>
 <script>
+
+$(function () {
+    $('#mois_saisie').datetimepicker({
+      locale: 'fr',
+      format: 'MMMM YYYY',
+      defaultDate: moment(),
+    });
+    $('#salarie_select_id').select2({
+      theme: 'bootstrap4',
+    }); 
+});
 
 var app = new Vue({
   el: '#app',
@@ -101,17 +141,31 @@ var app = new Vue({
       // loader
       loader: false,
       search: {},
+      filter: {
+        salarie_id: null,
+        no_saisie: '',
+      },
     };
   },
   computed: {
- 
+    filterArgs () {
+      let args = "";
+      // prends le filtre pour en faire des arguments a l'url
+      if (this.filter.salarie_id) {
+        args += "salarie_id=" + this.filter.salarie_id + "&";
+      }
+      if (this.filter.no_saisie) {
+        args += "no_saisie=1&"
+      }
+      return args;
+    },
   },
   methods: {
     async go_search() {
       // Charge la saisie de la mise a disposition
       self = this;
       self.loader = true;
-      await fetch("/api/releve_salarie/").then(function (response) {
+      await fetch("/api/releve_salarie/?" + self.filterArgs).then(function (response) {
         return response.json();
       }).then(function (result) {
         self.search = result;
@@ -146,6 +200,13 @@ var app = new Vue({
   mounted: function () {
       this.go_search();
   },
+});
+
+// Select2 des salariés a été changé
+$('#salarie_select_id').on('select2:select', function (e) { 
+  // console.log('select event : ' + $(this).val());
+  app.filter.salarie_id = $(this).val();
+  //alert($(this).val());
 });
 
 </script>

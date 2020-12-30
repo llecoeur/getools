@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{% block title %}Ge Tools{% endblock title %}</title>
+  <title>{% block title %}PROGRESSIS - GeTools{% endblock title %}</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Font Awesome -->
@@ -31,7 +31,7 @@
   {% endblock header_css %}
   </style>
 </head>
-<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed{% endblock body_class %}">
+<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm{% endblock body_class %}">
 {% block body %}
 <div class="wrapper">
   {% block navbar %}
@@ -73,7 +73,7 @@
   {% endblock navbar %}
   <!-- Main Sidebar Container -->
   {% block sidebar %}
-  <aside class="main-sidebar sidebar-dark-primary elevation-4">
+  <aside class="main-sidebar elevation-4 sidebar-dark-primary">
     <!-- Brand Logo -->
     <a href="{% url 'home' %}" class="brand-link">
       <img src="{% static 'adminlte/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
@@ -100,7 +100,7 @@
 
       <!-- Sidebar Menu -->
       <nav class="mt-2">
-        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+        <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
           {% if perms.activite.add_saisieactivite %}
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">

@@ -26,6 +26,7 @@ class ReleveSalarie(models.Model):
     def __str__(self):
         return f"{self.annee}-{self.mois} {self.salarie}"
 
+
     def save(self, *args, **kwargs):
         if not self.id:
             self.created = timezone.now()

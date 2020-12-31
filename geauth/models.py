@@ -1,6 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from activite.models import Salarie
+from django.conf import settings
+from django.utils.http import urlsafe_base64_encode
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 
 
@@ -41,6 +47,32 @@ class User(AbstractUser):
         <text x="6" y="16" style="font-family: Arial; fill: #FFFFFF;font-size : 12px;">{}</text>
         </svg>'''.format(txt)
         return svg
+
+    def send_reset_password_email(self):
+        """
+            Envoie un email pour réinitialiser le mot de passe
+        """
+        subject = "Réinitialisation de mot de passe pour GeTools Progressis"
+        email_template_name = "email_password_create.txt"
+        c = {
+            "username": self.username,
+            "nom": self.profile.salarie.nom.title(),
+            "prenom": self.profile.salarie.prenom.title(),
+            'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,
+            "uid": urlsafe_base64_encode(force_bytes(self.pk)),
+            'token': default_token_generator.make_token(self),
+            'protocol': settings.EMAIL_NEW_USER_SET_PASSWORD_PROTOCOL_LINK,
+        }
+        # TODO : Générer le template, envoyer l'email, etc...
+        email = render_to_string(email_template_name, c)
+        ret = send_mail(
+            subject,
+            email,
+            None,
+            [self.email],
+            fail_silently=False,
+        )
+        return ret
 
 
 class UserProfile(models.Model):

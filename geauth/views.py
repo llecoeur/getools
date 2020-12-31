@@ -3,7 +3,9 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect
 from geauth.forms import CreateUserForm
 from geauth.models import User, UserProfile
+from geauth import serializers
 from django.views.generic.edit import CreateView, FormView
+from django.views.generic import TemplateView
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode
@@ -16,6 +18,12 @@ from django.contrib.auth.models import Group
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.conf import settings
+from django.http import JsonResponse
+from rest_framework import viewsets
+from rest_framework import permissions
+from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Q
+
 
 
 def logout_view(request):
@@ -40,7 +48,6 @@ class CreateUserView(CreateView, PermissionRequiredMixin):
         group = Group.objects.get(name='Salarié')
         self.object.groups.add(group)
         self.object.save()
-        # TODO : Mettre le salarié dans le bon groupe
 
         messages.success(self.request, self.success_message)
         subject = "Création de mot de passe pour GeTools Progressis"
@@ -71,3 +78,60 @@ class CreateUserView(CreateView, PermissionRequiredMixin):
 class GeAuthPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_form.html'
     success_url = reverse_lazy('home')
+
+
+class GeAuthListUserView(TemplateView, PermissionRequiredMixin):
+    template_name = "user_list.html"
+    permission_required = 'geauth.add_user'
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by("date_joined")
+    serializer_class = serializers.UserSerializer
+
+    def get_queryset(self):
+        qs = User.objects.all().order_by("date_joined")
+        salarie_nom_prenom = self.request.query_params.get('salarie_nom_prenom', None)
+        code_cegid = self.request.query_params.get('code_cegid', None)
+        if salarie_nom_prenom is not None:
+            qs = qs.filter(Q(profile__salarie__nom__icontains=salarie_nom_prenom) | Q(profile__salarie__prenom__icontains=salarie_nom_prenom))
+
+        if code_cegid is not None:
+            qs = qs.filter(profile__salarie__code_erp__contains=code_cegid)
+        
+        return qs
+
+
+@permission_required('activite.add_saisieactivite')
+def ajax_send_reset_password(request, user_id):
+    """
+        Réenvoie un email a l'utilisateur pour réinitialiser le mot de passe
+    """
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({ "success": False, "message": "Utilisateur non trouvé"})
+    if user.send_reset_password_email() != 1:
+        return JsonResponse({ "success": False, "message": "Echec d'envoi de l'email"})
+    else:
+        return JsonResponse({ "success": True, "message": "Email envoyé"})
+
+
+@permission_required('activite.add_saisieactivite')
+def ajax_ban_unban_user(request, user_id):
+    """
+        Réenvoie un email a l'utilisateur pour réinitialiser le mot de passe
+    """
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return JsonResponse({ "success": False, "message": "Utilisateur non trouvé"})
+    if user.is_superuser:
+        return JsonResponse({ "success": False, "message": f"Impossible de désactiver un superuser."})
+    if user.is_active:
+        user.is_active = False
+        user.save()
+        return JsonResponse({ "success": True, "message": f"L'utilisateur {user} désactivé : Il ne peut plus se connecter a GeTools."})
+    else:
+        user.is_active = True
+        user.save()
+        return JsonResponse({ "success": True, "message": f"L'utilisateur {user} activé : Il peut se connecter a GeTools"})

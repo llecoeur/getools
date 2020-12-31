@@ -160,6 +160,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 100
 }
 
+PASSWORD_RESET_TIMEOUT = 604800
+
 try:
     from .local_settings import *
 except ImportError as e:

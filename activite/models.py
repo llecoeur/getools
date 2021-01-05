@@ -7,7 +7,7 @@ from collections import defaultdict, namedtuple
 from pprint import pprint
 from django.urls import reverse
 import calendar
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from jours_feries_france import JoursFeries
 import pendulum
 pendulum.set_locale('fr')
@@ -221,8 +221,8 @@ class Salarie(models.Model):
             ex : On est au mois de novembre. Un salarié non listé aura une date de sortie avant le 1er septembre (Mois-2).
         
         """
-        
-        date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        # date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date
         return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=date_compare)).order_by("date_entree").order_by("nom")
         # return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 
@@ -360,7 +360,7 @@ class Salarie(models.Model):
         """
             True si sorti, False sinon
         """
-        date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date
         if self.date_sortie == date(1900,1,1):
             return False
         elif self.date_sortie > date_compare:

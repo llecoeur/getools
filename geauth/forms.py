@@ -33,7 +33,8 @@ class CreateUserForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # On exclut du select salariés ceux qui ont déjà été sélectionnés
         exclude_list = []
-        date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
+        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date
+        # date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
         # Salariés déjà sélectionnés
         selected_salarie_profile_list = UserProfile.objects.exclude(salarie=None)
         for salarie_profile in selected_salarie_profile_list:

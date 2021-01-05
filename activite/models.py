@@ -222,7 +222,7 @@ class Salarie(models.Model):
         
         """
         # date_compare = date(timezone.now().year, timezone.now().month - 2, 1)
-        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date
+        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date()
         return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=date_compare)).order_by("date_entree").order_by("nom")
         # return Salarie.objects.filter(Q(date_sortie=date(1900,1,1)) | Q(date_sortie__gt=timezone.now())).order_by("date_entree").order_by("nom")
 

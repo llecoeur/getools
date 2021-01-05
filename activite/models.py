@@ -360,7 +360,7 @@ class Salarie(models.Model):
         """
             True si sorti, False sinon
         """
-        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date
+        date_compare = ((timezone.now().replace(day=1) - timedelta(days=62)).replace(day=1)).date()
         if self.date_sortie == date(1900,1,1):
             return False
         elif self.date_sortie > date_compare:

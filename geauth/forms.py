@@ -3,7 +3,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 from .models import User, UserProfile
 from activite.models import Salarie
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from django.utils import timezone
 from django.db.models import Q, Sum
 from django.forms import PasswordInput

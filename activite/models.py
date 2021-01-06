@@ -581,7 +581,7 @@ class MiseADisposition(models.Model):
             # récupérer les tarids de la mise a disposition
             
             s = []
-            for tarif in self.tarif_ge_list.all().exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
+            for tarif in self.tarif_ge_list.filter(archive=False).exclude(article__famille__forfaitaire=True).order_by("article__ordre"):
                 saisie = SaisieActivite.get_saisie(tarif, date_saisie)
                 if saisie is None:
                     s.append({ "tarif": tarif.id, "valeur": 0, "saved": False, })

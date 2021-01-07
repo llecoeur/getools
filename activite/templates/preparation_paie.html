@@ -52,7 +52,7 @@
                   <!-- <span v-if="j.releve_absence.commentaire != ''" data-toggle="tooltip" data-placement="top" v-bind:title="j.releve_absence.commentaire"><i class="far fa-comment"></i></span> -->
                 </td>
                 <td v-for="(tarif, index_tarif) in j.saisie_list" :key="tarif.id">
-                  <input v-bind:value="tarif.valeur" v-bind:class="class_value(tarif)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
+                  <input v-on:keyup.left="goLeft" v-on:keyup.right="goRight" v-on:keyup.up="goUp" v-on:keyup.down="goDown" v-bind:value="tarif.valeur" v-bind:class="class_value(tarif)" type="text" class="form-control form-control-sm" v-bind:id="j.num + '-' + tarif.tarif + '-' + index_jour + '-' + index_tarif" v-on:focusout="saveSaisieValue($event.target.value, $event.target.id)">
                 </td>
               </tr>
               <tr>
@@ -642,7 +642,82 @@ var app = new Vue({
         });
       });
     },
-    
+    goUp(e) {
+      // Appelé quand fleche en haut pressé. Met le focus sur la case au dessus
+      // récupération de l'id de la case au dessus
+      // Quel est mon id ?
+      if (e) {
+        console.log("Id Source=" + e.target.id);
+        [jour, tarif_id, index_jour, index_tarif] = e.target.id.split("-");
+        jour_up = Number(jour) - 1;
+        index_jour_up = Number(index_jour) - 1;
+        id_up = String(jour_up) + "-" + tarif_id + "-" + String(index_jour_up) + "-" + index_tarif;
+        console.log("Id Target=" + id_up);
+        var elem = document.getElementById(id_up);
+        if (elem){
+          // l'élément existe, on met le focus dessus
+          elem.focus();
+          elem.select();
+        }
+      }
+
+    },
+    goDown(e) {
+      if (e) {
+        console.log("Id Source=" + e.target.id);
+        [jour, tarif_id, index_jour, index_tarif] = e.target.id.split("-");
+        jour_up = Number(jour) + 1;
+        index_jour_up = Number(index_jour) + 1;
+        id_up = String(jour_up) + "-" + tarif_id + "-" + String(index_jour_up) + "-" + index_tarif;
+        console.log("Id Target=" + id_up);
+        var elem = document.getElementById(id_up);
+        if (elem){
+          // l'élément existe, on met le focus dessus
+          elem.focus();
+          elem.select();
+        }
+      }
+    },
+    goLeft(e) {
+      if (e) {
+        console.log("Id Source=" + e.target.id);
+        [jour, tarif_id, index_jour, index_tarif] = e.target.id.split("-");
+        // récup de l'id de tarif a gauche
+        index_tarif_new = Number(index_tarif) - 1;
+        if (index_tarif_new >= 0) {
+          // On n'est pas sur la 1ere colonne
+          tarif_id_new = this.mad.tarifs_ge[index_tarif_new].id;
+        }
+        id_new = jour + "-" + tarif_id_new + "-" + index_jour + "-" + index_tarif_new;
+        console.log("Id Target=" + id_new);
+        var elem = document.getElementById(id_new);
+        if (elem){
+          // l'élément existe, on met le focus dessus
+          elem.focus();
+          elem.select();
+        }
+      }
+    },
+    goRight(e) {
+      if (e) {
+        console.log("Id Source=" + e.target.id);
+        [jour, tarif_id, index_jour, index_tarif] = e.target.id.split("-");
+        // récup de l'id de tarif a gauche
+        index_tarif_new = Number(index_tarif) + 1;
+        if (index_tarif_new < this.mad.tarifs_ge.length) {
+          // On n'est pas sur la 1ere colonne
+          tarif_id_new = this.mad.tarifs_ge[index_tarif_new].id;
+        }
+        id_new = jour + "-" + tarif_id_new + "-" + index_jour + "-" + index_tarif_new;
+        console.log("Id Target=" + id_new);
+        var elem = document.getElementById(id_new);
+        if (elem){
+          // l'élément existe, on met le focus dessus
+          elem.focus();
+          elem.select();
+        }
+      }
+    },            
     class_value: function(tarif) {
       // Retourne la classe a afficher dans la valeur du tarif
       if (tarif.valeur == 0) {

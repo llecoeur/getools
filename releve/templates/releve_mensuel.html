@@ -316,12 +316,16 @@ var app = new Vue({
 
       self = this;
       [numero_jour, saisie_id, index_jour, index_saisie] = id.split("-");
-      self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = parseFloat(self.releve.jours_list[index_jour].saisie_list[index_saisie].heures.replace(',', '.'));
+      
       if (self.releve.jours_list[index_jour].saisie_list[index_saisie].heures == '') {
         // il faut effacer la valeur dans ce cas
         self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = "0";
+
+      } else {
+        self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = parseFloat(String(self.releve.jours_list[index_jour].saisie_list[index_saisie].heures).replace(',', '.'));
       }
       if (self.releve.jours_list[index_jour].saisie_list[index_saisie].heures == 0) {
+        self.releve.jours_list[index_jour].saisie_list[index_saisie].commentaire = "";
         self.releve.jours_list[index_jour].saisie_list[index_saisie].saved = false;
       } else {
         self.releve.jours_list[index_jour].saisie_list[index_saisie].saved = true;

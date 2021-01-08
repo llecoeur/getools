@@ -117,7 +117,7 @@
     <div class="col-3">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Mois a saisir</h3>
+          <h3 class="card-title">Mois à saisir</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -316,6 +316,7 @@ var app = new Vue({
 
       self = this;
       [numero_jour, saisie_id, index_jour, index_saisie] = id.split("-");
+      self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = parseFloat(self.releve.jours_list[index_jour].saisie_list[index_saisie].heures.replace(',', '.'));
       if (self.releve.jours_list[index_jour].saisie_list[index_saisie].heures == '') {
         // il faut effacer la valeur dans ce cas
         self.releve.jours_list[index_jour].saisie_list[index_saisie].heures = "0";

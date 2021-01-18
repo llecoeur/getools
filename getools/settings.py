@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'activite',
     'releve',
     'cegid',
+    'bi',
     'rest_framework',
     'django_extensions',
 ]

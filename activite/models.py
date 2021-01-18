@@ -440,7 +440,6 @@ class RubriquePaieCodeCompteur():
         return inc_code
         
 
-
     def get_code(self, code):
         """
             Retourne le code de rubrique a utiliser pour le code initial donné

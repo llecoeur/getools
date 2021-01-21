@@ -292,6 +292,16 @@
           -->
 
         </ul>
+        {% if user.is_superuser %}
+        <ul class="nav nav-pills nav-sidebar flex-column">
+          <li class="nav-item">
+            <a href="/admin/" class="nav-link text-danger">
+              <i class="fas fa-exclamation-triangle nav-icon"></i>
+              <p>Administration</p>
+            </a>
+          </li>
+        </ul>
+        {% endif %}
         {% if user.is_authenticated %}
         <ul class="nav nav-pills nav-sidebar flex-column">
           <li class="nav-item">

@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="{% static 'select2/css/select2.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/select2-bootstrap4.css' %}">
   <link rel="stylesheet" href="{% static 'tippy.js/index.css' %}">
-  
+   <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> 
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   <style>
@@ -31,12 +31,12 @@
   {% endblock header_css %}
   </style>
 </head>
-<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm{% endblock body_class %}">
+<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm accent-warning{% endblock body_class %}">
 {% block body %}
 <div class="wrapper">
   {% block navbar %}
   <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+  <nav class="main-header navbar navbar-expand navbar-light navbar-orange">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -73,10 +73,10 @@
   {% endblock navbar %}
   <!-- Main Sidebar Container -->
   {% block sidebar %}
-  <aside class="main-sidebar elevation-4 sidebar-dark-primary">
+  <aside class="main-sidebar elevation-4 sidebar-dark-orange">
     <!-- Brand Logo -->
-    <a href="{% url 'home' %}" class="brand-link">
-      <img src="{% static 'adminlte/img/AdminLTELogo.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+    <a href="{% url 'home' %}" class="brand-link navbar-dark">
+      <img src="{% static 'logo.png' %}" alt="Progressis Logo" class="brand-image img-circle elevation-3"
            style="opacity: .8">
       <span class="brand-text font-weight-light">GeTools</span>
     </a>
@@ -373,9 +373,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-  <footer class="main-footer">
+  <footer class="main-footer text-sm">
     <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 0.5 BETA
+      <b>Licence GPL - Contact : l.lecoeur@progressisge.fr</b>
     </div>
   </footer>
   <!-- Control Sidebar -->

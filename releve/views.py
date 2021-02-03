@@ -25,7 +25,7 @@ from pprint import pprint
 
 
 
-class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
+class ReleveMensuelView(PermissionRequiredMixin, TemplateView):
     template_name = "releve_mensuel.html"
     permission_required = 'activite.add_saisieactivite'
 
@@ -35,9 +35,10 @@ class ReleveMensuelView(TemplateView, PermissionRequiredMixin):
         return context
     """
 
-class ReleveMensuelReadOnlyView(TemplateView, PermissionRequiredMixin):
+class ReleveMensuelReadOnlyView(PermissionRequiredMixin, TemplateView):
     template_name = "releve_mensuel_read_only.html"
-    permission_required = 'activite.add_relevesalarie'
+    # can_view_ro_releve_salarie
+    permission_required = 'releve.can_view_ro_releve_salarie'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,9 +46,9 @@ class ReleveMensuelReadOnlyView(TemplateView, PermissionRequiredMixin):
         context['releve_id'] = releve_id
         return context
 
-class ReleveMensuelListView(TemplateView, PermissionRequiredMixin):
+class ReleveMensuelListView(PermissionRequiredMixin, TemplateView):
     template_name = "releve_mensuel_list.html"
-    permission_required = 'activite.add_relevesalarie'
+    permission_required = 'releve.can_view_ro_releve_salarie'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['salarie_list'] = Salarie.objects.all()

@@ -101,7 +101,7 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
-          {% if perms.activite.add_saisieactivite %}
+          {% if perms.activite.add_saisieactivite  or perms.releve.can_view_ro_releve_salarie %}
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-file-invoice"></i>
@@ -111,6 +111,7 @@
               </p>
             </a>
             <ul class="nav nav-treeview">
+              {% if perms.activite.add_saisieactivite %}
               <li class="nav-item">
                 <a href="{% url 'prepa_paie' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -130,17 +131,20 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'releve_mensuel_list' %}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Relevés</p>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a href="{% url 'synchronisation' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Outils et synchro</p>
                 </a>
               </li>
+              {% endif %}
+              {% if perms.releve.can_view_ro_releve_salarie %}
+              <li class="nav-item">
+                <a href="{% url 'releve_mensuel_list' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Relevés</p>
+                </a>
+              </li>
+              {% endif %}
             </ul>
           </li>
           {% endif %}

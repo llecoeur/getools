@@ -22,6 +22,7 @@ class ReleveSalarie(models.Model):
 
     class Meta:
         ordering = ['-annee', '-mois', '-created']
+        permissions = [('can_view_ro_releve_salarie', 'Peut voir les relevés des salariés')]
 
     def __str__(self):
         return f"{self.annee}-{self.mois} {self.salarie}"

@@ -27,7 +27,7 @@ from pprint import pprint
 
 class ReleveMensuelView(PermissionRequiredMixin, TemplateView):
     template_name = "releve_mensuel.html"
-    permission_required = 'activite.add_saisieactivite'
+    permission_required = 'releve.add_relevesalarie'
 
     """
     def get_context_data(self, **kwargs):
@@ -45,6 +45,7 @@ class ReleveMensuelReadOnlyView(PermissionRequiredMixin, TemplateView):
         releve_id = self.request.GET.get("id", None)
         context['releve_id'] = releve_id
         return context
+
 
 class ReleveMensuelListView(PermissionRequiredMixin, TemplateView):
     template_name = "releve_mensuel_list.html"

@@ -26,6 +26,7 @@ from django.forms.models import modelform_factory
 from django.forms import ModelChoiceField
 from django.views.decorators.csrf import csrf_exempt
 import unicodedata
+from tqdm import tqdm
 pendulum.set_locale('fr')
 
 
@@ -795,3 +796,64 @@ def download_paie(request, annee, mois):
     resp['Content-Disposition'] = f"attachment; filename={annee}-{mois}-paie.trt"
     resp.write(unicodedata.normalize('NFKD', buletin_lines).encode('iso-8859-1', 'ignore'))
     return resp
+
+
+@permission_required('activite.add_saisieactivite')
+def download_releve_adherent(request, mois, annee):
+    """
+        Téléchargement des pdf a envoyer au adherents
+    """
+    ret = []
+    template = "adherent_releve_print.html"
+    # adherent_list = Adherent.objects.all().order_by("raison_sociale")
+    # adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").filter(raison_sociale__in=["MANUPLAST"])
+    adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").order_by("raison_sociale")
+    for adherent in tqdm(adherent_list):
+        # liste des mises a dispo de l'adhérent
+        mad_list = adherent.mise_a_disposition_list.filter(cloturee=False)
+        for mad in mad_list:
+            
+            mad_dict = model_to_dict(mad)
+            # releve
+            # récupérétion du relevé du mois, et création si il n'existe pas
+            try:
+                releve = ReleveSalarie.objects.get(salarie=mad.salarie, annee=annee, mois=mois)
+            except ReleveSalarie.DoesNotExist:
+                releve = ReleveSalarie()
+                releve.salarie = mad.salarie
+                releve.mois = mois
+                releve.annee = annee
+                releve.save()
+            
+            # mad_dict['releve'] = model_to_dict(releve)
+
+            # salarie = Salarie.objects.get(pk=salarie_id)
+            salarie_dict = model_to_dict(mad.salarie)
+            mad_dict['salarie'] = salarie_dict
+            mad_dict['adherent'] = model_to_dict(adherent)  
+            # Infos supplémentaires des salariés
+            salarie_info_sup = mad.salarie.get_info_sup(mois, annee)
+            # mad_dict['salarie']['infos_sup'] = model_to_dict(salarie_info_sup)
+            # mad_dict['salarie']['infos_sup']['heures_travaillees'] = salarie_info_sup.heures_travaillees
+
+            # Liste des tarifs
+            mad_dict['tarifs_ge'] = mad.tarif_ge_list_dict
+
+            # Primes Fofaitaires
+            # mad_dict['primes_forfaitaires'] = mad.tarifs_ge_prime_forfaitaire_dict()
+
+            # Liste des jours, des saisies, etc, pour construire le tableau de saisie
+            mad_dict['jour_list'] = mad.get_saisies_from_mois_dict_all(mois, annee)
+
+            # informations supplémentaires des mises a disposition
+            # mad_dict['infos_sup'] = model_to_dict(mad.get_info_sup(mois, annee))
+
+            # Liste des primes forfaitaires enregistrées
+            # mad_dict['prime_forfaitaires_values'] = mad.prime_forfaitaire_values_list(annee, mois)
+            ret.append(mad_dict)
+            pprint(mad_dict)
+
+    context = {
+        "mad_list": ret,
+    }
+    return render(request, template, context)

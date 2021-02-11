@@ -31,16 +31,12 @@ html {
       padding-bottom: .15cm;
       text-transform: uppercase; }
 
-      html table td:last-of-type {
-        color: #1ee494;
-        font-weight: bold;
-        text-align: right; }
+
     html table th, html table td {
       text-align: center; }
       html table th:first-of-type, html table td:first-of-type {
         text-align: left; }
-      html table th:last-of-type, html table td:last-of-type {
-        text-align: right; }
+
 
 
 .non-travaille td {

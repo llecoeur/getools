@@ -37,8 +37,11 @@ html {
 
     html table th, html table td {
       text-align: center; }
-      html table th:first-of-type, html table td:first-of-type {
-        text-align: left; }
+
+    html table th:first-of-type, html table td:first-of-type {
+      text-align: left; 
+      white-space: nowrap;
+      }
 
 
 .non-travaille td {
@@ -68,7 +71,7 @@ html {
           {% for saisie in jour.saisie_list %}
             <td>
               {% if saisie.valeur != 0 %}
-                {{saisie.valeu}}
+                {{saisie.valeur |floatformat}}
               {% endif %}
             </td>
           {% endfor %}

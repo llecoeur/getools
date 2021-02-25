@@ -1,47 +1,31 @@
-import os
-import sys
-sys.path.append('..')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "getools.settings")
-import django
-django.setup()
-from datetime import datetime
-import urllib.parse
-import pyodbc 
-from django.conf import settings
-# from cegid.cegid_premise import session, Salarie, Tiers, Affaire, Remuneration, Article, TarifGe
-from activite.models import Article, SaisieActivite, TarifGe, MiseADisposition, Salarie, RubriquePaie, Adherent, Service, Poste
-from pprint import pprint
-import requests
-import json
-from cegid.xrp_sprint import CegidCloud
-from django.db.models import Q, Sum
+from celery import shared_task
+from activite.models import Adherent, SaisieActivite
 from django.forms.models import model_to_dict
-from tqdm import tqdm
 from django.template.loader import render_to_string
+from django.conf import settings
 from weasyprint import HTML
-from activite.tasks import test, generate_releve_adherent
 
 
 
-if __name__ == "__main__":
+@shared_task
+def test(*args, **kwargs):
 
-    generate_releve_adherent.delay(mois=12, annee=2020)
-    # test.delay(mois=12, annee=2021)
+    return f"mois={kwargs['mois']}, annee={kwargs['annee']}"
 
-    """
-        Téléchargement des pdf a envoyer au adherents
-    """
-    """
-    mois = 12
-    annee = 2020
+
+@shared_task
+def generate_releve_adherent(*args, **kwargs):
+    mois = kwargs['mois']
+    annee = kwargs['annee']
+    print(f"génération du relevé {mois} - {annee}")
     ret = []
     template = "adherent_releve_print.html"
     # adherent_list = Adherent.objects.all().order_by("raison_sociale")
     # adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").filter(raison_sociale__in=["MANUPLAST"])
     adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").order_by("raison_sociale")
-    for adherent in tqdm(adherent_list):
+    for adherent in adherent_list:
         # liste des mises a dispo de l'adhérent
-        mad_list = adherent.mise_a_disposition_list.filter(cloturee=False)
+        mad_list = adherent.mise_a_disposition_list.filter(cloturee=False).exclude(salarie__user_profile=None)
         for mad in mad_list:
             
             # On regarde si il y a des saisies pour cette mad sur le mois
@@ -80,15 +64,9 @@ if __name__ == "__main__":
         "mad_list": ret,
     }
     f_content = render_to_string(template, context)
-    with open("test.html","w+") as f:
+    html_path = f"{settings.STATIC_ROOT}releve_adherents/{annee}-{mois}.html" 
+    pdf_path = f"{settings.STATIC_ROOT}releve_adherents/{annee}-{mois}.pdf"
+    with open(html_path,"w") as f:
         f.write(f_content)
-
-    """
-    """
-    annee = 2020
-    mois = 10
-    adherent = Adherent.objects.get(raison_sociale="PROGRESSIS")
-    print(adherent.total_heures_mois(annee, mois))
-    adherent = Adherent.objects.get(raison_sociale="MANUPLAST")
-    print(adherent.total_heures_mois(annee, mois))
-    """
+    HTML(html_path).write_pdf(pdf_path)
+    return f"{html_path} généré"

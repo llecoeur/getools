@@ -1,13 +1,23 @@
-{% extends 'base_print.html'%}
+<!DOCTYPE html>
 {% load static %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Ge Tools{% endblock title %}</title>
+  <!-- Font Awesome -->
+  <!-- Google Font: Source Sans Pro -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
   {% block header_css %}
-  <style type="text/css">
+  <style>
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css?family=Pacifico|Source+Sans+Pro:400,700");
 @page {
-  margin: 2cm;
+  margin: 1cm;
 }
-
+@media print {
+  article {page-break-after: always;}
+}
 html {
   color: #14213d;
   font-family: Source Sans Pro;
@@ -22,7 +32,8 @@ html {
     margin: 0; }
   
   html body article {
-    break-after: left;
+    // border: 1px solid black;
+    // break-after: left;
   }
 
   html table {
@@ -46,11 +57,12 @@ html {
 
 .non-travaille td {
   background-color: #e6e6e6;
-}
-  </style>
+}</style>
   {% endblock header_css %}
-{% block body %}{% for mad in mad_list %}<article>
-  <h1>Relevé {{mad.adherent.raison_sociale}} - {{mad.salarie.prenom}} {{mad.salarie.nom}}</h1>
+  
+</head>
+<body>
+{% block body %}{% for mad in mad_list %}<article><h1>Relevé {{mad.adherent.raison_sociale}} - {{mad.salarie.prenom}} {{mad.salarie.nom}}</h1>
   <table>
     <thead>
       <tr>
@@ -79,6 +91,4 @@ html {
       {% endfor %}
     </tbody>
   </table>
-</article>
-{% endfor %}
-{% endblock body %}
+</article>{% endfor %}{% endblock body %}</body></html>

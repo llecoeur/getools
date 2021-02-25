@@ -72,8 +72,9 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <a class="btn btn-primary" v-bind:href="getDownloadUrl()" target="_blank" download><i class="fas fa-file-download"></i> Fichier d'import paie</a>
-              <a class="btn btn-primary" v-bind:href="getDownloadUrlRelevePdf()" target="_blank" download><i class="fas fa-file-pdf"></i> PDF relevés salariés</a>
+              <a class="btn btn-primary" v-bind:href="getDownloadUrl()" target="_blank" download><i class="fas fa-file-download"></i> Fichier d'import paie</a><br />
+              <button class="btn btn-primary" v-on:click="generateReleveAdherent" target="_blank"><i class="fas fa-file-pdf"></i> Générer relevé adhérent</button>
+              <a class="btn btn-primary" v-bind:href="getDownloadReleveUrl()" target="_blank" download><i class="fas fa-file-pdf"></i> Télécharger Relevé Adhérent</a><br />
               <button class="btn btn-primary" v-on:click="gelReleve"><i class="fas fa-snowflake"></i> Geler les relevés</button>
               <button class="btn btn-danger" v-on:click="degelReleve"><i class="fas fa-fire"></i> Dégeler les relevés</button>
             </div>
@@ -204,6 +205,7 @@ var app = new Vue({
       self = this;
       return "/act/download_paie/" + self.annee + "/" + self.mois + "/"
     },
+    
     getDownloadUrlRelevePdf() {
       self = this;
       return "/releve/releve_mensuel_print_all_pdf/" + self.annee + "/" + self.mois + "/"
@@ -223,6 +225,18 @@ var app = new Vue({
       }).then(function (result) {
         alert("Nombre de relevés dégelés : " + result['num_rows'])
       });
+    },
+    async generateReleveAdherent() {
+      self = this;
+      await fetch("/act/gen_releve_adherent/" + self.annee + "/" + self.mois + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        alert("La demande de génération du relevé a été envoyée\n\n Une fois réalisée, vous pourrez le télécharger en cliquant sur le bouton de téléchargement.")
+      });
+    },
+    getDownloadReleveUrl() {
+      self = this;
+      return "/static/releve_adherents/" + self.annee + "-" + self.mois + ".pdf"
     },
   },
   mounted: function () {

@@ -30,7 +30,7 @@ def logout_view(request):
     logout(request)
     return redirect("home")
 
-class CreateUserView(CreateView, PermissionRequiredMixin):
+class CreateUserView(PermissionRequiredMixin, CreateView):
     form_class = CreateUserForm
     template_name = "create_user.html"
     model = User
@@ -80,7 +80,7 @@ class GeAuthPasswordResetConfirmView(PasswordResetConfirmView):
     success_url = reverse_lazy('home')
 
 
-class GeAuthListUserView(TemplateView, PermissionRequiredMixin):
+class GeAuthListUserView(PermissionRequiredMixin, TemplateView):
     template_name = "user_list.html"
     permission_required = 'geauth.add_user'
 

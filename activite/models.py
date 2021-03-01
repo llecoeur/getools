@@ -93,7 +93,10 @@ class Adherent(models.Model):
             .exclude(tarif__article__famille__forfaitaire=True)
             .aggregate(Sum("quantite"))
         )
-        return q['quantite__sum']
+        if q['quantite__sum'] is not None:
+            return q['quantite__sum']
+        else:
+            return 0
 
 
 class Salarie(models.Model):
@@ -824,7 +827,7 @@ class InfosSupMoisMad(models.Model):
     # Heures théoriques chez l'adherent ce mois. Initialisé comment ?
     heures_theoriques = models.FloatField("heures mensuelles")
     # Est ce que la saisie est complète ? None : Non démarré, False : En cours, True : Terminée
-    saisie_complete = models.BooleanField("Saise Comlète ?", null=True, default=None, db_index=True)
+    saisie_complete = models.BooleanField("Saise Complète ?", null=True, default=None, db_index=True)
     # Memo, modifiable et récupérable d'un mois sur l'autre
     memo = models.TextField("Memo", default="", blank=True)
 

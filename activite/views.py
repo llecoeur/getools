@@ -28,6 +28,8 @@ from django.views.decorators.csrf import csrf_exempt
 import unicodedata
 from tqdm import tqdm
 from activite.tasks import generate_releve_adherent
+from activite.serializers import SalarieSerializer
+from rest_framework import viewsets
 
 pendulum.set_locale('fr')
 
@@ -900,3 +902,8 @@ def download_releve_adherent(request, mois, annee):
 def gen_releve_adherent(request, annee, mois):
     generate_releve_adherent.delay(mois=mois, annee=annee)
     return JsonResponse({"status": "ok"})
+
+
+class SalarieViewSet(viewsets.ModelViewSet):
+    queryset = Salarie.objects.all()
+    serializer_class = SalarieSerializer

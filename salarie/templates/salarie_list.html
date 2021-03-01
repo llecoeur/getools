@@ -1,0 +1,227 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block header_css %}
+
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+/*
+.form-control-sm button {
+  height: calc(1.3rem + 2px);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+*/
+
+.table-sm td {
+  padding: 2px;
+  border-top: 0px;
+}
+
+{% endblock header_css %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  
+
+  <div class="row">
+    <div class="col-8">
+      <div class="card card-outline card-primary" v-if="search">
+        <div class="card-header">
+          <h3 class="card-title">Liste des salariés</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.previous }" v-on:click="go_previous"><i class="fas fa-angle-double-left"></i></button>
+            </div>
+            <div class="col-10">
+            </div>
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.next }"v-on:click="go_next"><i class="fas fa-angle-double-right"></i></button>
+            </div>
+          </div>
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Code CEGID</th>
+                <th>Salarié</th>
+                <th>Entrée</th>
+                <th>Sortie</th>
+                <th></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="salarie in search.results">
+                <th>${salarie.id}</th>
+                <td>${salarie.code_erp}</td>
+                <td>${salarie.prenom} ${salarie.nom}</td>
+                <td>${formatDate(salarie.date_entree)}</td>
+                <td>${formatDate(salarie.date_sortie)} </td>
+                <td></td>
+                <td>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="row">
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.previous }" v-on:click="go_previous"><i class="fas fa-angle-double-left"></i></button>
+            </div>
+            <div class="col-10">
+            </div>
+            <div class="col-1">
+              <button class="btn btn-block btn-outline-primary btn-sm" v-bind:class="{ 'disabled': !search.next }"v-on:click="go_next"><i class="fas fa-angle-double-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="overlay" v-show="loader">
+          <i class="fas fa-2x fa-sync-alt fa-spin"></i>
+        </div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="card card-outline card-primary" v-if="search">
+        <div class="card-header">
+          <h3 class="card-title">Filtre</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label for="nomPrenomFilterId">Nom ou prénom</label>
+            <input id="nomPrenomFilterId" v-model="filter.nomPrenom" type="text" class="form-control" v-on:input="go_search">
+          </div>
+          <div class="form-group">
+            <label for="codeCegidFilterId">Code Cegid</label>
+            <input id="codeCegidFilterId" v-model="filter.codeCegid" type="text" class="form-control" v-on:input="go_search">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return {
+      // loader
+      api_base: "/api/salarie/?",
+      loader: false,
+      search: {},
+      filter: {
+        nomPrenom: "",
+        codeCegid: "",
+      },
+    };
+  },
+  computed: {
+    filterArgs () {
+      let args = "";
+      // prends le filtre pour en faire des arguments a l'url
+      if (this.filter.nomPrenom) {
+        args += "salarie_nom_prenom=" + this.filter.nomPrenom + "&";
+      }
+      if (this.filter.codeCegid) {
+        args += "code_cegid=" + this.filter.codeCegid + "&";
+      }
+      return args;
+    },
+  },
+  methods: {
+    async go_search() {
+      // Charge la saisie de la mise a disposition
+      self = this;
+      self.loader = true;
+      await fetch(self.api_base + self.filterArgs).then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.search = result;
+      });
+      self.loader = false;
+      
+    },
+    go_next() {
+      self = this;
+      if (self.search.next) {
+        fetch(self.search.next).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          self.search = result;
+        });
+      }
+    },
+    go_previous() {
+      self = this;
+      if (self.search.previous) {
+        fetch(self.search.previous).then(function (response) {
+          return response.json();
+        }).then(function (result) {
+          self.search = result;
+        });
+      }
+    },
+    envoiEmail(id) {
+      self = this;
+      fetch("/auth/ajax_send_reset_password/" + id + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $(document).Toasts('create', {
+          class: result.success ? 'bg-success' : 'bg-danger', 
+          title: "Envoi de l'email",
+          body: result.message,
+          autohide: true,
+          delay: 3000,
+        });
+      });
+    },
+    async banOrActivate(id) {
+      self = this;
+      await fetch("/auth/ajax_ban_unban_user/" + id + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        $(document).Toasts('create', {
+          class: result.success ? 'bg-success' : 'bg-danger', 
+          title: "Activation / Désactivation",
+          body: result.message,
+          autohide: true,
+          delay: 5000,
+        });
+      });
+      this.go_search();
+    },
+    formatDate(date) {
+      d = moment(date);
+      return d.format("D/MM/YYYY");
+    },
+    formatDateTime(date) {
+      d = moment(date);
+      return d.format("D/MM/YYYY HH:mm");
+    },
+  },
+  mounted: function () {
+      this.go_search();
+  },
+});
+
+
+</script>
+{% endblock "footer_js" %}

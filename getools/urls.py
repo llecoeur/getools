@@ -34,6 +34,7 @@ urlpatterns = [
     path('act/', include('activite.urls')),
     path('releve/', include('releve.urls')),
     path('auth/', include('geauth.urls')),
+    path('salarie/', include('salarie.urls')),
 ]   
 
 if settings.DEBUG:

@@ -21,6 +21,8 @@ class IndexView(TemplateView):
         adherent_progressis = Adherent.objects.get(raison_sociale="PROGRESSIS")
         context['total_heures_progressis'] = adherent_progressis.total_heures_mois(annee, mois)
         context['total_heures_adherent'] = get_total_heures_all_adherents(annee, mois)
-        context['pourcent_heures_progressis'] = context['total_heures_progressis'] / (context['total_heures_progressis'] + context['total_heures_adherent']) * 100
-
+        if (context['total_heures_progressis'] + context['total_heures_adherent']) != 0:
+            context['pourcent_heures_progressis'] = context['total_heures_progressis'] / (context['total_heures_progressis'] + context['total_heures_adherent']) * 100
+        else:
+            context['pourcent_heures_progressis'] = 0
         return context

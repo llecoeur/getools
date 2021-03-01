@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'geauth',
     'adherent',
+    'salarie',
     'index',
     'activite',
     'releve',

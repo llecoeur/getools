@@ -20,7 +20,10 @@ def get_total_heures_all_adherents(annee, mois):
         .exclude(tarif__article__famille__forfaitaire=True)
         .aggregate(Sum("quantite"))
     )
-    return q['quantite__sum']
+    if q['quantite__sum'] is not None:
+        return q['quantite__sum']
+    else:
+        return 0
 
 
 

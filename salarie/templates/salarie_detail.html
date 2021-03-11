@@ -46,10 +46,18 @@
                   <td>{{jour.txt}}</td>
                   <td>
                     {% for mad in jour.mad_list %}
-                      {{mad}}<a href="/salarie/delmadcalendar/{{mad.id}}/" class="text-red"> [X]</a><br />
+                      <div class="row">
+                        <div class="col-11">
+                          <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
+                          {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
+                          {{ mad.commentaire }}
+                          
+                        </div>
+                        <div class="col-1">
+                           <a href="/salarie/delmadcalendar/{{mad.id}}/" class="btn btn-xs btn-default"><i class="fas fa-times"></i></a>
+                        </div>
+                      </div>
                     {% endfor %}
-                  </td>
-                  <td>
                   </td>
                 </tr>
               {% endfor %}

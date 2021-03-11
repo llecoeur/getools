@@ -27,9 +27,7 @@
 {% load widget_tweaks %}
 {% block "main_content" %}
 <div id="app">
-  
-
-  <div class="row">
+    <div class="row">
     <div class="col-8">
       <div class="card card-outline card-primary" v-if="search">
         <div class="card-header">
@@ -57,20 +55,17 @@
                 <th>Salarié</th>
                 <th>Entrée</th>
                 <th>Sortie</th>
-                <th></th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="salarie in search.results">
-                <th>${salarie.id}</th>
+                <th><a v-bind:href="'/salarie/' + salarie.id + '/'">${salarie.id}</a></th>
                 <td>${salarie.code_erp}</td>
-                <td>${salarie.prenom} ${salarie.nom}</td>
+                <td><a v-bind:href="'/salarie/' + salarie.id + '/'">${salarie.prenom} ${salarie.nom}</a></td>
                 <td>${formatDate(salarie.date_entree)}</td>
                 <td>${formatDate(salarie.date_sortie)} </td>
-                <td></td>
-                <td>
-                </td>
+                <td><a v-bind:href="'/salarie/' + salarie.id + '/'" class="btn btn-primary btn-xs"><i class="far fa-file-alt"></i></a></td>
               </tr>
             </tbody>
           </table>
@@ -157,7 +152,6 @@ var app = new Vue({
         self.search = result;
       });
       self.loader = false;
-      
     },
     go_next() {
       self = this;

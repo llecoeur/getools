@@ -772,7 +772,7 @@ def download_paie(request, annee, mois):
         Télécharge un fichier de paie a importer dans Y2
     """
     # Salariés ayant fait des saisies dans le mois
-    buletin_lines = "***DEBUT***\r\n000;000000;01/01/2020;31/12/2020\r\n"
+    buletin_lines = f"***DEBUT***\r\n000;000000;01/01/{annee};31/12/{annee}\r\n"
     salarie_list = (
         TarifGe.objects
         .filter(mise_a_disposition__cloturee=False)
@@ -907,3 +907,15 @@ def gen_releve_adherent(request, annee, mois):
 class SalarieViewSet(viewsets.ModelViewSet):
     queryset = Salarie.objects.all()
     serializer_class = SalarieSerializer
+
+    def get_queryset(self):
+        qs = Salarie.get_salaries_actuels()
+        salarie_nom_prenom = self.request.query_params.get('salarie_nom_prenom', None)
+        code_cegid = self.request.query_params.get('code_cegid', None)
+        if salarie_nom_prenom is not None:
+            qs = qs.filter(Q(nom__icontains=salarie_nom_prenom) | Q(prenom__icontains=salarie_nom_prenom))
+
+        if code_cegid is not None:
+            qs = qs.filter(code_erp__contains=code_cegid)
+        
+        return qs

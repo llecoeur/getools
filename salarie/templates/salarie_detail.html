@@ -1,0 +1,186 @@
+{% extends 'base.html'%}
+{% load widget_tweaks %}
+{% load static %}
+{% block header_css %}
+
+.form-control-sm {
+    height: calc(1.3rem + 2px);
+    padding: .1rem .5rem;
+    font-size: 0.7rem;
+    line-height: 1;
+    border-radius: .2rem;
+}
+
+/*
+.form-control-sm button {
+  height: calc(1.3rem + 2px);
+  font-size: 0.7rem;
+  line-height: 1;
+}
+*/
+
+.table-sm td {
+  padding: 2px;
+  border-top: 0px;
+}
+
+{% endblock header_css %}
+{% load widget_tweaks %}
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-8">
+      {% if object.calendrier %}
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Calendrier</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tbody>
+              {% for jour in object.calendrier.calendar  %}
+                <tr>
+                  <td>{{jour.txt}}</td>
+                  <td>
+                    {% for mad in jour.mad_list %}
+                      {{mad}}<a href="/salarie/delmadcalendar/{{mad.id}}/" class="text-red"> [X]</a><br />
+                    {% endfor %}
+                  </td>
+                  <td>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          
+        </div>
+      </div>
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Ajout de MAD au salarié</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/salarie/addmad/">
+            {% csrf_token %}
+            {{mad_add_form.calendrier}}
+            <div class="row">
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="{{ mad_add_form.num_jour.id_for_label }}">Jour</label>
+                  {{ mad_add_form.num_jour | add_class:"custom-select" }}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="{{ mad_add_form.periode.id_for_label }}">Période</label>
+                  {{ mad_add_form.periode | add_class:"custom-select" }}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="{{ mad_add_form.adherent.id_for_label }}">Adhérent</label>
+                  {{ mad_add_form.adherent | add_class:"custom-select" }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="{{ mad_add_form.commentaire.id_for_label }}">Notes</label>
+                  {{ mad_add_form.commentaire | add_class:"form-control" }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6"></div>
+              <div class="col-2"><button class="btn btn-primary btn-block" type="submit">Ajouter</button></div>
+              <div class="col-6"></div>
+            </div>
+          </form>
+        </div>
+      </div>
+      {% else %}
+
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Calendrier</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <a href="/salarie/{{object.id}}/addcalendar/" class="btn btn-default text-info">Créer le calendrier</a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    <div class="col-4">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Détails du salarié</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-12">
+              Nom : {{object}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              Entrée : {{object.date_entree}}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              Sortie : {{object.date_sortie}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return {
+      
+      },
+    };
+  },
+  computed: {
+
+  },
+  methods: {
+
+    formatDate(date) {
+      d = moment(date);
+      return d.format("D/MM/YYYY");
+    },
+    formatDateTime(date) {
+      d = moment(date);
+      return d.format("D/MM/YYYY HH:mm");
+    },
+  },
+  mounted: function () {
+  },
+});
+
+
+</script>
+{% endblock "footer_js" %}

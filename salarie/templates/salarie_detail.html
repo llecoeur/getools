@@ -33,7 +33,7 @@
       {% if object.calendrier %}
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Calendrier</h3>
+          <h3 class="card-title">Planning</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -41,7 +41,7 @@
         <div class="card-body">
           <table class="table">
             <tbody>
-              {% for jour in object.calendrier.calendar  %}
+              {% for jour in object.calendrier.calendar %}
                 <tr>
                   <td>{{jour.txt}}</td>
                   <td>

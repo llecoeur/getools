@@ -34,7 +34,11 @@ class CalendrierSalarie(models.Model):
                 "num": day,
                 "mad_list": self.get_mads(day),
             }
-            week.append(d)
+            if day in [0, 1, 2, 3, 4]:
+                week.append(d)
+            else:
+                if d['mad_list'].count() != 0:
+                    week.append(d)
         return week
 
     def get_mads(self, num_jour):

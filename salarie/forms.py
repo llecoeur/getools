@@ -20,7 +20,7 @@ class CreateCalendrierSalarieMiseADispositionForm(forms.ModelForm):
     
     class Meta:
         model = CalendrierSalarieMiseADisposition
-        fields = ['num_jour', 'periode', 'adherent', 'commentaire', 'calendrier']
+        fields = ['num_jour', 'periode', 'recurence' , 'adherent', 'commentaire', 'calendrier']
         widgets = {'calendrier': forms.HiddenInput()}
 
     def __init__(self, *args, **kwargs):

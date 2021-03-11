@@ -51,7 +51,9 @@
                           <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
                           {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
                           {{ mad.commentaire }}
-                          
+                          {% if mad.recurence %}
+                            <span class="badge badge-primary">{{mad.recurence}}</span>
+                          {% endif %}
                         </div>
                         <div class="col-1">
                            <a href="/salarie/delmadcalendar/{{mad.id}}/" class="btn btn-xs btn-default"><i class="fas fa-times"></i></a>
@@ -78,19 +80,25 @@
             {% csrf_token %}
             {{mad_add_form.calendrier}}
             <div class="row">
-              <div class="col-4">
+              <div class="col-3">
                 <div class="form-group">
                   <label for="{{ mad_add_form.num_jour.id_for_label }}">Jour</label>
                   {{ mad_add_form.num_jour | add_class:"custom-select" }}
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-3">
                 <div class="form-group">
                   <label for="{{ mad_add_form.periode.id_for_label }}">Période</label>
                   {{ mad_add_form.periode | add_class:"custom-select" }}
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-3">
+                <div class="form-group">
+                  <label for="{{ mad_add_form.recurence.id_for_label }}">Récurence</label>
+                  {{ mad_add_form.recurence | add_class:"custom-select" }}
+                </div>
+              </div>
+              <div class="col-3">
                 <div class="form-group">
                   <label for="{{ mad_add_form.adherent.id_for_label }}">Adhérent</label>
                   {{ mad_add_form.adherent | add_class:"custom-select" }}

@@ -70,6 +70,21 @@ class CalendrierSalariePeriode(models.Model):
     def __str__(self):
         return self.nom
 
+class CalendrierSalarieRecurence(models.Model):
+    """
+        Classe des périodes de journées, permettant de découper les jours
+    """
+    # Nom de la période, par exemple, matin, après midi, ou 9h-10h
+    nom = models.CharField("Nom de la période", null=False, blank=False, unique=True, max_length=30)
+    # Ordre dans le jour, pour classer le matin avant l'après midi
+    ordre = models.IntegerField("ordre dans le jour")
+
+    class Meta:
+        ordering = ['ordre', 'nom']
+
+    def __str__(self):
+        return self.nom
+
 
 class CalendrierSalarieMiseADisposition(models.Model):
 
@@ -77,7 +92,9 @@ class CalendrierSalarieMiseADisposition(models.Model):
     # commentaire éventuel
     commentaire = models.CharField("Notes", null=False, blank=True, default="", max_length=200)
     # Si None, alors c'est toute la journée
-    periode = models.ForeignKey("CalendrierSalariePeriode", on_delete=models.CASCADE, null=True, blank=False, default=None)
+    periode = models.ForeignKey("CalendrierSalariePeriode", on_delete=models.CASCADE, null=False, blank=False, default=None)
+    # Récurence. C'est juste un texte sur une table liée
+    recurence = models.ForeignKey("CalendrierSalarieRecurence", on_delete=models.SET_NULL, null=True, blank=True, default=None)
     # Mise a disposition
     adherent = models.ForeignKey(Adherent, on_delete=models.CASCADE, null=True, blank=True, db_index=True, default=None)
     # Calendrier lié

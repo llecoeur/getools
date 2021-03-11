@@ -41,7 +41,7 @@ class SalarieDetailView(PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if hasattr(salarie, 'calendrier'):
+        if hasattr(self.object, 'calendrier'):
             context['mad_add_form'] = CreateCalendrierSalarieMiseADispositionForm(initial={'calendrier': self.object.calendrier.id})
         return context
 

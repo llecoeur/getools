@@ -48,11 +48,14 @@
                     {% for mad in jour.mad_list %}
                       <div class="row">
                         <div class="col-11">
-                          <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
-                          {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
                           {% if mad.recurence %}
                             <span class="badge badge-primary">{{mad.recurence}}</span>
                           {% endif %}
+                          {% if mad.periode.ordre != 0 %}
+                            <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
+                          {% endif  %}
+                          {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
+
                           {{ mad.commentaire }}
 
                         </div>

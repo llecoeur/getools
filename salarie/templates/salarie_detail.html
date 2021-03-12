@@ -39,36 +39,37 @@
           </div>
         </div>
         <div class="card-body">
-          <table class="table">
-            <tbody>
-              {% for jour in object.calendrier.calendar %}
-                <tr>
-                  <td v-on:click="useJour({{jour.num}})">{{jour.txt}}</td>
-                  <td>
-                    {% for mad in jour.mad_list %}
-                      <div class="row">
-                        <div class="col-2 text-right">
-                          {% if mad.recurence %}
-                            <span class="badge badge-primary">{{mad.recurence}}</span>
-                          {% endif %}
-                          {% if mad.periode.ordre != 0 %}
-                            <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
-                          {% endif  %}
-                        </div>
-                        <div class="col-9">
-                          {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
-                          {{ mad.commentaire }}
-                        </div>
-                        <div class="col-1">
-                           <a href="/salarie/delmadcalendar/{{mad.id}}/" class="btn btn-xs btn-default"><i class="fas fa-times"></i></a>
-                        </div>
-                      </div>
-                    {% endfor %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          {% for jour in object.calendrier.calendar %}
+            <hr>
+            <div class="row">
+              <div class="col-1"v-on:click="useJour({{jour.num}})">
+                <strong>{{jour.txt}}</strong>
+              </div>
+              <div class="col-11">
+                {% for mad in jour.mad_list %}
+                  <div class="row">
+                    <div class="col-2 text-right">
+                      {% if mad.recurence %}
+                        <span class="badge badge-primary">{{mad.recurence}}</span>
+                      {% endif %}
+                      {% if mad.periode.ordre != 0 %}
+                        <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
+                      {% endif  %}
+                    </div>
+                    <div class="col-9">
+                      {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
+                      {{ mad.commentaire }}
+                    </div>
+                    <div class="col-1">
+                        <a href="/salarie/delmadcalendar/{{mad.id}}/" class="btn btn-xs btn-default"><i class="fas fa-times"></i></a>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+
+
           
         </div>
       </div>

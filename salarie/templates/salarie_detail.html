@@ -43,7 +43,7 @@
             <tbody>
               {% for jour in object.calendrier.calendar %}
                 <tr>
-                  <td>{{jour.txt}}</td>
+                  <td v-on:click="useJour({{jour.num}})">{{jour.txt}}</td>
                   <td>
                     {% for mad in jour.mad_list %}
                       <div class="row">
@@ -84,7 +84,7 @@
               <div class="col-3">
                 <div class="form-group">
                   <label for="{{ mad_add_form.num_jour.id_for_label }}">Jour</label>
-                  {{ mad_add_form.num_jour | add_class:"custom-select" }}
+                  {{ mad_add_form.num_jour | add_class:"custom-select" | attr:"v-model:selected_jour" }}
                 </div>
               </div>
               <div class="col-3">
@@ -175,15 +175,19 @@ var app = new Vue({
   el: '#app',
   delimiters: ['${','}'],
   data() {
+
     return {
-      
-      },
+      // loader
+      selected_jour: "0",
     };
   },
   computed: {
 
   },
   methods: {
+    useJour(num_jour) {
+      this.selected_jour = String(num_jour);
+    },
 
     formatDate(date) {
       d = moment(date);

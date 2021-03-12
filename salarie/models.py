@@ -15,7 +15,7 @@ class CalendrierSalarie(models.Model):
     salarie = models.OneToOneField(Salarie, on_delete=models.SET_NULL, related_name="calendrier", db_index=True, null=True, blank=True, default=None)
     commentaire = models.TextField("Notes", null=False, blank=True, default="")
 
-    jour_name = ['Lundi', "Mardi", "Mecredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
+    jour_name = ['Lundi', "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
 
     class Meta:
         ordering = ['salarie__nom']
@@ -92,7 +92,7 @@ class CalendrierSalarieMiseADisposition(models.Model):
     # commentaire éventuel
     commentaire = models.CharField("Notes", null=False, blank=True, default="", max_length=200)
     # Si None, alors c'est toute la journée
-    periode = models.ForeignKey("CalendrierSalariePeriode", on_delete=models.CASCADE, null=False, blank=False, default=None)
+    periode = models.ForeignKey("CalendrierSalariePeriode", on_delete=models.CASCADE, null=False, blank=False, default=1)
     # Récurence. C'est juste un texte sur une table liée
     recurence = models.ForeignKey("CalendrierSalarieRecurence", on_delete=models.SET_NULL, null=True, blank=True, default=None)
     # Mise a disposition

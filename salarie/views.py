@@ -68,7 +68,7 @@ def addmad(request):
         if form.is_valid():
             mad = form.save()
             salarie_id = mad.calendrier.salarie.id
-            messages.success(request, 'Ajouté')
+            # messages.success(request, 'Ajouté')
             return redirect(f'/salarie/{salarie_id}/')
 
 def delmadcalendar(request, mad_id):

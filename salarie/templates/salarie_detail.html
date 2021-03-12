@@ -50,10 +50,11 @@
                         <div class="col-11">
                           <span class="badge badge-secondary">{{ mad.periode.nom }}</span>
                           {% if mad.adherent %}{{ mad.adherent.raison_sociale }}{% endif %}
-                          {{ mad.commentaire }}
                           {% if mad.recurence %}
                             <span class="badge badge-primary">{{mad.recurence}}</span>
                           {% endif %}
+                          {{ mad.commentaire }}
+
                         </div>
                         <div class="col-1">
                            <a href="/salarie/delmadcalendar/{{mad.id}}/" class="btn btn-xs btn-default"><i class="fas fa-times"></i></a>
@@ -125,13 +126,13 @@
 
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Calendrier</h3>
+          <h3 class="card-title">Planning</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
         </div>
         <div class="card-body">
-          <a href="/salarie/{{object.id}}/addcalendar/" class="btn btn-default text-info">Créer le calendrier</a>
+          <a href="/salarie/{{object.id}}/addcalendar/" class="btn btn-default text-info">Créer le planning</a>
         </div>
       </div>
       {% endif %}

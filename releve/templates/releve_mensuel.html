@@ -35,7 +35,7 @@
     <div class="col-9">
       <div class="card card-outline card-primary" v-if="releve_loaded">
         <div class="card-header">
-          <h3 class="card-title">Saisissez vos heures travaillées chez chaque adhérent Progressis</h3>
+          <h3 class="card-title">Saisissez vos heures travaillées chez chaque adhérent Progressis pour le mois de ${mois_annee_str}</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -234,6 +234,20 @@ var app = new Vue({
       },
       heuresMadPie: {},
       ctxMadPie: {},
+      moisStr: [
+        "Janvier",
+        "Février",
+        "Mars",
+        "Avril",
+        "Mai",
+        "Juin",
+        "Juillet",
+        "Aout",
+        "Septembre",
+        "Octobre",
+        "Novembre",
+        "Décembre",
+      ],
     };
   },
   computed: {
@@ -284,6 +298,16 @@ var app = new Vue({
         total_heures += self.totalColonne(cpt);
       }
       return total_heures;
+    },
+    mois_annee_str() {
+      // retourne le mois et l'année sous forme de string
+      try {
+        mois_int = Number(this.mois) - 1; // Janvier doit être 0
+        mois_actuel_str = this.moisStr[mois_int];
+      } catch(err) {
+        return "";
+      }
+      return mois_actuel_str + " " + this.annee;
     },
   },
   methods: {

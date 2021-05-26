@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'bi',
     'rest_framework',
     'django_extensions',
+    'conge',
 ]
 
 MIDDLEWARE = [
@@ -163,6 +164,8 @@ REST_FRAMEWORK = {
 }
 
 PASSWORD_RESET_TIMEOUT = 604800
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 try:
     from .local_settings import *

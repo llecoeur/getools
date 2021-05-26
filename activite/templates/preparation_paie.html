@@ -21,7 +21,7 @@
     <div class="col-9">
       <div class="card" v-bind:class="infos_sup_mad.saisie_complete ? 'card-success' : 'card-warning'" v-if="mad_id">
         <div class="card-header">
-          <h3 class="card-title">Mise a disposition ${mad_id} - (${mad.code_erp}) - ${infos_sup_mad.saisie_complete ? 'Terminée' : 'En Cours'}</h3>
+          <h3 class="card-title">Mise a disposition ${mad_id} - (${mad.code_erp}) - ${mois_annee_str} - ${infos_sup_mad.saisie_complete ? 'Terminée' : 'En Cours'}</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
           </div>
@@ -387,6 +387,20 @@ var app = new Vue({
       id: 0,
       value: 0,
     },
+    moisStr: [
+      "Janvier",
+      "Février",
+      "Mars",
+      "Avril",
+      "Mai",
+      "Juin",
+      "Juillet",
+      "Aout",
+      "Septembre",
+      "Octobre",
+      "Novembre",
+      "Décembre",
+    ],
     requestOptions: {
       method: "PUT",
       headers: { 
@@ -446,8 +460,17 @@ var app = new Vue({
       }
       return ret;
     },
+    mois_annee_str() {
+      // retourne le mois et l'année sous forme de string
+      try {
+        mois_int = Number(this.mois) - 1; // Janvier doit être 0
+        mois_actuel_str = this.moisStr[mois_int];
+      } catch(err) {
+        return "";
+      }
+      return mois_actuel_str + " " + this.annee;
+    },
   },
-
   methods: {
     fillSelectMiseADisposition: function() {
       self = this;

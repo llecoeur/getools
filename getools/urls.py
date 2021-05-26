@@ -35,6 +35,7 @@ urlpatterns = [
     path('releve/', include('releve.urls')),
     path('auth/', include('geauth.urls')),
     path('salarie/', include('salarie.urls')),
+    path('conge/', include('conge.urls')),
 ]   
 
 if settings.DEBUG:

@@ -62,7 +62,8 @@ html {
   
 </head>
 <body>
-{% block body %}{% for mad in mad_list %}<article><h1>Relevé {{mad.adherent.raison_sociale}} - {{mad.salarie.prenom}} {{mad.salarie.nom}}</h1>
+{% block body %}{% for mad in mad_list %}<article><h1>Relevé {{mad.adherent.raison_sociale}} - {{mad.salarie.prenom}} {{mad.salarie.nom}}</h1><br />
+<h3>{{date_str}}</h3>
   <table>
     <thead>
       <tr>

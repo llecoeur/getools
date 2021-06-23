@@ -809,6 +809,7 @@ def download_releve_adherent(request, mois, annee):
     """
     ret = []
     template = "adherent_releve_print.html"
+    date_str = date(annee, mois, 1).strftime("%B") + " " + str(annee)
     # adherent_list = Adherent.objects.all().order_by("raison_sociale")
     # adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").filter(raison_sociale__in=["MANUPLAST"])
     adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").order_by("raison_sociale")
@@ -896,6 +897,7 @@ def download_releve_adherent(request, mois, annee):
     """
     context = {
         "mad_list": ret,
+        "date_str": date_str,
     }
     return render(request, template, context)
 

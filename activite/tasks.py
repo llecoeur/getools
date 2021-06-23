@@ -4,6 +4,7 @@ from django.forms.models import model_to_dict
 from django.template.loader import render_to_string
 from django.conf import settings
 from weasyprint import HTML
+from datetime import date
 
 
 
@@ -20,6 +21,7 @@ def generate_releve_adherent(*args, **kwargs):
     print(f"génération du relevé {mois} - {annee}")
     ret = []
     template = "adherent_releve_print.html"
+    date_str = date(annee, mois, 1).strftime("%B") + " " + str(annee)
     # adherent_list = Adherent.objects.all().order_by("raison_sociale")
     # adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").filter(raison_sociale__in=["MANUPLAST"])
     adherent_list = Adherent.objects.exclude(raison_sociale="PROGRESSIS").order_by("raison_sociale")
@@ -62,6 +64,7 @@ def generate_releve_adherent(*args, **kwargs):
 
     context = {
         "mad_list": ret,
+        "date_str": date_str,
     }
     f_content = render_to_string(template, context)
     html_path = f"{settings.STATIC_ROOT}releve_adherents/{annee}-{mois}.html" 

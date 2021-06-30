@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 from weasyprint import HTML
 from datetime import date
+import locale
 
 
 
@@ -16,6 +17,7 @@ def test(*args, **kwargs):
 
 @shared_task
 def generate_releve_adherent(*args, **kwargs):
+    locale.setlocale(locale.LC_TIME, "fr_FR")
     mois = kwargs['mois']
     annee = kwargs['annee']
     print(f"génération du relevé {mois} - {annee}")

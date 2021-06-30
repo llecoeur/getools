@@ -30,7 +30,12 @@ html {
     font-size: 18pt;
     font-weight: bold;
     margin: 0; }
-  
+
+  html h4 {
+    font-family: Source Sans Pro;
+    font-size: 12pt;
+    margin: 0; 
+    padding: 2px; }
   html body article {
     // border: 1px solid black;
     // break-after: left;
@@ -63,7 +68,7 @@ html {
 </head>
 <body>
 {% block body %}{% for mad in mad_list %}<article><h1>Relevé {{mad.adherent.raison_sociale}} - {{mad.salarie.prenom}} {{mad.salarie.nom}}</h1><br />
-<h3>{{date_str}}</h3>
+<h4>{{date_str}}</h4>
   <table>
     <thead>
       <tr>

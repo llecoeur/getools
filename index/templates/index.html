@@ -40,8 +40,8 @@
               {% for histo in historique_mois %}
                 <tr>
                   <td>{{ histo.month | date:"F Y" }}</td>
-                  <td>{% if histo.heures_progressis  != 0 %}{{ histo.heures_progressis }}{% endif %}</td>
-                  <td>{% if histo.heures_adherents  != 0 %}{{ histo.heures_adherents }}{% endif %}</td>
+                  <td>{% if histo.heures_progressis  != 0 %}{{ histo.heures_progressis | floatformat }}{% endif %}</td>
+                  <td>{% if histo.heures_adherents  != 0 %}{{ histo.heures_adherents | floatformat }}{% endif %}</td>
                 </tr>
               {% endfor %}
             </tbody>

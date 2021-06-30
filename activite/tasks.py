@@ -17,7 +17,7 @@ def test(*args, **kwargs):
 
 @shared_task
 def generate_releve_adherent(*args, **kwargs):
-    locale.setlocale(locale.LC_TIME, "fr_FR")
+    locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
     mois = kwargs['mois']
     annee = kwargs['annee']
     print(f"génération du relevé {mois} - {annee}")

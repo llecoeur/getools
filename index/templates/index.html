@@ -3,7 +3,7 @@
 
 {% block "main_content" %}
 <div id="app">
-  {% if perms.activite.add_saisieactivite %}
+  {% if perms.geauth.can_view_indicators %}
   <div class="row">
     <div class="col-3">
       <div class="info-box">
@@ -16,7 +16,7 @@
         <!-- /.info-box-content -->
       </div>
     </div>
-    <div class="col-6">
+    <div class="col-9">
       <div class="card card-primary">
         <div class="card-header">
           <h3 class="card-title">Historique des heures</h3>
@@ -35,13 +35,22 @@
               <th>Mois</th>
               <th>Heures Progressis</th>
               <th>Heures Autre</th>
+              <th>Formation</th>
+              <th>Loc. Ordi</th>
+              <th>Equipe Gestion</th>
+              <th>Progressis hors gestion</th>
             </thead>
             <tbody>
               {% for histo in historique_mois %}
                 <tr>
                   <td>{{ histo.month | date:"F Y" }}</td>
-                  <td>{% if histo.heures_progressis  != 0 %}{{ histo.heures_progressis | floatformat }}{% endif %}</td>
-                  <td>{% if histo.heures_adherents  != 0 %}{{ histo.heures_adherents | floatformat }}{% endif %}</td>
+                  <td>{% if histo.heures_progressis  != 0 %}{{ histo.heures_progressis | floatformat }} h{% endif %}</td>
+                  <td>{% if histo.heures_adherents  != 0 %}{{ histo.heures_adherents | floatformat }} h{% endif %}</td>
+                  <td>{% if histo.heures_formation  != 0 %}{{ histo.heures_formation | floatformat }} h{% endif %}</td>
+                  <td>{% if histo.loc_ordi  != 0 %}{{ histo.loc_ordi | floatformat }} €{% endif %}</td>
+                  <td>{% if histo.equipe_gestion  != 0 %}{{ histo.equipe_gestion | floatformat }} h{% endif %}</td></td>
+                  <td>{% if histo.progressis_non_gestion  != 0 %}{{ histo.progressis_non_gestion | floatformat }} h{% endif %}</td></td>
+                  
                 </tr>
               {% endfor %}
             </tbody>

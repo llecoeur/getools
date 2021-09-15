@@ -31,7 +31,6 @@ class DemandeConge(models.Model):
     # Commentaire Progressis
     commentaire_responsable = models.TextField(null=False, blank=True, default="")
 
-
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
     # Date de dernière modification
@@ -56,7 +55,6 @@ class ValidationAdherent(models.Model):
     valid_manuel_date = models.DateTimeField("Date de validation manuelle", null=True, db_index=True)
     # Si la demande a été validée par dépassement du délais
     is_valid_timeout = models.BooleanField("Validé par expiration du délais ?", null=False, default=False, blank=True)
-
 
     # Date de création
     created = models.DateTimeField(auto_now_add=True)

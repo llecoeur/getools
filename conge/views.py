@@ -6,3 +6,10 @@ from conge.models import DemandeConge
 # Create your views here.
 class DemandeCongeListView(ListView):
     model = DemandeConge
+
+
+class DemandeCongeAddFormView(CreateView):
+    model = DemandeConge
+    template_name = "FormulaireUtilisateurDemandeConge.html"
+    fields = ["debut", "fin", "motif", "commentaire_salarie"]
+

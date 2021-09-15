@@ -589,6 +589,7 @@ def ajax_upload_activite(request, mad_id):
             activite.uploaded = True
             activite.save()
     else:
+        print(response.status_code)
         print(response.text)
     return HttpResponse(response.text)
 

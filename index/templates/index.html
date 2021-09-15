@@ -39,6 +39,7 @@
               <th>Loc. Ordi</th>
               <th>Equipe Gestion</th>
               <th>Progressis hors gestion</th>
+              <th>Intermission</th>
             </thead>
             <tbody>
               {% for histo in historique_mois %}
@@ -50,7 +51,7 @@
                   <td>{% if histo.loc_ordi  != 0 %}{{ histo.loc_ordi | floatformat }} u{% endif %}</td>
                   <td>{% if histo.equipe_gestion  != 0 %}{{ histo.equipe_gestion | floatformat }} h{% endif %}</td></td>
                   <td>{% if histo.progressis_non_gestion  != 0 %}{{ histo.progressis_non_gestion | floatformat }} h{% endif %}</td></td>
-                  
+                  <td>{% if histo.intermission  != 0 %}{{ histo.intermission | floatformat }} h{% endif %}</td></td>
                 </tr>
               {% endfor %}
             </tbody>

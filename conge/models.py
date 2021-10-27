@@ -6,6 +6,9 @@ from geauth.models import User
 class MotifDemandeConge(models.Model):
     libelle = models.CharField("Libellé", max_length=30, null=False, blank=False)
 
+    def __str__(self):
+        return self.libelle
+
 
 class DemandeConge(models.Model):
 
@@ -30,6 +33,8 @@ class DemandeConge(models.Model):
     commentaire_salarie = models.TextField(null=False, blank=True, default="")
     # Commentaire Progressis
     commentaire_responsable = models.TextField(null=False, blank=True, default="")
+    # Est ce que a demande de congé est complète et envoyée
+    conge_envoye = models.BooleanField(null=False, default=False, db_index=True)
 
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
@@ -64,3 +69,17 @@ class ValidationAdherent(models.Model):
     def __str__(self):
         return self.nom_prenom
 
+class ValidationResponsable(models.Model):
+    # Demande liée
+    id_demande = models.ForeignKey(DemandeConge, on_delete=models.CASCADE, db_index=True, null=False, blank=False, related_name="validation_responsable_list")
+    # Si la demande a été validée par la personne ou non dans les temps manuellement
+    is_valid_manuel = models.BooleanField("Validé manuellement ?", null=False, default=False, blank=True)
+    # Date de validation de la demande
+    valid_manuel_date = models.DateTimeField("Date de validation manuelle", null=True, db_index=True)
+    # Si la demande a été validée par dépassement du délais
+    is_valid_timeout = models.BooleanField("Validé par expiration du délais ?", null=False, default=False, blank=True)
+
+    # Date de création
+    created = models.DateTimeField(auto_now_add=True)
+    # Date de dernière modification
+    updated = models.DateTimeField(auto_now=True)

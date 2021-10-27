@@ -1,6 +1,7 @@
 {% extends 'base.html'%}
 {% load static %}
 {% load widget_tweaks %}
+
 {% block "main_content" %}
 <div id="app">
   <div class="row">
@@ -13,8 +14,49 @@
           </div>
         </div>
         <div class="card-body">
-
-          {{ form }}
+          <form method="POST">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-4">
+                {{ form.non_field_errors }}
+                <div class="form-group">
+                    {{ form.debut.errors }}
+                    <label for="{{ form.debut.id_for_label }}">Début :</label>
+                    {{ form.debut |add_class:"form-control"}}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                    {{ form.fin.errors }}
+                    <label for="{{ form.fin.id_for_label }}">Fin :</label>
+                    {{ form.fin  |add_class:"form-control" }}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                    {{ form.motif.errors }}
+                    <label for="{{ form.motif.id_for_label }}">Motif :</label>
+                    {{ form.motif |add_class:"form-control" }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                    {{ form.commentaire_salarie.errors }}
+                    <label for="{{ form.commentaire_salarie.id_for_label }}">Commentaire :</label>
+                    {{ form.commentaire_salarie  |add_class:"form-control" }}
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4"></div>
+              <div class="col-4">
+                <button type="submit" class="btn btn-primary btn-block">Créer</button>
+              </div>
+              <div class="col-4"></div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -30,7 +72,6 @@
           Utilisez ce formulaire pour faire une demande de congés.<br >
           Un email sera envoyés a chaque adhérent listé, pour lui demander de valider ou non cette demande. Sous 15 jours, la demande sera automatiquement acceptée.<br />
           Le chargé de développement pourra ensuite donner son accord définitif.
-
         </div>
       </div>
       </div>

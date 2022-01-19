@@ -18,19 +18,32 @@
             {% csrf_token %}
             <div class="row">
               <div class="col-4">
-                {{ form.non_field_errors }}
                 <div class="form-group">
-                    {{ form.debut.errors }}
-                    <label for="{{ form.debut.id_for_label }}">Début :</label>
-                    {{ form.debut |add_class:"form-control"}}
+                  <label for="debut_input">Du</label>
+                  <div id="debut_input" data-target-input="nearest" class="input-group date">
+                    {{ form.debut |add_class:"form-control datetimepicker-input" | attr:"data-target:#debut_input" }}
+                    <div data-target="#debut_input" data-toggle="datetimepicker" class="input-group-append">
+                      <div class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                {{ form.non_field_errors }}
               </div>
               <div class="col-4">
                 <div class="form-group">
-                    {{ form.fin.errors }}
-                    <label for="{{ form.fin.id_for_label }}">Fin :</label>
-                    {{ form.fin  |add_class:"form-control" }}
+                  <label for="fin_input">Du</label>
+                  <div id="fin_input" data-target-input="nearest" class="input-group date">
+                    {{ form.fin |add_class:"form-control datetimepicker-input" | attr:"data-target:#fin_input" }}
+                    <div data-target="#fin_input" data-toggle="datetimepicker" class="input-group-append">
+                      <div class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+                {{ form.non_field_errors }}
               </div>
               <div class="col-4">
                 <div class="form-group">
@@ -52,7 +65,7 @@
             <div class="row">
               <div class="col-4"></div>
               <div class="col-4">
-                <button type="submit" class="btn btn-primary btn-block">Créer</button>
+                <button type="submit" class="btn btn-primary btn-block">Suivant</button>
               </div>
               <div class="col-4"></div>
             </div>
@@ -83,14 +96,20 @@
 {% block "footer_js" %}
 <script src="{% static 'vuejs/vue.js' %}"></script>
 <script>
-Vue.component('adherent', {
-  data: function () {
-    return {
-      number: 0
-    }
-  },
-  template: '>'
-})
+
+$(function () {
+  $('#debut_input').datetimepicker({
+      format: 'DD/MM/YYYY',
+      locale: 'fr',
+  });
+  $('#fin_input').datetimepicker({
+      format: 'DD/MM/YYYY',
+      locale: 'fr',
+  });
+});
+
+
+
 var app = new Vue({
   el: '#app',
   delimiters: ['${','}'],

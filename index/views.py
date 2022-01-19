@@ -9,6 +9,7 @@ from activite.stats import get_total_heures_all_adherents, get_total_value_searc
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 import pytz
+from monthdelta import monthdelta
 
 
 class IndexView(TemplateView):
@@ -25,7 +26,7 @@ class IndexView(TemplateView):
         article_location_ordi = Article.objects.get(code_erp="LOCATION")
         adherent_progressis = Adherent.objects.get(raison_sociale="PROGRESSIS")
         adherent_la_poste = Adherent.objects.get(code_erp='294')
-        salarie_gestion = list(Salarie.objects.filter(code_erp__in=["0000000224", "0000000393", "0000000400", "0000000004", "0000000074", "0000000334"]))
+        salarie_gestion = list(Salarie.objects.filter(code_erp__in=["0000000224", "0000000393", "0000000400", "0000000004", "0000000074", "0000000334", "0000000280", "0000000008", "0000000191", "0000000516"]))
         article_intermission = Article.objects.get(code_erp="PANNE")
 
         # Heures réalisées chez progressis au mois précédent
@@ -40,9 +41,12 @@ class IndexView(TemplateView):
         # Historique sur 1 an
         data = []
         mois = datetime.now().month
+        annee = datetime.now().year
+        # annee_cpt = datetime.now().year
         for mois_cpt in range (1, 13):
             # mois_actuel_int = (mois -  mois_cpt) % 12 + 1
-            mois_actuel = date(annee, mois, 1) -  relativedelta(months=mois_cpt)
+            # mois_actuel = date(annee_cpt, mois, 1) -  relativedelta(months=mois_cpt)
+            mois_actuel = date(annee, mois, 1) -  monthdelta(mois_cpt)
             # print(f"{mois_actuel}")
             d = {
                 "month": mois_actuel,

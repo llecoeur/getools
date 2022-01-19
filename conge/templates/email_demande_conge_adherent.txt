@@ -1,0 +1,17 @@
+Bonjour {{nom_prenom}}
+
+{{nom_prenom_salarie}} aimerait prendre un congé du {{date_debut}} au {{date_fin}} :
+
+{{motif}}
+
+Pour accepter cette demande, cliquez ici :
+
+{{protocol}}://{{domain}}/conge/accept/{{slug_acceptation}}/
+
+Pour refuser, cliquez ici :
+
+{{protocol}}://{{domain}}/conge/reject/{{slug_refus}}/
+
+En cas de non réponse, cette demande sera acceptée automatiquement sous 14 jours.
+
+L'équipe Progressis

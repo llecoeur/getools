@@ -1,3 +1,4 @@
+from django.core.checks import messages
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
@@ -6,23 +7,88 @@ from conge.models import DemandeConge, ValidationAdherent
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from .forms import ValidationAdherentFormSet
+from django.shortcuts import redirect
+from django.shortcuts import render
+from django.http import Http404
+from django.contrib import messages
+from django.utils import timezone
 
 # Create your views here.
 class DemandeCongeListView(ListView):
+    # DOTO : Faire le template de la liste
     model = DemandeConge
+    template_name = "demande_list.html"
 
 
 class DemandeCongeAddFormView(CreateView):
     model = DemandeConge
     template_name = "FormulaireUtilisateurDemandeConge.html"
     fields = ["debut", "fin", "motif", "commentaire_salarie"]
+    success_url = "add_adherent"
 
     def form_valid(self, form):
-        print(form)
-        response = super().form_valid(form)
+        obj = form.save(commit=False)
+        obj.salarie = self.request.user
+        obj.save()
+        return redirect(f"step2/?id={ obj.id }")
 
-        print(self.request.user)
-        return response
+
+class ValidationAdherentFormView(CreateView):
+    model = ValidationAdherent
+    template_name = "step2.html"
+    fields = ['email', "nom_prenom"]
+
+    def get_context_data(self, **kwargs):
+        id = self.request.GET.get("id", None)
+        if not id:
+            return Http404
+        try:
+            demande = DemandeConge.objects.get(id=id)
+        except DemandeConge.DoesNotExist:
+            return Http404
+        context = super().get_context_data(**kwargs)
+        context['validation_list'] = ValidationAdherent.objects.filter(demande=demande)
+        context['id'] = id
+        return context
+
+    def form_valid(self, form):
+        id = self.request.GET.get("id", None)
+        if not id:
+            return Http404
+        try:
+            demande = DemandeConge.objects.get(id=id)
+        except DemandeConge.DoesNotExist:
+            return Http404
+        obj = form.save(commit=False)
+        obj.demande = demande
+        obj.save()
+        messages.success(self.request, "Destinataire ajouté")
+        return redirect(f"/conge/new/step2/?id={ id }")
+
+
+def remove_validation(request, id):
+    print(id)
+    validation = ValidationAdherent.objects.get(id=id)
+    id_demande = validation.demande.id
+    validation.delete()
+    messages.success(request, "Valdation supprimée")
+    return redirect(f"/conge/new/step2/?id={ id_demande }")
+
+
+def finish(request, id):
+    """
+        Envoie la demande de congé :
+        Génère les urls
+        Envois des mails a chaque personne
+    """
+    demande = DemandeConge.objects.get(id=id)
+    for validation in demande.validation_adherent_list.all():
+        validation.send_email()
+        messages.success(request, f"Email à {validation.nom_prenom} envoyé")
+    demande.conge_envoye = True
+    demande.save()
+    return redirect("/")
+
 
 class ValidationAdherentAddView(TemplateView):
     template_name = "add_validation_adherent.html"
@@ -40,6 +106,39 @@ class ValidationAdherentAddView(TemplateView):
         # Check if submitted forms are valid
         if formset.is_valid():
             formset.save()
-            return redirect(reverse_lazy("bird_list"))
+            return redirect(reverse_lazy("step2"))
 
         return self.render_to_response({'validation_adherent_formset': formset})
+
+def accept(request, slug):
+    if slug == "" or slug is None:
+        messages.error(request, f"Demande invalide")
+    try:
+        valid = ValidationAdherent.objects.get(slug_acceptation=slug)
+    except ValidationAdherent.DoesNotExist:
+        messages.error(request, f"Cette demande n'existe pas ou a expiré")
+    else:
+        valid.is_valid = True
+        valid.valid_manuel_date = timezone.now()
+        valid.slug_acceptation = ""
+        valid.slug_refus = ""
+        valid.save()
+        messages.success(request, f"Merci ! La demande de congé a été acceptée.")
+    return redirect("/")
+    
+
+def reject(request, slug):
+    if slug == "" or slug is None:
+        messages.error(request, f"Demande invalide")
+    try:
+        valid = ValidationAdherent.objects.get(slug_refus=slug)
+    except ValidationAdherent.DoesNotExist:
+        messages.error(request, f"Cette demande n'existe pas ou a expiré")
+    else:
+        valid.is_valid = False
+        valid.refus_manuel_date = timezone.now()
+        valid.slug_acceptation = ""
+        valid.slug_refus = ""
+        valid.save()
+        messages.success(request, f"Merci ! La demande de congé a été refusée.")
+    return redirect("/")

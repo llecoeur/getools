@@ -179,6 +179,7 @@ class Salarie(models.Model):
             infos_sup.annee = annee
             # TODO : Initialiser ces valeurs
             infos_sup.heures_theoriques = 0
+            infos_sup.init_difference_heures_mois_precedent()
             infos_sup.save()
         return infos_sup
 
@@ -802,6 +803,8 @@ class InfosSupMoisSalarie(models.Model):
     # Nombre d'heures théoriques que le salarié doit réaliser dans le mois. Initialisé en fonction du calendrier et doit être modifiable
     heures_theoriques = models.FloatField("heures Théoriques", db_index=True)
     difference_heures = models.FloatField("Différence théorique - travaillé", db_index=True, default=0)
+    # Report de la différence avec le mois précédent
+    difference_heures_mois_precedent = models.FloatField("Différence mois N-1", db_index=True, default=0)
     paie_envoyee = models.BooleanField("Paie Envoyée ?", db_index=True, default=False) 
     # Memo, modifiable et récupérable d'un mois sur l'autre
     memo = models.TextField("Memo", default="", blank=True)
@@ -811,6 +814,19 @@ class InfosSupMoisSalarie(models.Model):
     @property
     def heures_travaillees(self):
         return self.salarie.get_heures_travail_mois(self.annee, self.mois)
+
+    def init_difference_heures_mois_precedent(self):
+        """
+            Initialise le champ difference_heures_mois_precedent avec les valeurs entrées le mois précédent.
+        """
+        date_actu = date(self.annee, self.mois, 1)
+        date_precedent = date_actu - timedelta(days=3)
+        try:
+            infosup = InfosSupMoisSalarie.objects.get(salarie=self.salarie, mois=date_precedent.month, annee=date_precedent.year)
+        except InfosSupMoisSalarie.DoesNotExist:
+            self.difference_heures_mois_precedent = 0
+            return
+        self.difference_heures_mois_precedent = infosup.difference_heures_mois_precedent
 
 
 class InfosSupMoisMad(models.Model):

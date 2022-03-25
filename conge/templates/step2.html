@@ -18,7 +18,7 @@
             {% csrf_token %}
             <input type="hidden" name="id" value="{{ id }}">
             <div class="row">
-              <div class="col-6">
+              <div class="col-5">
                 {{ form.non_field_errors }}
                 <div class="form-group">
                     {{ form.email.errors }}
@@ -26,7 +26,7 @@
                     {{ form.email |add_class:"form-control"}}
                 </div>
               </div>
-              <div class="col-6">
+              <div class="col-5">
                 {{ form.non_field_errors }}
                 <div class="form-group">
                     {{ form.nom_prenom.errors }}
@@ -34,17 +34,20 @@
                     {{ form.nom_prenom |add_class:"form-control"}}
                 </div>
               </div>
-            </div>
-            <div class="row">
-              <div class="col-4"></div>
               <div class="col-2">
-                <button type="submit" class="btn btn-primary btn-block">Ajouter une validation</button>
+                <label for="{{ form.email.id_for_label }}">&nbsp;</label>
+                <button type="submit" class="btn btn-primary btn-block">Ajouter une personne</button>
               </div>
+            </div>
+            {% if not conge_envoye %}
+            <div class="row">
+              <div class="col-5"></div>
               <div class="col-2">
                 <a href="/conge/envoi/{{id}}/" class="btn btn-block btn-success">Valider</a>
               </div>
-              <div class="col-4"></div>
+              <div class="col-5"></div>
             </div>
+            {% endif %}
           </form>
         </div>
       </div>
@@ -58,11 +61,12 @@
           </div>
         </div>
         <div class="card-body">
-         Entrez l'adresse email des personnes (5 maxi) qui devront donner leur aval pour le congé.
-         Personnes déjà ajoutées :
+         <p>Entrez l'adresse email des personnes (5 maxi) qui devront donner leur aval pour le congé.</p>
+         <p>Ensuite, cliquez sur Valider : Un email sera envoyé a chaque destinataire, peur permettant de valider ou non cette demande.</p>
+         <p>Personnes déjà ajoutées :</p>
            <ul>
             {% for validation in validation_list %}
-            <li>{{validation}} ({{validation.email}}) <a href="/conge/remove_validation/{{ validation.id }}/">[X]</a></li>
+            <li>{{validation}} ({{validation.email}}) <a href="/conge/remove_validation/{{ validation.id }}/" class="btn btn-danger btn-xs">[X]</a></li>
             {% endfor %}
            </ul>
         </div>

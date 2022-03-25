@@ -20,12 +20,12 @@ from tqdm import tqdm
 from django.template.loader import render_to_string
 from weasyprint import HTML
 from activite.tasks import test, generate_releve_adherent
+from sys import argv
 
 
 
 if __name__ == "__main__":
 
-    generate_releve_adherent.delay(mois=12, annee=2020)
     # test.delay(mois=12, annee=2021)
 
     """

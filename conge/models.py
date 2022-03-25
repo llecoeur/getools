@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.contrib import messages
 
 
 
@@ -45,11 +46,15 @@ class DemandeConge(models.Model):
     commentaire_responsable = models.TextField(null=False, blank=True, default="")
     # Est ce que a demande de congé est complète et envoyée
     conge_envoye = models.BooleanField(null=False, default=False, db_index=True)
-
+    
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
     # Date de dernière modification
     updated = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+        permissions = [('can_validate_conges', 'Peut valider les congés')]
 
     def __str__(self):
         debut = self.debut.strftime("%d/%m/%Y")
@@ -67,8 +72,30 @@ class DemandeConge(models.Model):
             return "demande en brouillon"
         str_status = ""
         for valid in self.validation_adherent_list.all():
-            str_status += f"{valid.nom_prenom} : {valid.valid_oui_non_str}<br />"
+            if valid.is_valid:
+                str_status += f'<span class="text-success">{valid.nom_prenom} : {valid.valid_oui_non_str}</span><br />'
+            else:
+                str_status += f'<span class="text-danger">{valid.nom_prenom} : {valid.valid_oui_non_str}</span><br />'
         return str_status
+
+    @property
+    def is_all_accepted(self):
+        """
+            Est ce que cette demande de congé est totalement validée par les personnes, en dehors du chargé de dev ?
+        """
+        validation_list = self.validation_adherent_list.objects.filter(is_progressis=False)
+        for val in validation_list:
+            if val.is_valid is False:
+                return False
+        else:
+            return True
+
+    @property
+    def validation_progressis(self):
+        try:
+            return self.validation_adherent_list.get(is_progressis=True)
+        except ValidationAdherent.DoesNotExist:
+            return None
 
 
 class ValidationAdherent(models.Model):
@@ -90,6 +117,8 @@ class ValidationAdherent(models.Model):
     slug_acceptation = models.CharField("Slug de Validation", max_length=32, null=True, blank=True, default="")
     # Slug de refus de la demande
     slug_refus = models.CharField("Slug de refus", max_length=32, null=True, blank=True, default="")
+    # Est ec que cette validation est Progressis ?
+    is_progressis = models.BooleanField("Progressis ?", null=False, default=False, blank=True)
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
     # Date de dernière modification
@@ -119,6 +148,7 @@ class ValidationAdherent(models.Model):
             "date_debut": self.demande.debut,
             "date_fin": self.demande.fin,
             "motif": self.demande.motif,
+            "commentaire": self.demande.commentaire_salarie,
             'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,
             'slug_acceptation': self.slug_acceptation,
             'slug_refus': self.slug_refus,
@@ -142,18 +172,3 @@ class ValidationAdherent(models.Model):
         else:
             return "En attente"
     
-
-class ValidationResponsable(models.Model):
-    # Demande liée
-    id_demande = models.ForeignKey(DemandeConge, on_delete=models.CASCADE, db_index=True, null=False, blank=False, related_name="validation_responsable_list")
-    # Si la demande a été validée par la personne ou non dans les temps manuellement
-    is_valid_manuel = models.BooleanField("Validé manuellement ?", null=False, default=False, blank=True)
-    # Date de validation de la demande
-    valid_manuel_date = models.DateTimeField("Date de validation manuelle", null=True, db_index=True)
-    # Si la demande a été validée par dépassement du délais
-    is_valid_timeout = models.BooleanField("Validé par expiration du délais ?", null=False, default=False, blank=True)
-
-    # Date de création
-    created = models.DateTimeField(auto_now_add=True)
-    # Date de dernière modification
-    updated = models.DateTimeField(auto_now=True)

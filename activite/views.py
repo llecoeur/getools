@@ -703,6 +703,7 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
     infosup = sal.get_info_sup(mois, annee)
     infosup.heures_theoriques = round(float(data['heures_theoriques']), 2)
     infosup.difference_heures = round(data['difference_heures'], 2)
+    infosup.difference_heures_mois_precedent = round(float(data['difference_heures_mois_precedent']), 2)
     infosup.save()
     return JsonResponse({
         "class": "bg-success",

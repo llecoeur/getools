@@ -188,6 +188,17 @@
               ${infos_sup_salarie.heures_travaillees}
             </div>
           </div>
+          <div class="form-group row m-0">
+            <label class="col-sm-8 p-0" for="difference_heures_mois_precedent">Différence d'heures N-1 : </label>
+            <div class="col-sm-4">
+              <div class="input-group input-group-sm">
+                <input class="form-control" type="number" id="difference_heures_mois_precedent" v-model="infos_sup_salarie.difference_heures_mois_precedent"></input>
+                <span class="input-group-append">
+                  <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
           <div class="row">
             <div class="col-8">
               <b>Différences d'heures :</b>
@@ -337,7 +348,6 @@ $(function () {
     $('.mad_prime_forfaitaire_add_id').select2({
       theme: 'bootstrap4',
     }); 
-    
 });
 
 Vue.component('commentaire', {

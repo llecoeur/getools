@@ -204,6 +204,51 @@
             </ul>
           </li>
           {% endif %}
+          {% if user.is_authenticated %}
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="fas fa-umbrella-beach nav-icon"></i>
+              <p>
+                Congés
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{% url 'demande_conge' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Nouvelle demande</p>
+                </a>
+              </li>
+              {% if perms.conge.can_validate_conges %}
+              <li class="nav-item">
+                <a href="{% url 'list_conge' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Tous</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'list_conge' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>En attente de validation</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'list_conge_acceptes' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Acceptés</p>
+                </a>
+              </li>
+              {% endif %}
+              <li class="nav-item">
+                <a href="{% url 'list_conge_perso' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Mes congés</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+          {% endif %}
           
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
@@ -305,8 +350,6 @@
             </ul>
           </li>
           -->
-
-        </ul>
         {% if user.is_superuser %}
         <ul class="nav nav-pills nav-sidebar flex-column">
           <li class="nav-item">

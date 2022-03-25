@@ -3,6 +3,7 @@ Bonjour {{nom_prenom}}
 {{nom_prenom_salarie}} aimerait prendre un congé du {{date_debut}} au {{date_fin}} :
 
 {{motif}}
+{{commentaire}}
 
 Pour accepter cette demande, cliquez ici :
 

@@ -12,12 +12,57 @@ from django.shortcuts import render
 from django.http import Http404
 from django.contrib import messages
 from django.utils import timezone
+from django.conf import settings
+from smtplib import SMTPRecipientsRefused
+
+
 
 # Create your views here.
 class DemandeCongeListView(ListView):
+    """
+        Affiche une liste de la totalité des demandes de congés en cours, donc envoyées
+    """
     # DOTO : Faire le template de la liste
     model = DemandeConge
     template_name = "demande_list.html"
+
+    
+
+    def get_queryset(self, *args, **kwargs ):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(conge_envoye=True)
+        return qs
+
+
+class DemandeCongeAcceptesListView(ListView):
+    """
+        Affiche une liste de la totalité des demandes de congés en cours, donc envoyées
+    """
+    # DOTO : Faire le template de la liste
+    model = DemandeConge
+    template_name = "demande_list.html"
+
+    
+
+    def get_queryset(self, *args, **kwargs ):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(conge_valide=True)
+        return qs
+
+
+
+class DemandeCongePersosListView(ListView):
+    """
+        Retourne toutes les demandes de congés de l'utilisateur connecté
+    """
+
+    model = DemandeConge
+    template_name = "demande_list.html"
+
+    def get_queryset(self, *args, **kwargs ):
+        qs = super().get_queryset(*args, **kwargs)
+        qs.filter(salarie=self.request.user.id)
+        return qs
 
 
 class DemandeCongeAddFormView(CreateView):
@@ -82,8 +127,18 @@ def finish(request, id):
         Envois des mails a chaque personne
     """
     demande = DemandeConge.objects.get(id=id)
+    # On ajoute Progressis comme adhérent
+    va = ValidationAdherent()
+    va.demande = demande
+    va.nom_prenom = settings.PROGRESSIS_CONGE_NOM
+    va.email = settings.PROGRESSIS_CONGE_EMAIL
+    va.is_progressis = True
+    va.save()
     for validation in demande.validation_adherent_list.all():
-        validation.send_email()
+        try:
+            validation.send_email()
+        except SMTPRecipientsRefused:
+            messages.error(request, f"Email à {validation.nom_prenom} Echoué : Mauvais destinataire")
         messages.success(request, f"Email à {validation.nom_prenom} envoyé")
     demande.conge_envoye = True
     demande.save()
@@ -110,6 +165,7 @@ class ValidationAdherentAddView(TemplateView):
 
         return self.render_to_response({'validation_adherent_formset': formset})
 
+
 def accept(request, slug):
     if slug == "" or slug is None:
         messages.error(request, f"Demande invalide")
@@ -125,7 +181,7 @@ def accept(request, slug):
         valid.save()
         messages.success(request, f"Merci ! La demande de congé a été acceptée.")
     return redirect("/")
-    
+
 
 def reject(request, slug):
     if slug == "" or slug is None:
@@ -140,5 +196,5 @@ def reject(request, slug):
         valid.slug_acceptation = ""
         valid.slug_refus = ""
         valid.save()
-        messages.success(request, f"Merci ! La demande de congé a été refusée.")
+        messages.error(request, f"La demande de congé a été refusée.")
     return redirect("/")

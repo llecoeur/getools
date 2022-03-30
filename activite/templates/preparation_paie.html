@@ -188,11 +188,20 @@
               ${infos_sup_salarie.heures_travaillees}
             </div>
           </div>
+          <div class="row">
+            <div class="col-8">
+              <b>Différences d'heures :</b>
+            </div>
+            <div class="col-4">
+              ${infos_sup_salarie.difference_heures}
+            </div>
+          </div>
+
           <div class="form-group row m-0">
-            <label class="col-sm-8 p-0" for="difference_heures_mois_precedent">Différence d'heures N-1 : </label>
+            <label class="col-sm-8 p-0" for="ajustement_mois">Ajustement du mois : </label>
             <div class="col-sm-4">
               <div class="input-group input-group-sm">
-                <input class="form-control" type="number" id="difference_heures_mois_precedent" v-model="infos_sup_salarie.difference_heures_mois_precedent"></input>
+                <input class="form-control" type="number" id="ajustement_mois" v-model="infos_sup_salarie.ajustement_mois"></input>
                 <span class="input-group-append">
                   <button class="btn btn-primary btn-flat" v-on:click="updateInfoSup"><i class="fas fa-save"></i></button>
                 </span>
@@ -201,10 +210,10 @@
           </div>
           <div class="row">
             <div class="col-8">
-              <b>Différences d'heures :</b>
+              <b>Compeur du mois :</b>
             </div>
             <div class="col-4">
-              ${infos_sup_salarie.difference_heures}
+              ${infos_sup_salarie.compteur_mois}
             </div>
           </div>
         </div>
@@ -626,6 +635,7 @@ var app = new Vue({
         self.mad.salarie.infos_sup.difference_heures = result.salarie.heures_travaillees - self.mad.salarie.infos_sup.heures_theoriques;
         self.saveInfoSupSalarie()
       });
+      
     },
     saveMemo() {
       // Enregistre le champ mémo dans l'utilisateur
@@ -655,7 +665,7 @@ var app = new Vue({
         self.mad.salarie.infos_sup.memo += "\n" + result["memo"]
       });
     },
-    saveInfoSupSalarie() {
+    async saveInfoSupSalarie() {
       //Poste un json infosup pour mettre a jour les infosup du salarié
       self = this;
       const requestOptions = {
@@ -663,7 +673,7 @@ var app = new Vue({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(self.mad.salarie.infos_sup)
       };
-      fetch("/act/update_infosup_salarie/" + self.mad.salarie.id + "/" + self.annee + "/" + self.mois + "/", requestOptions).then(function (response) {
+      await fetch("/act/update_infosup_salarie/" + self.mad.salarie.id + "/" + self.annee + "/" + self.mois + "/", requestOptions).then(function (response) {
         return response.json();
       }).then(function (result) {
         $(document).Toasts('create', {
@@ -673,6 +683,15 @@ var app = new Vue({
           autohide: true,
           delay: 3000,
         });
+      });
+      self.loadInfoSupSalarie();
+    },
+    loadInfoSupSalarie() {
+      // Charge les infosup salarie pour actualiser uniquement ces données
+      fetch("/act/infosup_salarie/" + self.mad.salarie.id + "/" + self.annee + "/" + self.mois + "/").then(function (response) {
+        return response.json();
+      }).then(function (result) {
+        self.mad.salarie.infos_sup = result['data']
       });
     },
     goUp(e) {

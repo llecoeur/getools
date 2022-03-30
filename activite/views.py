@@ -702,14 +702,34 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
         })
     infosup = sal.get_info_sup(mois, annee)
     infosup.heures_theoriques = round(float(data['heures_theoriques']), 2)
-    infosup.difference_heures = round(data['difference_heures'], 2)
-    infosup.difference_heures_mois_precedent = round(float(data['difference_heures_mois_precedent']), 2)
+    infosup.difference_heures = round(float(data['difference_heures']), 2)
+    infosup.ajustement_mois = round(float(data['ajustement_mois']), 2)
+    infosup.compteur_mois = infosup.difference_heures + infosup.ajustement_mois
+
     infosup.save()
     return JsonResponse({
         "class": "bg-success",
         "title": "Données mises à jour",
         "body": "Les infos du salarié relatives a cette période ont été enregistrées",
     })
+
+@csrf_exempt
+@permission_required('activite.add_saisieactivite')
+def infosup_salarie(request, salarie_id, annee, mois):
+    try:
+        salarie = Salarie.objects.get(id=salarie_id)
+    except Salarie.DoesNotExist:
+        return JsonResponse({})
+    try:
+        infosup = InfosSupMoisSalarie.objects.get(salarie=salarie, mois=mois, annee=annee)
+    except InfosSupMoisSalarie.DoesNotExist:
+        print("pas d'infosup")
+        return JsonResponse({})
+    print(model_to_dict(infosup))
+    return JsonResponse({
+        "data" : model_to_dict(infosup),
+    })
+
 
 @permission_required('activite.add_saisieactivite')
 def infosup_salarie_mois_precedent(request, salarie_id, annee, mois):

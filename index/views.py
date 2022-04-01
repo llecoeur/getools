@@ -43,7 +43,7 @@ class IndexView(TemplateView):
         mois = datetime.now().month
         annee = datetime.now().year
         # annee_cpt = datetime.now().year
-        for mois_cpt in range (1, 13):
+        for mois_cpt in range (1, 14):
             # mois_actuel_int = (mois -  mois_cpt) % 12 + 1
             # mois_actuel = date(annee_cpt, mois, 1) -  relativedelta(months=mois_cpt)
             mois_actuel = date(annee, mois, 1) -  monthdelta(mois_cpt)

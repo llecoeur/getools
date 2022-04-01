@@ -210,6 +210,14 @@
           </div>
           <div class="row">
             <div class="col-8">
+              <b>Compeur du mois précédent :</b>
+            </div>
+            <div class="col-4">
+              ${infos_sup_salarie.compteur_mois_precedent}
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-8">
               <b>Compeur du mois :</b>
             </div>
             <div class="col-4">
@@ -631,7 +639,9 @@ var app = new Vue({
         return response.json();
       }).then(function (result) {
         self.mad.infos_sup.heures_travaillees = result.mise_a_disposition.heures_travaillees;
+        console.log(result.salarie.heures_travaillees);
         self.mad.salarie.infos_sup.heures_travaillees = result.salarie.heures_travaillees;
+        console.log(self.mad.salarie.infos_sup);
         self.mad.salarie.infos_sup.difference_heures = result.salarie.heures_travaillees - self.mad.salarie.infos_sup.heures_theoriques;
         self.saveInfoSupSalarie()
       });

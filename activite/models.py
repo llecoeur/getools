@@ -813,9 +813,14 @@ class InfosSupMoisSalarie(models.Model):
     # ???
     # id_detail = models.IntegerField("")
 
+    """
     @property
     def heures_travaillees(self):
         return self.salarie.get_heures_travail_mois(self.annee, self.mois)
+    """
+    def save(self):
+        self.compteur_mois = self.difference_heures + self.compteur_mois_precedent + self.ajustement_mois
+        return super().save()
 
     def init_compteurs(self):
         """
@@ -830,6 +835,7 @@ class InfosSupMoisSalarie(models.Model):
             return
         self.compteur_mois_precedent = infosup.compteur_mois
         self.compteur_mois = self.difference_heures + self.compteur_mois_precedent + self.ajustement_mois
+        self.save()
 
 
 class InfosSupMoisMad(models.Model):

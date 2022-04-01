@@ -701,6 +701,8 @@ def update_infosup_salarie(request, salarie_id, annee, mois):
             "body": "Le salarié n'existe pas",
         })
     infosup = sal.get_info_sup(mois, annee)
+    print(round(float(data['heures_travaillees']), 2))
+    infosup.heures_travaillees = round(float(data['heures_travaillees']), 2)
     infosup.heures_theoriques = round(float(data['heures_theoriques']), 2)
     infosup.difference_heures = round(float(data['difference_heures']), 2)
     infosup.ajustement_mois = round(float(data['ajustement_mois']), 2)

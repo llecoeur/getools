@@ -141,7 +141,10 @@ class ValidationAdherent(models.Model):
         """
         self.gen_uuids()
         subject = "Un salarié Progressis aimerait prendre un congé"
-        email_template_name = "email_demande_conge_adherent.txt"
+        if self.is_progressis:
+            email_template_name = "email_demande_progressis.txt"
+        else:
+            email_template_name = "email_demande_conge_adherent.txt"
         c = {
             "nom_prenom": self.nom_prenom,
             "nom_prenom_salarie": str(self.demande.salarie),
@@ -173,4 +176,15 @@ class ValidationAdherent(models.Model):
             return "Accepté"
         else:
             return "Refusé"
-    
+
+    '''
+    @property
+    def is_progressis(self):
+        """
+            Cette demande est une progressis ou non ?
+        """
+        if self.demande.validation_progressis == self:
+            return True
+        else:
+            return False
+    '''

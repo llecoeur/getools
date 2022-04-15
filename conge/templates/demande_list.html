@@ -17,6 +17,7 @@
           <table class="table table-condensed table-striped">
             <thead>
               <tr>
+                <th></th>
                 <th>Nom</th>
                 <th>Début - Fin</th>
                 <th>Motif</th>
@@ -28,6 +29,11 @@
             <tbody>
               {% for demande in object_list %}
               <tr>
+                <td>
+                  {% if demande.commentaire_salarie %}
+                    <i class="far fa-comment"  data-toggle="tooltip" data-placement="top" title="{{demande.commentaire_salarie}}"></i>
+                  {% endif %}
+                </td>
                 <td>{{ demande.salarie }}</td>
                 <td>{{ demande.debut }} <br /> {{ demande.fin }}</td>
                 <td>{{ demande.motif }}</td>

@@ -6,6 +6,13 @@ from django.conf import settings
 
 
 
+@shared_task
+def valid_conges_14jours(*args, **kwargs):
+    """
+        Valide toutes les demandes de congés sans validations depuis 14 jours
+    """
+    demande_list = DemandeConge.objects.filter(conge_valide=False)
+
 
 @shared_task
 def delete_demande_conge_brouillon(*args, **kwargs):

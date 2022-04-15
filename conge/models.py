@@ -73,9 +73,9 @@ class DemandeConge(models.Model):
         str_status = ""
         for valid in self.validation_adherent_list.all():
             if valid.is_valid:
-                str_status += f'<span class="text-success">{valid.nom_prenom} : {valid.valid_oui_non_str}</span><br />'
+                str_status += f'<span class="text-success" data-toggle="tooltip" data-placement="top" title="{valid.nom_prenom}">{valid.email} : {valid.valid_oui_non_str}</span><br />'
             else:
-                str_status += f'<span class="text-danger">{valid.nom_prenom} : {valid.valid_oui_non_str}</span><br />'
+                str_status += f'<span class="text-danger" data-toggle="tooltip" data-placement="top" title="{valid.nom_prenom}">{valid.email} : {valid.valid_oui_non_str}</span><br />'
         return str_status
 
     @property
@@ -102,7 +102,7 @@ class ValidationAdherent(models.Model):
     # Demande pour laquelle cette validation existe
     demande = models.ForeignKey(DemandeConge, on_delete=models.CASCADE, db_index=True, null=False, blank=False, related_name="validation_adherent_list")
     # Email du contact adherent devant valider
-    email = models.CharField("Email", max_length=100, null=False, blank=False)
+    email = models.EmailField("Email", max_length=100, null=False, blank=False)
     # Nom et prénom de la personne devant valider
     nom_prenom = models.CharField("Prénom et nom", max_length=150, null=False, blank=False)
     # Est ce que la validation a été acceptée ?

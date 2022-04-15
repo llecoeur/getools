@@ -197,4 +197,5 @@ def reject(request, slug):
         valid.slug_refus = ""
         valid.save()
         messages.error(request, f"La demande de congé a été refusée.")
+    
     return redirect("/")

@@ -105,8 +105,8 @@ class ValidationAdherent(models.Model):
     email = models.EmailField("Email", max_length=100, null=False, blank=False)
     # Nom et prénom de la personne devant valider
     nom_prenom = models.CharField("Prénom et nom", max_length=150, null=False, blank=False)
-    # Est ce que la validation a été acceptée ?
-    is_valid = models.BooleanField("Validé ?", null=False, default=False, blank=True)
+    # Est ce que la validation a été acceptée ? null : en attente, True : acceptée, False : refusée
+    is_valid = models.BooleanField("Validé ?", null=True, default=None, blank=True)
     # Date de validation de la demande
     valid_manuel_date = models.DateTimeField("Date de validation manuelle", null=True, db_index=True, default=None, blank=True)
     # Date de refus de la demande
@@ -167,8 +167,10 @@ class ValidationAdherent(models.Model):
 
     @property
     def valid_oui_non_str(self):
-        if self.is_valid:
-            return "Validé"
-        else:
+        if self.is_valid is None:
             return "En attente"
+        elif self.is_valid:
+            return "Accepté"
+        else:
+            return "Refusé"
     

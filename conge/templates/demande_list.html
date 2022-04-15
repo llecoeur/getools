@@ -39,6 +39,7 @@
                       <a href="/conge/new/step2?id={{demande.id}}" class="btn btn-primary"><i class="fas fa-edit"></i></a>
                     </div>
                     {% if demande.validation_progressis and perms.conge.can_validate_conges %}
+                    {{demande.validation_progressis.slug_acceptation}}
                     <div class="col-4">
                       <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-success"><i class="fas fa-thumbs-up"></i></a>
                     </div>

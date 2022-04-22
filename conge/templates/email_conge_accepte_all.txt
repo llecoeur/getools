@@ -1,0 +1,7 @@
+Bonjour {{nom_prenom_salarie}}
+
+Votre demande de congé, du {{debut}} au {{fin}} a été acceptée !
+
+Bonnes vacances.
+
+L'équipe Progressis

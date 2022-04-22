@@ -1,0 +1,9 @@
+Bonjour {{nom_prenom}}
+
+Vous n'avez pas donné votre opposition à la demande de congé du salarié {{nom_prenom_salarie}}, et le délais d'expiration de 14 jours a été dépassé.
+
+La demande du salarié a donc été automatiquement acceptée.
+
+Cordialement
+
+L'équipe Progressis

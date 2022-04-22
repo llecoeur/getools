@@ -5,6 +5,8 @@ Bonjour {{nom_prenom}}
 {{motif}}
 {{commentaire}}
 
+Il vous reste 3 jours pour accepter ou refuser cette demande, sinon, elle sera automatiquement acceptée.
+
 Pour accepter cette demande, cliquez ici :
 
 {{protocol}}://{{domain}}/conge/accept/{{slug_acceptation}}/
@@ -13,6 +15,6 @@ Pour refuser, cliquez ici :
 
 {{protocol}}://{{domain}}/conge/reject/{{slug_refus}}/
 
-{% if rappel %}Ceci est un rappel. Cette demande sera automatiquement acceptée dans 3 jours.{% else %}En cas de non réponse, cette demande sera acceptée automatiquement sous 14 jours.{% endif %}
+En cas de non réponse, cette demande sera acceptée automatiquement sous 14 jours.
 
 L'équipe Progressis

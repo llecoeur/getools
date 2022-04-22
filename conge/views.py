@@ -17,6 +17,7 @@ from smtplib import SMTPRecipientsRefused
 
 
 
+
 # Create your views here.
 class DemandeCongeListView(ListView):
     """
@@ -142,7 +143,7 @@ def finish(request, id):
         messages.success(request, f"Email à {validation.nom_prenom} envoyé")
     demande.conge_envoye = True
     demande.save()
-    return redirect("/")
+    return redirect("/conge/")
 
 
 class ValidationAdherentAddView(TemplateView):
@@ -179,6 +180,7 @@ def accept(request, slug):
         valid.slug_acceptation = ""
         valid.slug_refus = ""
         valid.save()
+        valid.demande.valid()
         messages.success(request, f"Merci ! La demande de congé a été acceptée.")
     return redirect("/")
 
@@ -196,6 +198,7 @@ def reject(request, slug):
         valid.slug_acceptation = ""
         valid.slug_refus = ""
         valid.save()
+        # Envoi de l'email
         messages.error(request, f"La demande de congé a été refusée.")
     
     return redirect("/")

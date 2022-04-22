@@ -46,7 +46,8 @@ class DemandeConge(models.Model):
     commentaire_responsable = models.TextField(null=False, blank=True, default="")
     # Est ce que a demande de congé est complète et envoyée
     conge_envoye = models.BooleanField(null=False, default=False, db_index=True)
-    
+    # Date d'envoi du congé aux personnes
+    conge_envoye_date = models.DateTimeField("Date d'envoi du conge paye", null=True, default=None, db_index=True)
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
     # Date de dernière modification
@@ -96,6 +97,36 @@ class DemandeConge(models.Model):
             return self.validation_adherent_list.get(is_progressis=True)
         except ValidationAdherent.DoesNotExist:
             return None
+
+    def valid(self):
+        """
+            Vérifie que toutes les validations ont été acceptées, et si c'est le cas, 
+            envoie un mail au salarié et a Progressis pour dire que le congé a été accepté
+        """
+        nb_valid_attente_refus = self.validation_adherent_list.exclude(is_valid=True).count()
+        print(f"nb_valid_attente_refus = {nb_valid_attente_refus}")
+        if nb_valid_attente_refus == 0:
+            # toutes les demandes ont été acceptées
+            self.conge_valide = True
+            self.save()
+            # Envoi d'un mail au salarié et à progressis
+            email_template_name = "email_conge_accepte_all.txt"
+            subject = f"Votre demande de congé a été acceptée"
+            c = {
+                "nom_prenom_salarie": self.salarie,
+                "debut": self.debut,
+                "fin": self.fin,
+            }
+            email = render_to_string(email_template_name, c)
+            ret = send_mail(
+                subject,
+                email,
+                None,
+                [self.salarie.email],
+                fail_silently=False,
+            )
+            print(f"email envoyé : {ret}, {self.salarie.email}, {subject}")
+            return ret
 
 
 class ValidationAdherent(models.Model):
@@ -156,8 +187,45 @@ class ValidationAdherent(models.Model):
             'slug_acceptation': self.slug_acceptation,
             'slug_refus': self.slug_refus,
             'protocol': settings.EMAIL_NEW_USER_SET_PASSWORD_PROTOCOL_LINK,
+            'rappel': False,
         }
         # TODO : Générer le template, envoyer l'email, etc...
+        email = render_to_string(email_template_name, c)
+        ret = send_mail(
+            subject,
+            email,
+            None,
+            [self.email],
+            fail_silently=False,
+        )
+        return ret
+
+    def send_reject_email(self):
+        email_template_name = "email_refus.txt"
+        subject = f"{self.demande.nom_prenom} a refusé votre demande de congé"
+        c = {
+            "nom_prenom_salarie": self.demande.salarie,
+            "nom_prenom": self.demande.nom_prenom,
+            "email": self.demande.email,
+        }
+        email = render_to_string(email_template_name, c)
+        ret = send_mail(
+            subject,
+            email,
+            None,
+            [self.email],
+            fail_silently=False,
+        )
+        return ret
+
+    def accept_by_delay(self):
+        email_template_name = "email_accept_delay.txt"
+        subject = f"La demande de congé de {self.demande.nom_prenom} a été acceptée"
+        c = {
+            "nom_prenom_salarie": self.demande.salarie,
+            "nom_prenom": self.demande.nom_prenom,
+            "email": self.demande.email,
+        }
         email = render_to_string(email_template_name, c)
         ret = send_mail(
             subject,
@@ -176,6 +244,36 @@ class ValidationAdherent(models.Model):
             return "Accepté"
         else:
             return "Refusé"
+
+    def send_email_rappel(self):
+        """
+            renvoie un email de rappel.
+        """
+        subject = "[Rappel] Un salarié Progressis aimerait prendre un congé"
+        email_template_name = "email_demande_conge_adherent.txt"
+        c = {
+            "nom_prenom": self.nom_prenom,
+            "nom_prenom_salarie": str(self.demande.salarie),
+            "date_debut": self.demande.debut,
+            "date_fin": self.demande.fin,
+            "motif": self.demande.motif,
+            "commentaire": self.demande.commentaire_salarie,
+            'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,
+            'slug_acceptation': self.slug_acceptation,
+            'slug_refus': self.slug_refus,
+            'protocol': settings.EMAIL_NEW_USER_SET_PASSWORD_PROTOCOL_LINK,
+            'rappel': True,
+        }
+        # TODO : Générer le template, envoyer l'email, etc...
+        email = render_to_string(email_template_name, c)
+        ret = send_mail(
+            subject,
+            email,
+            None,
+            [self.email],
+            fail_silently=False,
+        )
+        return ret
 
     '''
     @property

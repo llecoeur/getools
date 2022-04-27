@@ -135,6 +135,7 @@ def finish(request, id):
     va.email = settings.PROGRESSIS_CONGE_EMAIL
     va.is_progressis = True
     va.save()
+    va.send_email()
     for validation in demande.validation_adherent_list.all():
         try:
             validation.send_email()

@@ -15,6 +15,7 @@ def valid_conges_14_jours(*args, **kwargs):
     for demande in demande_list:
         validation_list = demande.validation_adherent_list(is_valid=None, is_progressis=False)
         for validation in validation_list:
+            print(f"Validation du congé pour délais d'acceptation dépassé pour {validation.id} : {validation.email}")
             validation.is_valid = False
             validation.is_valid_timeout = True
             validation.slug_acceptation = ""
@@ -28,6 +29,7 @@ def rappel_11_jours(*args, **kwargs):
     for demande in demande_list:
         validation_list = demande.validation_adherent_list(is_valid=None)
         for validation in validation_list:
+            print(f"envoi du rappel pour {validation.id} : {validation.email}")
             validation.send_email_rappel()
 
 
@@ -39,7 +41,8 @@ def delete_demande_conge_brouillon(*args, **kwargs):
     """
         Efface les demandes de congés non envoyées qui trainent depuis 2 jours
     """
-    DemandeConge.objects.filter(conge_envoye=False, updated__lt=datetime.now() - timedelta(days=2)).delete()
+    n = DemandeConge.objects.filter(conge_envoye=False, updated__lt=datetime.now() - settings.CONGE_DELTA_SUPPRIME_VIDE).delete()
+    print(f"Demandes en brouillon supprimées {n}")
 
 @shared_task(name="envoi_conge_charge_dev")
 def envoi_conge_charge_dev(*args, **kwargs):

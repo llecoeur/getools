@@ -23,10 +23,22 @@ def debug_task(self):
 
 app.conf.beat_schedule = {
     #Scheduler Name
-    'corrige_nan': {
+    'valid_conges_14_jours': {
         # Task Name (Name Specified in Decorator)
-        'task': 'corrige_nan',  
+        'task': 'valid_conges_14_jours',  
         # Schedule      
         'schedule': 20.0,
+    },
+    'rappel_11_jours': {
+        # Task Name (Name Specified in Decorator)
+        'task': 'rappel_11_jours',  
+        # Schedule      
+        'schedule': 25.0,
+    },
+    'delete_demande_conge_brouillon': {
+        # Task Name (Name Specified in Decorator)
+        'task': 'delete_demande_conge_brouillon',  
+        # Schedule      
+        'schedule': 30.0,
     },
 }

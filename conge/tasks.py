@@ -1,4 +1,5 @@
 from re import L
+from django.utils import timezone
 from celery import shared_task
 from .models import DemandeConge, ValidationAdherent
 from datetime import datetime, timedelta
@@ -11,7 +12,7 @@ def valid_conges_14_jours(*args, **kwargs):
     """
         Valide toutes les demandes de congés sans validations depuis 14 jours
     """
-    demande_list = DemandeConge.objects.filter(conge_valide=False, conge_envoye_date__lt=datetime.now() - settings.CONGE_DELTA_VALIDE)
+    demande_list = DemandeConge.objects.filter(conge_valide=False, conge_envoye_date__lt=timezone.now() - settings.CONGE_DELTA_VALIDE)
     for demande in demande_list:
         validation_list = demande.validation_adherent_list(is_valid=None, is_progressis=False)
         for validation in validation_list:
@@ -25,7 +26,7 @@ def valid_conges_14_jours(*args, **kwargs):
 
 @shared_task(name="rappel_11_jours")
 def rappel_11_jours(*args, **kwargs):
-    demande_list = DemandeConge.objects.filter(conge_valide=False, conge_envoye_date__lt=datetime.now() - settings.CONGE_DELTA_RAPPEL)
+    demande_list = DemandeConge.objects.filter(conge_valide=False, conge_envoye_date__lt=timezone.now() - settings.CONGE_DELTA_RAPPEL)
     for demande in demande_list:
         validation_list = demande.validation_adherent_list(is_valid=None)
         for validation in validation_list:
@@ -41,7 +42,7 @@ def delete_demande_conge_brouillon(*args, **kwargs):
     """
         Efface les demandes de congés non envoyées qui trainent depuis 2 jours
     """
-    n = DemandeConge.objects.filter(conge_envoye=False, updated__lt=datetime.now() - settings.CONGE_DELTA_SUPPRIME_VIDE).delete()
+    n = DemandeConge.objects.filter(conge_envoye=False, updated__lt=timezone.now() - settings.CONGE_DELTA_SUPPRIME_VIDE).delete()
     print(f"Demandes en brouillon supprimées {n}")
 
 @shared_task(name="envoi_conge_charge_dev")

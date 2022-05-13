@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.DemandeCongePersosListView.as_view(), name='list_conge_perso'),
     path('tous/', views.DemandeCongeListView.as_view(), name='list_conge'),
     path('accepte/', views.DemandeCongeAcceptesListView.as_view(), name='list_conge_acceptes'),
+    path('refuses/', views.DemandeCongeRefusesListView.as_view(), name="list_conge_refuse"),
     path('new/', views.DemandeCongeAddFormView.as_view(), name='demande_conge'),
     path('new/step2/', views.ValidationAdherentFormView.as_view(), name="step2"),
     path('addadherent', views.DemandeCongeAddFormView.as_view(), name="add_adherent"),

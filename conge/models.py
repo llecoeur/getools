@@ -28,6 +28,8 @@ class DemandeConge(models.Model):
     salarie = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True, null=False, blank=False, related_name="demande_conge_list")
     # True si le congé est accepté par toutes les parties, y compris Progressis
     conge_valide = models.BooleanField(null=False, default=False, db_index=True)
+    # Le congé a été refusé
+    conge_invalid = models.BooleanField(default=False)
     # En cas de refus, raison
     conge_invalid_motif = models.TextField(null=False, blank=True, default="")
     # Date acceptation du congé
@@ -150,6 +152,8 @@ class ValidationAdherent(models.Model):
     slug_refus = models.CharField("Slug de refus", max_length=32, null=True, blank=True, default="")
     # Est ec que cette validation est Progressis ?
     is_progressis = models.BooleanField("Progressis ?", null=False, default=False, blank=True)
+    # Rappel envoyé ?
+    is_rappel_envoye = models.BooleanField("Rappel envoyé ?", null=False, default=False, blank=True)
     # Date de création
     created = models.DateTimeField(auto_now_add=True)
     # Date de dernière modification
@@ -202,11 +206,11 @@ class ValidationAdherent(models.Model):
 
     def send_reject_email(self):
         email_template_name = "email_refus.txt"
-        subject = f"{self.demande.nom_prenom} a refusé votre demande de congé"
+        subject = f"{self.nom_prenom} a refusé votre demande de congé"
         c = {
             "nom_prenom_salarie": self.demande.salarie,
-            "nom_prenom": self.demande.nom_prenom,
-            "email": self.demande.email,
+            "nom_prenom": self.nom_prenom,
+            "email": self.email,
         }
         email = render_to_string(email_template_name, c)
         ret = send_mail(
@@ -220,11 +224,11 @@ class ValidationAdherent(models.Model):
 
     def accept_by_delay(self):
         email_template_name = "email_accept_delay.txt"
-        subject = f"La demande de congé de {self.demande.nom_prenom} a été acceptée"
+        subject = f"La demande de congé de {self.nom_prenom} a été acceptée"
         c = {
             "nom_prenom_salarie": self.demande.salarie,
-            "nom_prenom": self.demande.nom_prenom,
-            "email": self.demande.email,
+            "nom_prenom": self.nom_prenom,
+            "email": self.email,
         }
         email = render_to_string(email_template_name, c)
         ret = send_mail(
@@ -273,6 +277,8 @@ class ValidationAdherent(models.Model):
             [self.email],
             fail_silently=False,
         )
+        self.is_rappel_envoye = True
+        self.save()
         return ret
 
     '''

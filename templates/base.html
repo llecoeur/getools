@@ -228,15 +228,15 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'list_conge' %}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>En attente de validation</p>
-                </a>
-              </li>
-              <li class="nav-item">
                 <a href="{% url 'list_conge_acceptes' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Acceptés</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{% url 'list_conge_refuse' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Refusés</p>
                 </a>
               </li>
               {% endif %}

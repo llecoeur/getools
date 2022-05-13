@@ -21,7 +21,7 @@ from smtplib import SMTPRecipientsRefused
 # Create your views here.
 class DemandeCongeListView(ListView):
     """
-        Affiche une liste de la totalité des demandes de congés en cours, donc envoyées
+        Affiche une liste de la totalité des demandes de congés en cours, donc envoyées, non acceptées
     """
     # DOTO : Faire le template de la liste
     model = DemandeConge
@@ -31,7 +31,7 @@ class DemandeCongeListView(ListView):
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(conge_envoye=True)
+        qs = qs.filter(conge_envoye=True).exclude(conge_valide=True).order_by("-created")
         return qs
 
 
@@ -47,9 +47,22 @@ class DemandeCongeAcceptesListView(ListView):
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(conge_valide=True)
+        qs = qs.filter(conge_valide=True).order_by("-created")
         return qs
 
+class DemandeCongeRefusesListView(ListView):
+    """
+        Affiche une liste de la totalité des demandes de refusées
+    """
+    # DOTO : Faire le template de la liste
+    model = DemandeConge
+    template_name = "demande_list.html"
+   
+
+    def get_queryset(self, *args, **kwargs ):
+        qs = super().get_queryset(*args, **kwargs)
+        qs = qs.filter(conge_valide=False).order_by("-created")
+        return qs
 
 
 class DemandeCongePersosListView(ListView):
@@ -62,6 +75,8 @@ class DemandeCongePersosListView(ListView):
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
+        if not self.request.user.id:
+            raise Http404
         qs.filter(salarie=self.request.user.id)
         return qs
 
@@ -143,6 +158,7 @@ def finish(request, id):
             messages.error(request, f"Email à {validation.nom_prenom} Echoué : Mauvais destinataire")
         messages.success(request, f"Email à {validation.nom_prenom} envoyé")
     demande.conge_envoye = True
+    demande.conge_envoye_date = timezone.now()
     demande.save()
     return redirect("/conge/")
 
@@ -199,6 +215,8 @@ def reject(request, slug):
         valid.slug_acceptation = ""
         valid.slug_refus = ""
         valid.save()
+        valid.demande.conge_invalid = True
+        valid.demande.save()
         # Envoi de l'email
         messages.error(request, f"La demande de congé a été refusée.")
     

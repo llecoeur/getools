@@ -218,6 +218,6 @@ def reject(request, slug):
         valid.demande.conge_invalid = True
         valid.demande.save()
         # Envoi de l'email
-        messages.error(request, f"La demande de congé a été refusée.")
+        messages.success(request, f"La demande de congé a été refusée.")
     
     return redirect("/")

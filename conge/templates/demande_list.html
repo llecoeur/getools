@@ -44,12 +44,12 @@
                     {% if demande.validation_progressis and perms.conge.can_validate_conges %}
                       {% if demande.validation_progressis.slug_acceptation %}
                       <div class="col-4">
-                        <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-success"><i class="fas fa-thumbs-up"></i></a>
+                        <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Accepter la demande"><i class="fas fa-thumbs-up"></i></a>
                       </div>
                       {% endif %}
                       {% if demande.validation_progressis.slug_refus %}
                       <div class="col-4">
-                        <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-danger"><i class="fas fa-thumbs-down"></i></a>
+                        <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Refuser la demande"><i class="fas fa-thumbs-down"></i></a>
                       </div>
                       {% endif %}
                     {% endif %}

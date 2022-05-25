@@ -36,7 +36,7 @@
   {% endblock header_css %}
   </style>
 </head>
-<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm accent-warning{% endblock body_class %}">
+<body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm {% endblock body_class %}">
 {% block body %}
 <div class="wrapper">
   {% block navbar %}
@@ -225,26 +225,26 @@
               <li class="nav-item">
                 <a href="{% url 'list_conge' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Tous</p>
+                  <p>En Cours</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'list_conge_acceptes' %}" class="nav-link">
+                <a href="{% url 'list_conge_passe' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Acceptés</p>
+                  <p>Passées</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="{% url 'list_conge_refuse' %}" class="nav-link">
+                <a href="{% url 'list_conge_attente' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Refusés</p>
+                  <p>En attente</p>
                 </a>
               </li>
               {% endif %}
               <li class="nav-item">
                 <a href="{% url 'list_conge_perso' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>Mes congés</p>
+                  <p>Mes demandes</p>
                 </a>
               </li>
             </ul>

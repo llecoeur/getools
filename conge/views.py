@@ -14,6 +14,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.conf import settings
 from smtplib import SMTPRecipientsRefused
+from datetime import datetime
+from django.utils import timezone
 
 
 
@@ -21,21 +23,19 @@ from smtplib import SMTPRecipientsRefused
 # Create your views here.
 class DemandeCongeListView(ListView):
     """
-        Affiche une liste de la totalité des demandes de congés en cours, donc envoyées, non acceptées
+        Affiche une liste de la totalité des demandes de congés dont la date de fin n'est pas dépassée
     """
     # DOTO : Faire le template de la liste
     model = DemandeConge
     template_name = "demande_list.html"
 
-    
-
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(conge_envoye=True).exclude(conge_valide=True).order_by("-created")
+        qs = qs.filter(fin__gte=timezone.now()).order_by("-created")
         return qs
 
 
-class DemandeCongeAcceptesListView(ListView):
+class DemandeCongePasseListView(ListView):
     """
         Affiche une liste de la totalité des demandes de congés en cours, donc envoyées
     """
@@ -47,12 +47,12 @@ class DemandeCongeAcceptesListView(ListView):
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(conge_valide=True).order_by("-created")
+        qs = qs.filter(fin__lt=timezone.now()).order_by("-created")
         return qs
 
-class DemandeCongeRefusesListView(ListView):
+class DemandeCongeAttenteListView(ListView):
     """
-        Affiche une liste de la totalité des demandes de refusées
+        Affiche une liste de la totalité des demandes en attente de validation
     """
     # DOTO : Faire le template de la liste
     model = DemandeConge
@@ -61,7 +61,7 @@ class DemandeCongeRefusesListView(ListView):
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
-        qs = qs.filter(conge_valide=False).order_by("-created")
+        qs = qs.filter(conge_valide=False).filter(conge_invalid=False).order_by("-created")
         return qs
 
 

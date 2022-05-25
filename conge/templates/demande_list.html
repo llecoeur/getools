@@ -21,6 +21,7 @@
                 <th>Nom</th>
                 <th>Début - Fin</th>
                 <th>Motif</th>
+                <th>Réponses</th>
                 <th>Etat</th>
                 <th>Date de la demande</th>
                 <th>Actions</th>
@@ -37,6 +38,7 @@
                 <td>{{ demande.salarie }}</td>
                 <td>{{ demande.debut }} <br /> {{ demande.fin }}</td>
                 <td>{{ demande.motif }}</td>
+                <td>{{demande.reponses | safe }}</td>
                 <td>{{ demande.etat_str | safe }}</td>
                 <td>{{ demande.created }}</td>
                 <td>
@@ -44,14 +46,19 @@
                     {% if demande.validation_progressis and perms.conge.can_validate_conges %}
                       {% if demande.validation_progressis.slug_acceptation %}
                       <div class="col-4">
-                        <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-success" data-toggle="tooltip" data-placement="top" title="Accepter la demande"><i class="fas fa-thumbs-up"></i></a>
+                        <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-app bg-success" data-toggle="tooltip" data-placement="top" title="Accepter la demande"><i class="fas fa-thumbs-up"></i>Accepter</a>
                       </div>
                       {% endif %}
                       {% if demande.validation_progressis.slug_refus %}
                       <div class="col-4">
-                        <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="Refuser la demande"><i class="fas fa-thumbs-down"></i></a>
+                        <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-app bg-warning" data-toggle="tooltip" data-placement="top" title="Refuser la demande"><i class="fas fa-thumbs-down"></i>Refuser</a>
                       </div>
                       {% endif %}
+                    {% endif %}
+                    {% if demande.salarie.id == user.id %}
+                      <div class="col-4">
+                        <a href="/conge/delete/{{demande.id}}/" class="btn btn-app bg-danger" data-toggle="tooltip" data-placement="top" title="Supprimer la demande"><i class="fas fa-times"></i>Supprimer</a>
+                      </div>
                     {% endif %}
                   </div>
                 </td>

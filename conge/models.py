@@ -67,6 +67,20 @@ class DemandeConge(models.Model):
     @property
     def etat_str(self):
         """
+            retourne l'état de la demande
+            Estr soit : En cours, acceptée, refusée
+        """
+        if  self.conge_valide:
+            return '<span class="bg-success">Validé</span>'
+        if self.conge_invalid:
+            return '<span class="bg-error">Refusé</span>'
+        else:
+            return '<span class="bg-warning">En attente</span>'
+
+
+    @property
+    def reponses(self):
+        """
             retourne une chaine correspondant a l'état de la demande
         """
         if self.conge_valide:
@@ -281,14 +295,3 @@ class ValidationAdherent(models.Model):
         self.save()
         return ret
 
-    '''
-    @property
-    def is_progressis(self):
-        """
-            Cette demande est une progressis ou non ?
-        """
-        if self.demande.validation_progressis == self:
-            return True
-        else:
-            return False
-    '''

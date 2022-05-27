@@ -78,7 +78,9 @@ class DemandeCongePersosListView(ListView):
         qs = super().get_queryset(*args, **kwargs)
         if not self.request.user.id:
             raise Http404
-        qs.filter(salarie=self.request.user.id)
+
+        print(f"salarie={salarie}={self.request.user.id}")
+        qs.filter(salarie=self.request.user)
         return qs
 
 

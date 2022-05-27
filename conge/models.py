@@ -86,7 +86,7 @@ class DemandeConge(models.Model):
         if self.conge_valide:
             return '<span class="text-success">Congé validé</span>'
         if self.conge_envoye is False:
-            return '<span class="text-warning">emande en brouillon'
+            return '<span class="text-warning">Demande en brouillon'
         str_status = ""
         for valid in self.validation_adherent_list.all():
             if valid.is_valid:

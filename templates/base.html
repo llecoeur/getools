@@ -204,7 +204,6 @@
             </ul>
           </li>
           {% endif %}
-          {% if perms.releve.can_view_ro_releve_salarie %}
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="fas fa-umbrella-beach nav-icon"></i>
@@ -220,8 +219,7 @@
                   <p>Nouvelle demande</p>
                 </a>
               </li>
-              {# {% if perms.conge.can_validate_conges %} #}
-              {% if perms.releve.can_view_ro_releve_salarie %}
+              {% if perms.conge.can_validate_conges %}
               <li class="nav-item">
                 <a href="{% url 'list_conge' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -249,7 +247,6 @@
               </li>
             </ul>
           </li>
-          {% endif %}
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <!-- 

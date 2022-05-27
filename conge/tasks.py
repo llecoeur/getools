@@ -13,11 +13,11 @@ def valid_conges_14_jours(*args, **kwargs):
         Valide toutes les demandes de congés sans validations depuis 14 jours
     """
     demande_list = DemandeConge.objects.filter(conge_valide=False, conge_envoye_date__lt=timezone.now() - settings.CONGE_DELTA_VALIDE)
-    print(f"nb_demandes_14jours={demande_list.count()}")
+    # print(f"nb_demandes_14jours={demande_list.count()}")
     for demande in demande_list:
-        print(f"demande = {demande}")
+        # print(f"demande = {demande}")
         validation_list = demande.validation_adherent_list.filter(is_valid=None, is_progressis=False)
-        print(validation_list)
+        # print(validation_list)
         for validation in validation_list:
             print(f"Validation du congé pour délais d'acceptation dépassé pour {validation.id} : {validation.email}")
             validation.accept_by_delay()
@@ -34,7 +34,7 @@ def rappel_11_jours(*args, **kwargs):
     for demande in demande_list:
         validation_list = demande.validation_adherent_list.filter(is_rappel_envoye=False, is_valid=None)
         for validation in validation_list:
-            print(f"envoi du rappel pour {validation.id} : {validation.email}")
+            # print(f"envoi du rappel pour {validation.id} : {validation.email}")
             validation.send_email_rappel()
 
 

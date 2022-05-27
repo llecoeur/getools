@@ -13,4 +13,5 @@ urlpatterns = [
     path('envoi/<int:id>/', views.finish, name="envoi_conge"),
     path('accept/<str:slug>/', views.accept, name="conge_accept"),
     path('reject/<str:slug>/', views.reject, name="conge_reject"),
+    path('delete/<int:id>/', views.delete_conge, name='delete_conge'),
 ]

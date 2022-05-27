@@ -16,6 +16,7 @@ from django.conf import settings
 from smtplib import SMTPRecipientsRefused
 from datetime import datetime
 from django.utils import timezone
+from django.shortcuts import get_object_or_404
 
 
 
@@ -221,3 +222,13 @@ def reject(request, slug):
         messages.success(request, f"La demande de congé a été refusée.")
     
     return redirect("/")
+
+def delete_conge(request, id):
+    """
+        Efface la demande
+    """
+    dc = get_object_or_404(DemandeConge, id=id)
+    ValidationAdherent.objects.filter(demande=dc).delete()
+    dc.delete()
+    messages.success(request, f"La demande de congé a été supprimée.")
+    return redirect("/conge/")

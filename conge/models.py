@@ -73,7 +73,7 @@ class DemandeConge(models.Model):
         if  self.conge_valide:
             return '<span class="bg-success">Validé</span>'
         if self.conge_invalid:
-            return '<span class="bg-error">Refusé</span>'
+            return '<span class="bg-danger">Refusé</span>'
         else:
             return '<span class="bg-warning">En attente</span>'
 
@@ -84,9 +84,9 @@ class DemandeConge(models.Model):
             retourne une chaine correspondant a l'état de la demande
         """
         if self.conge_valide:
-            return "Congé validé"
+            return '<span class="text-success">Congé validé</span>'
         if self.conge_envoye is False:
-            return "demande en brouillon"
+            return '<span class="text-warning">emande en brouillon'
         str_status = ""
         for valid in self.validation_adherent_list.all():
             if valid.is_valid:

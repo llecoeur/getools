@@ -233,3 +233,13 @@ def delete_conge(request, id):
     dc.delete()
     messages.success(request, f"La demande de congé a été supprimée.")
     return redirect("/conge/")
+
+class CalendarView(TemplateView):
+    template_name = "calendar.html"
+
+    def get_context_data(self, **kwargs):
+        # Charge les congés validés dans le calendrier
+        qs = DemandeConge.objects.filter(conge_valide=True)
+        context = super().get_context_data(**kwargs)
+        context['conge_list'] = qs
+        return context

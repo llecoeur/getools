@@ -38,9 +38,6 @@ def rappel_11_jours(*args, **kwargs):
             validation.send_email_rappel()
 
 
-
-
-
 @shared_task(name="delete_demande_conge_brouillon")
 def delete_demande_conge_brouillon(*args, **kwargs):
     """

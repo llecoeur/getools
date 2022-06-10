@@ -1,0 +1,96 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block header_css_include %}
+  <link rel='stylesheet' href="{% static 'fullcalendar/main.css' %}" />
+{% endblock header_css_include %}
+
+{% block header_js %}
+<script src="{% static 'fullcalendar/main.js' %}"></script>
+<script>
+
+document.addEventListener('DOMContentLoaded', function() {
+var calendarEl = document.getElementById('calendar');
+var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    locale: 'fr',
+    weekNumbers: true,
+    weekText: 'S',
+    weekTextLong: 'Semaine',
+    timeZone: 'Europe/Paris',
+    firstDay: 1,
+    buttonText: {
+        today:    'Aujourd\'ui',
+        month:    'mois',
+        week:     'semaine',
+        day:      'jour',
+        list:     'liste'
+    },
+    events: [
+    {% for conge in conge_list %}
+    {
+      title  : '{{conge.salarie}}',
+      start  : '{{conge.debut | date:'Y-m-d'}}',
+      end : '{{conge.fin | date:'Y-m-d'}}'
+    },
+    {% endfor %}
+  ]
+});
+calendar.render();
+});
+
+</script>
+{% endblock header_js %}
+
+{% block "main_content" %}
+<div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-outline card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Calendrier des congés</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>  
+        <div class="card-body">
+          <div id='calendar'></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock "main_content"%}
+{% block "footer_js" %}
+<script src="{% static 'vuejs/vue.js' %}"></script>
+<script>
+
+$(function () {
+    $('datetimepicker-input').datetimepicker({
+      locale: 'fr',
+      format: 'JJ/MM/YYYY',
+    });    
+});
+
+
+var app = new Vue({
+  el: '#app',
+  delimiters: ['${','}'],
+  data() {
+    return({
+
+    });
+  },
+
+  methods: {
+    
+  },
+  mounted: function () {
+
+  }
+});
+
+</script>
+{% endblock "footer_js"%}

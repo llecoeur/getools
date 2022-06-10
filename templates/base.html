@@ -23,18 +23,23 @@
   <link rel="stylesheet" href="{% static 'select2/css/select2.css' %}">
   <link rel="stylesheet" href="{% static 'select2-bootstrap4-theme/select2-bootstrap4.css' %}">
   <link rel="stylesheet" href="{% static 'tippy.js/index.css' %}">
+
+    
    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}"> 
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  {% block header_css_include %}{% endblock header_css_include %}
   <style>
 
 .content-wrapper {
   background-image: url("{% static 'bg_main.jpg' %}");
   background-size: cover;
 }
-  {% block header_css %}
-  {% endblock header_css %}
+{% block header_css %}{% endblock header_css %}
+
+
   </style>
+  {% block header_js %}{% endblock header_js %}
 </head>
 <body class="{% block body_class %}hold-transition sidebar-mini layout-fixed text-sm {% endblock body_class %}">
 {% block body %}
@@ -203,7 +208,7 @@
               </li>
             </ul>
           </li>
-          {% endif %}
+          
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="fas fa-umbrella-beach nav-icon"></i>
@@ -220,6 +225,12 @@
                 </a>
               </li>
               {% if perms.conge.can_validate_conges %}
+              <li class="nav-item">
+                <a href="{% url 'calendar' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Calendrier</p>
+                </a>
+              </li>
               <li class="nav-item">
                 <a href="{% url 'list_conge' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
@@ -247,6 +258,7 @@
               </li>
             </ul>
           </li>
+          {% endif %}
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <!-- 

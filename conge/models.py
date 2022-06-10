@@ -83,8 +83,6 @@ class DemandeConge(models.Model):
         """
             retourne une chaine correspondant a l'état de la demande
         """
-        if self.conge_valide:
-            return '<span class="text-success">Congé validé</span>'
         if self.conge_envoye is False:
             return '<span class="text-warning">Demande en brouillon'
         str_status = ""

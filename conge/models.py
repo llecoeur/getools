@@ -57,7 +57,10 @@ class DemandeConge(models.Model):
 
 
     class Meta:
-        permissions = [('can_validate_conges', 'Peut valider les congés')]
+        permissions = [
+            ('can_validate_conges', 'Peut valider les congés'),
+            ('can_view_conges', 'Peut voir les congés'),
+        ]
 
     def __str__(self):
         debut = self.debut.strftime("%d/%m/%Y")

@@ -208,7 +208,8 @@
               </li>
             </ul>
           </li>
-          
+          {% endif %}
+          {% if perms.conge.can_validate_conges or perms.demande_conge.can_view_conges or perms.conge.demande_conge.add_demandeconge %}
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
               <i class="fas fa-umbrella-beach nav-icon"></i>
@@ -224,25 +225,31 @@
                   <p>Nouvelle demande</p>
                 </a>
               </li>
-              {% if perms.conge.can_validate_conges %}
+              {% if perms.conge.can_view_conges %}
               <li class="nav-item">
                 <a href="{% url 'calendar' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Calendrier</p>
                 </a>
               </li>
+              {% endif %}
+              {% if perms.conge.can_view_conges %}
               <li class="nav-item">
                 <a href="{% url 'list_conge' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>En Cours</p>
                 </a>
               </li>
+              {% endif %}
+              {% if perms.conge.can_view_conges %}
               <li class="nav-item">
                 <a href="{% url 'list_conge_passe' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Passées</p>
                 </a>
               </li>
+              {% endif %}
+              {% if perms.conge.can_view_conges %}
               <li class="nav-item">
                 <a href="{% url 'list_conge_attente' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>

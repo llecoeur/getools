@@ -11,8 +11,6 @@ from dateutil.relativedelta import relativedelta
 import pytz
 from monthdelta import monthdelta
 from pprint import pprint
-from django.db.models import Q
-from django.contrib.auth.models import Permission
 
 
 class IndexView(TemplateView):
@@ -20,10 +18,6 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        perms = permissions = Permission.objects.filter(Q(user=self.request.user) | Q(group__user=self.request.user)).all()
-        for perm in perms:
-            print(f"Permissions : {perm.codename}")
 
         annee, mois = annee_mois_precedent()
         context['date_mois_precedent'] = date(annee, mois, 1)

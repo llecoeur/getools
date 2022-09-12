@@ -52,7 +52,7 @@ if __name__ == "__main__":
 <body style="margin: 0; padding: 0;">
   <table align="center" border="0" cellpadding="0" cellspacing="0" width="320" style="border: none; border-collapse: collapse; font-family:  Arial, sans-serif; font-size: 14px; line-height: 1.5;">
 ...
-content
+<h1>MESSAGE HTML</h1><BR /><p>&egrav; &agrave; &agrave;Test de caractères accentu&acute; &Atilde;s &aelig; <strong>çç àà &eacute; </strong> message.</p>
 ...
 </table>
 </body>
@@ -62,7 +62,10 @@ content
 """
 
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+    # msg.extra_headers['']
+    
     msg.attach_alternative(html_content, "text/html")
+
     msg.send()
 
 

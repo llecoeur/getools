@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from pprint import pprint
 from time import sleep
+from config.models import Config
 
 """
     Classe XRP Print permettant de se connecter a l'API Cegid pour la lecture et l'écriture d'infos dans l'ERP.
@@ -39,10 +40,16 @@ class CegidCloud:
                 url = url.replace("http://", "https://", 1)
             if debug:
                 print(f"GET : {url}")
-            response = requests.get(url, auth=settings.XRP_PRINT_AUTH, headers={"Accept": "application/json"})
+            XRP_PRINT_AUTH = (Config.objects.get(key="XRP_AUTH_LOGIN").str_val, Config.objects.get(key="XRP_AUTH_PASSWORD").str_val)
+            print(XRP_PRINT_AUTH)
+            response = requests.get(url, auth=XRP_PRINT_AUTH, headers={"Accept": "application/json"})
             if debug:
                 print(f"{response.status_code} - {response.text}")
-            js = json.loads(response.text)
+            try:
+                js = json.loads(response.text)
+            except json.decoder.JSONDecodeError:
+                print(response.text)
+                exit()
             code = js.get("Code", None)
             if code == "AuthorizationRequired":
                 # retry
@@ -87,7 +94,10 @@ class CegidCloud:
         return items
 
     def _set_api_data(self, url_param, data, debug=False):
-        response = requests.post(url_param, auth=settings.XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
+
+        XRP_PRINT_AUTH = (Config.objects.get(key="XRP_AUTH_LOGIN").str_val, Config.objects.get(key="XRP_AUTH_PASSWORD").str_val)
+        print(XRP_PRINT_AUTH)
+        response = requests.post(url_param, auth=XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
         if debug:
             print(response.status_code)
         return response

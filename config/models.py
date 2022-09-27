@@ -11,4 +11,4 @@ class Config(models.Model):
     description = models.CharField("description", max_length=200, null=False, blank=False, default="")
 
     def __str__(self):
-        return f"{self.description}"
+        return f"{self.description} ({self.key})"

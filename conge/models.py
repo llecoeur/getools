@@ -5,7 +5,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+from getools.utils import send_mail
 from django.contrib import messages
 
 
@@ -138,9 +138,7 @@ class DemandeConge(models.Model):
             ret = send_mail(
                 subject,
                 email,
-                None,
-                [self.salarie.email],
-                fail_silently=False,
+                self.salarie.email
             )
             print(f"email envoyé : {ret}, {self.salarie.email}, {subject}")
             return ret
@@ -213,9 +211,7 @@ class ValidationAdherent(models.Model):
         ret = send_mail(
             subject,
             email,
-            None,
-            [self.email],
-            fail_silently=False,
+            self.email
         )
         return ret
 
@@ -231,9 +227,7 @@ class ValidationAdherent(models.Model):
         ret = send_mail(
             subject,
             email,
-            None,
-            [self.email],
-            fail_silently=False,
+            self.email
         )
         return ret
 
@@ -249,9 +243,7 @@ class ValidationAdherent(models.Model):
         ret = send_mail(
             subject,
             email,
-            None,
-            [self.email],
-            fail_silently=False,
+            self.email
         )
         return ret
 
@@ -288,9 +280,7 @@ class ValidationAdherent(models.Model):
         ret = send_mail(
             subject,
             email,
-            None,
-            [self.email],
-            fail_silently=False,
+            self.email
         )
         self.is_rappel_envoye = True
         self.save()

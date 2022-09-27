@@ -23,10 +23,29 @@ from activite.tasks import test, generate_releve_adherent
 from sys import argv
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.utils.encoding import smart_str
+from getools.utils import send_mail
 
 
 if __name__ == "__main__":
 
+    send_mail("[SUJET] Test de caractères accentués", "\n[MESSAGE] Test de caractères accentués àö", "l.lecoeur@tempspartage.fr")
+
+    """
+    to_emails= "l.lecoeur@tempspartage.fr"
+    message="\nTest de caractères accentués àö"
+    s = smtplib.SMTP(host='smtp.office365.com', port=587)
+    s.starttls()
+    s.login('nepasrepondre@progressisge.fr','4\'^c./`W][`8])-+rU')
+    msg = MIMEMultipart()
+    msg['From']='nepasrepondre@progressisge.fr'
+    msg['To']=to_emails
+    msg['Subject']="Test de caractères accentués"
+    msg.attach(MIMEText(message, 'plain'))
+    s.send_message(msg)
+    del msg
+    s.quit()
+    """
+    """
     email_template_name = "email_conge_accepte_all.txt"
     
     subject = f"Votre demande de congé a été acceptée"
@@ -42,7 +61,8 @@ if __name__ == "__main__":
     text_content = 'Test de caractères accentués àö'
     html_content = '<h1>MESSAGE HTML</h1><BR /><p>Test de caractères accentués àö <strong>çç àà &eacute; </strong> message.</p>'
 
-    html_content = """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    html_content = """
+    """<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -59,15 +79,15 @@ if __name__ == "__main__":
 </html>
 
 
-"""
-
+    """
+    """
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     # msg.extra_headers['']
     
     msg.attach_alternative(html_content, "text/html")
 
     msg.send()
-
+    """
 
     """email = str(render_to_string(email_template_name, c))
     print(email)

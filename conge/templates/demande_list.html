@@ -17,6 +17,7 @@
           <table class="table table-condensed table-striped">
             <thead>
               <tr>
+                <th>Num</th>
                 <th></th>
                 <th>Nom</th>
                 <th>Début - Fin</th>
@@ -30,6 +31,7 @@
             <tbody>
               {% for demande in object_list %}
               <tr>
+                <td>{{demande.id}}</td>
                 <td>
                   {% if demande.commentaire_salarie %}
                     <i class="far fa-comment"  data-toggle="tooltip" data-placement="top" title="{{demande.commentaire_salarie}}"></i>

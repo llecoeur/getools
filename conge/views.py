@@ -29,6 +29,7 @@ class DemandeCongeListView(ListView):
     # DOTO : Faire le template de la liste
     model = DemandeConge
     template_name = "demande_list.html"
+    paginate_by = 20
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
@@ -43,7 +44,7 @@ class DemandeCongePasseListView(ListView):
     # DOTO : Faire le template de la liste
     model = DemandeConge
     template_name = "demande_list.html"
-
+    paginate_by = 20
     
 
     def get_queryset(self, *args, **kwargs ):
@@ -58,6 +59,7 @@ class DemandeCongeAttenteListView(ListView):
     # DOTO : Faire le template de la liste
     model = DemandeConge
     template_name = "demande_list.html"
+    paginate_by = 20
    
 
     def get_queryset(self, *args, **kwargs ):
@@ -73,6 +75,7 @@ class DemandeCongePersosListView(ListView):
 
     model = DemandeConge
     template_name = "demande_list.html"
+    paginate_by = 20
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)

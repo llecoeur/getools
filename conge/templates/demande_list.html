@@ -14,60 +14,97 @@
           </div>
         </div>
         <div class="card-body">
-          <table class="table table-condensed table-striped">
-            <thead>
-              <tr>
-                <th>Num</th>
-                <th></th>
-                <th>Nom</th>
-                <th>Début - Fin</th>
-                <th>Motif</th>
-                <th>Réponses</th>
-                <th>Etat</th>
-                <th>Date de la demande</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for demande in object_list %}
-              <tr>
-                <td>{{demande.id}}</td>
-                <td>
-                  {% if demande.commentaire_salarie %}
-                    <i class="far fa-comment"  data-toggle="tooltip" data-placement="top" title="{{demande.commentaire_salarie}}"></i>
-                  {% endif %}
-                </td>
-                <td>{{ demande.salarie }}</td>
-                <td>{{ demande.debut }} <br /> {{ demande.fin }}</td>
-                <td>{{ demande.motif }}</td>
-                <td>{{demande.reponses | safe }}</td>
-                <td>{{ demande.etat_str | safe }}</td>
-                <td>{{ demande.created }}</td>
-                <td>
-                  <div class="row">
-                    {% if demande.validation_progressis and perms.conge.can_validate_conges %}
-                      {% if demande.validation_progressis.slug_acceptation %}
-                      <div class="col-4">
-                        <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-app bg-success" data-toggle="tooltip" data-placement="top" title="Accepter la demande"><i class="fas fa-thumbs-up"></i>Accepter</a>
-                      </div>
+          <div class="row">
+            <div class="col-12">
+              <table class="table table-condensed table-striped">
+                <thead>
+                  <tr>
+                    <th>Num</th>
+                    <th></th>
+                    <th>Nom</th>
+                    <th>Début - Fin</th>
+                    <th>Motif</th>
+                    <th>Réponses</th>
+                    <th>Etat</th>
+                    <th>Date de la demande</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for demande in object_list %}
+                  <tr>
+                    <td>{{demande.id}}</td>
+                    <td>
+                      {% if demande.commentaire_salarie %}
+                        <i class="far fa-comment"  data-toggle="tooltip" data-placement="top" title="{{demande.commentaire_salarie}}"></i>
                       {% endif %}
-                      {% if demande.validation_progressis.slug_refus %}
-                      <div class="col-4">
-                        <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-app bg-warning" data-toggle="tooltip" data-placement="top" title="Refuser la demande"><i class="fas fa-thumbs-down"></i>Refuser</a>
+                    </td>
+                    <td>{{ demande.salarie }}</td>
+                    <td>{{ demande.debut }} <br /> {{ demande.fin }}</td>
+                    <td>{{ demande.motif }}</td>
+                    <td>{{demande.reponses | safe }}</td>
+                    <td>{{ demande.etat_str | safe }}</td>
+                    <td>{{ demande.created }}</td>
+                    <td>
+                      <div class="row">
+                        {% if demande.validation_progressis and perms.conge.can_validate_conges %}
+                          {% if demande.validation_progressis.slug_acceptation %}
+                          <div class="col-4">
+                            <a href="/conge/accept/{{demande.validation_progressis.slug_acceptation}}/" class="btn btn-app bg-success" data-toggle="tooltip" data-placement="top" title="Accepter la demande"><i class="fas fa-thumbs-up"></i>Accepter</a>
+                          </div>
+                          {% endif %}
+                          {% if demande.validation_progressis.slug_refus %}
+                          <div class="col-4">
+                            <a href="/conge/reject/{{demande.validation_progressis.slug_refus}}/" class="btn btn-app bg-warning" data-toggle="tooltip" data-placement="top" title="Refuser la demande"><i class="fas fa-thumbs-down"></i>Refuser</a>
+                          </div>
+                          {% endif %}
+                        {% endif %}
+                        {% if demande.salarie.id == user.id %}
+                          <div class="col-4">
+                            <a href="/conge/delete/{{demande.id}}/" class="btn btn-app bg-danger" data-toggle="tooltip" data-placement="top" title="Supprimer la demande"><i class="fas fa-times"></i>Supprimer</a>
+                          </div>
+                        {% endif %}
                       </div>
-                      {% endif %}
-                    {% endif %}
-                    {% if demande.salarie.id == user.id %}
-                      <div class="col-4">
-                        <a href="/conge/delete/{{demande.id}}/" class="btn btn-app bg-danger" data-toggle="tooltip" data-placement="top" title="Supprimer la demande"><i class="fas fa-times"></i>Supprimer</a>
-                      </div>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-1">
+              {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn btn-block btn-outline-primary btn-sm">
+                  <i class="fas fa-angle-double-left"></i>
+                </a>
+              {% endif %}
+            </div>
+            <div class="col-1">
+              {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-block btn-outline-primary btn-sm">
+                  <i class="fas fa-angle-left"></i>
+                </a>
+              {% endif %}
+            </div>
+            <div class="col-8 text-center">
+              <b>Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</b>
+            </div>
+            <div class="col-1">
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-block btn-outline-primary btn-sm">
+                  <i class="fas fa-angle-right"></i>
+                </a>
+              {% endif %}
+            </div>
+            <div class="col-1">
+              {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-block btn-outline-primary btn-sm">
+                  <i class="fas fa-angle-double-right"></i>
+                </a>
+              {% endif %}
+            </div>
+          </div>
         </div>
       </div>
     </div>

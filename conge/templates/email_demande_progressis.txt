@@ -2,8 +2,8 @@ Bonjour {{nom_prenom}}
 
 {{nom_prenom_salarie}} aimerait prendre un congé du {{date_debut}} au {{date_fin}} :
 
-{{motif}}
-{{commentaire}}
+{{motif |safe}}
+{{commentaire |safe}}
 
 Pour voir l'état de la demande, rendez vous sur GeTools.
 

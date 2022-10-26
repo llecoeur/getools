@@ -55,6 +55,9 @@ class DemandeConge(models.Model):
     # Date de dernière modification
     updated = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-created']
+
 
     class Meta:
         permissions = [

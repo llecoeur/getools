@@ -29,14 +29,16 @@ class ReleveSalarie(models.Model):
 
 
     def save(self, *args, **kwargs):
+        
         if not self.id:
             self.created = timezone.now()
         self.updated = timezone.now()
         # Mise a jour du total d'heures
+        super().save(*args, **kwargs)
         somme = self.saisie_salarie_list.all().aggregate(somme=Sum("heures"))['somme']
         if (somme):
             self.total_h = somme
-        super().save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
     def get_saisie(self, adherent, date_saisie):
         """

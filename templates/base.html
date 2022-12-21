@@ -30,11 +30,13 @@
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
   {% block header_css_include %}{% endblock header_css_include %}
   <style>
-
+ {% block background_image %}
+ 
 .content-wrapper {
   background-image: url("{% static 'bg_main.jpg' %}");
   background-size: cover;
 }
+{% endblock background_image %}
 {% block header_css %}{% endblock header_css %}
 
 

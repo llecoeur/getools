@@ -190,12 +190,14 @@ class ValidationAdherentAddView(TemplateView):
 
 
 def accept(request, slug):
+    
     if slug == "" or slug is None:
         messages.error(request, f"Demande invalide")
     try:
         valid = ValidationAdherent.objects.get(slug_acceptation=slug)
     except ValidationAdherent.DoesNotExist:
-        messages.error(request, f"Cette demande n'existe pas ou a expiré")
+        template = "link_error.html"
+        return render(request, template, {})
     else:
         valid.is_valid = True
         valid.valid_manuel_date = timezone.now()
@@ -213,7 +215,8 @@ def reject(request, slug):
     try:
         valid = ValidationAdherent.objects.get(slug_refus=slug)
     except ValidationAdherent.DoesNotExist:
-        messages.error(request, f"Cette demande n'existe pas ou a expiré")
+        template = "link_error.html"
+        return render(request, template, {})
     else:
         valid.is_valid = False
         valid.refus_manuel_date = timezone.now()

@@ -1,0 +1,44 @@
+{% extends 'base.html'%}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block navbar %}
+{% endblock navbar %}
+{% block sidebar %}
+{% endblock sidebar %}
+{% block background_image %}
+{% endblock background_image %}
+
+{% block "main_content" %}
+
+{% endblock "main_content"%}
+{% block body %}
+    <div class="row">
+        <div class="col-12">&nbsp;</div>
+    </div>
+    <div class="row">
+        <div class="col-3"></div>
+        <div class="col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>Oups ! Ca n'a pas marché !</h3>
+                    <p><b>Le lien que vous avez cliqué n'est plus valide.</b>
+                    <ul>
+                        <li>Vous déjà validé ou refusé cette demande</li>
+                        <li>La demande a été supprimée ou annulée</li>
+                        <li>Vous vous êtes perdus sur Internet</li>
+                    </ul> </p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-bug"></i>
+                </div>
+                <!--
+                <a href="#" class="small-box-footer">
+                More info <i class="fas fa-arrow-circle-right"></i>
+                </a>
+                -->
+            </div>
+        </div>
+        <div class="col-3"></div>
+    </div>
+{% endblock body %}

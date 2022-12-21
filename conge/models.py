@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from getools.utils import send_mail
-from django.contrib import messages
+from conge.tasks import envoi_email
 
 
 
@@ -57,7 +57,6 @@ class DemandeConge(models.Model):
 
     class Meta:
         ordering = ['-created']
-
 
     class Meta:
         permissions = [
@@ -124,7 +123,7 @@ class DemandeConge(models.Model):
             envoie un mail au salarié et a Progressis pour dire que le congé a été accepté
         """
         nb_valid_attente_refus = self.validation_adherent_list.exclude(is_valid=True).count()
-        print(f"nb_valid_attente_refus = {nb_valid_attente_refus}")
+        # print(f"nb_valid_attente_refus = {nb_valid_attente_refus}")
         if nb_valid_attente_refus == 0:
             # toutes les demandes ont été acceptées
             self.conge_valide = True
@@ -137,14 +136,9 @@ class DemandeConge(models.Model):
                 "debut": self.debut,
                 "fin": self.fin,
             }
-            email = render_to_string(email_template_name, c)
-            ret = send_mail(
-                subject,
-                email,
-                self.salarie.email
-            )
-            print(f"email envoyé : {ret}, {self.salarie.email}, {subject}")
-            return ret
+            body = render_to_string(email_template_name, c)
+            envoi_email.delay(subject=subject, body=body, recipient=self.salarie.email)
+
 
 
 class ValidationAdherent(models.Model):
@@ -201,7 +195,7 @@ class ValidationAdherent(models.Model):
             "nom_prenom_salarie": str(self.demande.salarie),
             "date_debut": self.demande.debut,
             "date_fin": self.demande.fin,
-            "motif": self.demande.motif,
+            "motif": self.demande.motif.libelle,
             "commentaire": self.demande.commentaire_salarie,
             'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,
             'slug_acceptation': self.slug_acceptation,
@@ -209,14 +203,8 @@ class ValidationAdherent(models.Model):
             'protocol': settings.EMAIL_NEW_USER_SET_PASSWORD_PROTOCOL_LINK,
             'rappel': False,
         }
-        # TODO : Générer le template, envoyer l'email, etc...
-        email = render_to_string(email_template_name, c)
-        ret = send_mail(
-            subject,
-            email,
-            self.email
-        )
-        return ret
+        body = render_to_string(email_template_name, c)
+        envoi_email.delay(subject=subject, body=body, recipient=self.email)
 
     def send_reject_email(self):
         email_template_name = "email_refus.txt"
@@ -226,29 +214,20 @@ class ValidationAdherent(models.Model):
             "nom_prenom": self.nom_prenom,
             "email": self.email,
         }
-        email = render_to_string(email_template_name, c)
-        ret = send_mail(
-            subject,
-            email,
-            self.email
-        )
-        return ret
+        body = render_to_string(email_template_name, c)
+        envoi_email.delay(subject=subject, body=body, recipient=self.email)
+
 
     def accept_by_delay(self):
         email_template_name = "email_accept_delay.txt"
         subject = f"La demande de congé de {self.nom_prenom} a été acceptée"
         c = {
-            "nom_prenom_salarie": self.demande.salarie,
+            "nom_prenom_salarie": str(self.demande.salarie),
             "nom_prenom": self.nom_prenom,
             "email": self.email,
         }
-        email = render_to_string(email_template_name, c)
-        ret = send_mail(
-            subject,
-            email,
-            self.email
-        )
-        return ret
+        body = render_to_string(email_template_name, c)
+        envoi_email.delay(subject=subject, body=body, recipient=self.email)
 
     @property
     def valid_oui_non_str(self):
@@ -270,7 +249,7 @@ class ValidationAdherent(models.Model):
             "nom_prenom_salarie": str(self.demande.salarie),
             "date_debut": self.demande.debut,
             "date_fin": self.demande.fin,
-            "motif": self.demande.motif,
+            "motif": self.demande.motif.libelle,
             "commentaire": self.demande.commentaire_salarie,
             'domain': settings.EMAIL_NEW_USER_SET_PASSWORD_DOMAIN_LINK,
             'slug_acceptation': self.slug_acceptation,
@@ -278,14 +257,8 @@ class ValidationAdherent(models.Model):
             'protocol': settings.EMAIL_NEW_USER_SET_PASSWORD_PROTOCOL_LINK,
             'rappel': True,
         }
-        # TODO : Générer le template, envoyer l'email, etc...
-        email = render_to_string(email_template_name, c)
-        ret = send_mail(
-            subject,
-            email,
-            self.email
-        )
+        body = render_to_string(email_template_name, c)
+        envoi_email.delay(subject=subject, body=body, recipient=self.email)
         self.is_rappel_envoye = True
         self.save()
-        return ret
 

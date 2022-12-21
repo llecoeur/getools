@@ -1,6 +1,6 @@
 Bonjour {{nom_prenom}}
 
-{{nom_prenom_salarie}} aimerait prendre un congé du {{date_debut}} au {{date_fin}} :
+{{nom_prenom_salarie}} aimerait prendre un congé du {{date_debut | date:"l j F Y"}} au {{date_fin | date:"l j F Y"}} :
 
 {{motif |safe}}
 {{commentaire |safe}}

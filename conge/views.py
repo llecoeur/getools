@@ -115,6 +115,7 @@ class ValidationAdherentFormView(CreateView):
         context = super().get_context_data(**kwargs)
         context['validation_list'] = ValidationAdherent.objects.filter(demande=demande)
         context['id'] = id
+        context['demande'] = demande
         return context
 
     def form_valid(self, form):
@@ -133,7 +134,6 @@ class ValidationAdherentFormView(CreateView):
 
 
 def remove_validation(request, id):
-    print(id)
     validation = ValidationAdherent.objects.get(id=id)
     id_demande = validation.demande.id
     validation.delete()
@@ -149,6 +149,11 @@ def finish(request, id):
     """
     demande = DemandeConge.objects.get(id=id)
     # On ajoute Progressis comme adhérent
+    for validation in demande.validation_adherent_list.all():
+        try:
+            validation.send_email()
+        except SMTPRecipientsRefused:
+            messages.error(request, f"Email à {validation.nom_prenom} Echoué : Mauvais destinataire")
     va = ValidationAdherent()
     va.demande = demande
     va.nom_prenom = settings.PROGRESSIS_CONGE_NOM
@@ -156,15 +161,10 @@ def finish(request, id):
     va.is_progressis = True
     va.save()
     va.send_email()
-    for validation in demande.validation_adherent_list.all():
-        try:
-            validation.send_email()
-        except SMTPRecipientsRefused:
-            messages.error(request, f"Email à {validation.nom_prenom} Echoué : Mauvais destinataire")
-        messages.success(request, f"Email à {validation.nom_prenom} envoyé")
     demande.conge_envoye = True
     demande.conge_envoye_date = timezone.now()
     demande.save()
+    messages.success(request, f"Votre demande de congé a été envoyée")
     return redirect("/conge/")
 
 

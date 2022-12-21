@@ -27,18 +27,18 @@ app.conf.beat_schedule = {
         # Task Name (Name Specified in Decorator)
         'task': 'valid_conges_14_jours',  
         # Schedule      
-        'schedule': 20.0,
+        'schedule': 3600.0,
     },
     'rappel_11_jours': {
         # Task Name (Name Specified in Decorator)
         'task': 'rappel_11_jours',  
         # Schedule      
-        'schedule': 25.0,
+        'schedule': 3600.0,
     },
     'delete_demande_conge_brouillon': {
         # Task Name (Name Specified in Decorator)
         'task': 'delete_demande_conge_brouillon',  
         # Schedule      
-        'schedule': 30.0,
+        'schedule': 3600.0,
     },
 }

@@ -1,0 +1,8 @@
+Bonjour
+Le relevé adhérent {{file}} a été généré.
+
+Vous pouvez le télécharger en cliquant ici :
+
+{{protocol}}{{domain}}{% if port %}:{{port}}{% endif %}/static/releve_adherents/{{file}}
+
+Merci

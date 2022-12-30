@@ -8,6 +8,44 @@
     <div class="col-12">
       <div class="card card-outline card-primary">
         <div class="card-header">
+          <h3 class="card-title">Filtrer</h3>
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="GET">
+            <div class="row">
+              <div class="col-4">
+                
+                <div class="row">
+                  <div class="col-12">
+                    <label for="recherche">Filtrer (par nom, prenom ou email salarié)</label>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <div class="input-group">
+                      <input type="text" class="form-control" id="recherche" placeholder="Filtrer" name="q">
+                      <div class="input-group-append">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                      </div>
+                      <div class="input-group-append">
+                        <a href="{{ request.path }}" class="btn btn-danger"><i class="fas fa-times"></i></a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button> -->
+          </form>
+        </div>
+      </div>
+    
+      <div class="card card-outline card-primary">
+        <div class="card-header">
           <h3 class="card-title">Aide</h3>
           <div class="card-tools">
             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>

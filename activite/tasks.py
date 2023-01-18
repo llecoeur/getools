@@ -10,7 +10,8 @@ from conge.tasks import envoi_email
 from config.models import Config
 import locale
 import os
-
+import pwd
+import grp
 
 
 @shared_task
@@ -165,6 +166,13 @@ def generate_releve_adherent(*args, **kwargs):
             # Création du ZIP
 
     zipObj.close()
+    # modification des droits
+    
+    """    uid = pwd.getpwnam("www-data").pw_uid
+    gid = grp.getgrnam("www-data").gr_gid
+    os.chown(zip_path, uid, gid)
+    zip_path"""
+    os.chmod(zip_path, 0o777)
     try:
         os.rmdir(f"{settings.STATIC_ROOT}releve_adherents/{annee}-{mois}")
     except OSError:

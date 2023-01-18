@@ -41,6 +41,24 @@ class DemandeCongeListView(ListView):
         qs = qs.filter(fin__gte=timezone.now()).order_by("-created")
         return qs
 
+class DemandeCongeListAllView(ListView):
+    """
+        Affiche une liste de la totalité des demandes de congés dont la date de fin n'est pas dépassée
+    """
+    # DOTO : Faire le template de la liste
+    model = DemandeConge
+    template_name = "demande_list.html"
+    paginate_by = 20
+
+    def get_queryset(self, *args, **kwargs ):
+        qs = super().get_queryset(*args, **kwargs)
+        try:
+            q = self.request.GET["q"]
+            qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+        except KeyError:
+            pass
+        qs = qs.order_by("-created")
+        return qs
 
 class DemandeCongePasseListView(ListView):
     """

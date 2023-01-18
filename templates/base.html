@@ -259,6 +259,14 @@
                 </a>
               </li>
               {% endif %}
+              {% if perms.conge.can_view_conges %}
+              <li class="nav-item">
+                <a href="{% url 'list_conge_all' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Tous</p>
+                </a>
+              </li>
+              {% endif %}
               <li class="nav-item">
                 <a href="{% url 'list_conge_perso' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>

@@ -4,6 +4,7 @@ from conge import views
 urlpatterns = [
     path('', views.DemandeCongePersosListView.as_view(), name='list_conge_perso'),
     path('tous/', views.DemandeCongeListView.as_view(), name='list_conge'),
+    path('vraimenttous/', views.DemandeCongeListAllView.as_view(), name='list_conge_all'),
     path('passe/', views.DemandeCongePasseListView.as_view(), name='list_conge_passe'),
     path('refuses/', views.DemandeCongeAttenteListView.as_view(), name="list_conge_attente"),
     path('new/', views.DemandeCongeAddFormView.as_view(), name='demande_conge'),

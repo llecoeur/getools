@@ -232,10 +232,13 @@ class ValidationAdherent(models.Model):
     @property
     def valid_oui_non_str(self):
         if self.is_valid is None:
+            # return '<span class="text-warning">En attente</span>'
             return '<span class="text-warning">En attente</span>'
         elif self.is_valid:
+            # return '<span class="text-success">Accepté</span>'
             return '<span class="text-success">Accepté</span>'
         else:
+            # return '<span class="text-error">Refusé</span>'
             return '<span class="text-error">Refusé</span>'
 
     def send_email_rappel(self):

@@ -79,7 +79,19 @@
                     <td>{{ demande.salarie }}</td>
                     <td>{{ demande.debut }} <br /> {{ demande.fin }}</td>
                     <td>{{ demande.motif }}</td>
-                    <td>{{demande.reponses | safe }}</td>
+                    
+
+
+                    <td>
+                      {% for valid in demande.validation_adherent_list.all %}
+                        {% if valid.is_valid %}
+                        <span class="text-success" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} </span><br />
+                        {% else %}
+                        <span class="text-danger" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} <a href=""></a></span><br />
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+
                     <td>{{ demande.etat_str | safe }}</td>
                     <td>{{ demande.created }}</td>
                     <td>
@@ -176,7 +188,7 @@ var app = new Vue({
   },
 
   methods: {
-    
+
   },
   mounted: function () {
 

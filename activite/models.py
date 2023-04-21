@@ -179,7 +179,7 @@ class Salarie(models.Model):
             infos_sup.annee = annee
             # TODO : Initialiser ces valeurs
             infos_sup.heures_theoriques = 0
-            infos_sup.init_compteurs()
+            # infos_sup.init_compteurs()
             infos_sup.save()
         return infos_sup
 
@@ -819,12 +819,15 @@ class InfosSupMoisSalarie(models.Model):
         return self.salarie.get_heures_travail_mois(self.annee, self.mois)
     """
     def save(self):
-        self.compteur_mois = self.difference_heures + self.compteur_mois_precedent + self.ajustement_mois
+        # self.compteur_mois = self.difference_heures + self.compteur_mois_precedent + self.ajustement_mois
+        self.init_compteurs()
         return super().save()
 
     def init_compteurs(self):
         """
             Initialise le champ compteur_mois_precedent avec les valeurs entrées le mois précédent.
+            TODO : Ici ca déconne, Je crois que c'est si on charge un mois précédent qui a des infosup qui n'ont pas été créés comme il faut
+            Si on va sur un mois dans le futur, infosup est créé et le champ compteur_mois_precedent va se retrouver mal initialisé, et ne changera plus, c'est un grosse erreur.
         """
         date_actu = date(self.annee, self.mois, 1)
         date_precedent = date_actu - timedelta(days=3)
@@ -835,7 +838,7 @@ class InfosSupMoisSalarie(models.Model):
             return
         self.compteur_mois_precedent = infosup.compteur_mois
         self.compteur_mois = self.difference_heures + self.compteur_mois_precedent + self.ajustement_mois
-        self.save()
+        # self.save()
 
 
 class InfosSupMoisMad(models.Model):

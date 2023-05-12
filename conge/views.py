@@ -1,15 +1,15 @@
 from django.core.checks import messages
 from django.shortcuts import render
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.views.generic import TemplateView
 from conge.models import DemandeConge, ValidationAdherent
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from .forms import ValidationAdherentFormSet
 from django.shortcuts import redirect
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.utils import timezone
 from django.conf import settings
@@ -281,4 +281,20 @@ class CalendarView(TemplateView):
         qs = DemandeConge.objects.filter(conge_valide=True)
         context = super().get_context_data(**kwargs)
         context['conge_list'] = qs
+        return context
+
+class ValidationAdherentChangeEmailView(UpdateView):
+    model = ValidationAdherent
+    template_name = "validation_adherent_change_email.html"
+    fields = ['email',]
+
+    def get_success_url(self):
+        # return HttpResponseRedirect('/foo/')
+        self.object.send_email()
+        messages.success(self.request, f"Email pour {self.object} mis à jour.")
+        return reverse("list_conge_attente")
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         return context

@@ -6,7 +6,7 @@ urlpatterns = [
     path('tous/', views.DemandeCongeListView.as_view(), name='list_conge'),
     path('vraimenttous/', views.DemandeCongeListAllView.as_view(), name='list_conge_all'),
     path('passe/', views.DemandeCongePasseListView.as_view(), name='list_conge_passe'),
-    path('refuses/', views.DemandeCongeAttenteListView.as_view(), name="list_conge_attente"),
+    path('attente/', views.DemandeCongeAttenteListView.as_view(), name="list_conge_attente"),
     path('new/', views.DemandeCongeAddFormView.as_view(), name='demande_conge'),
     path('new/step2/', views.ValidationAdherentFormView.as_view(), name="step2"),
     path('addadherent', views.DemandeCongeAddFormView.as_view(), name="add_adherent"),
@@ -16,5 +16,6 @@ urlpatterns = [
     path('reject/<str:slug>/', views.reject, name="conge_reject"),
     path('delete/<int:id>/', views.delete_conge, name='delete_conge'),
     path('calendar/', views.CalendarView.as_view(), name="calendar"),
+    path('change/<int:pk>/', views.ValidationAdherentChangeEmailView.as_view(), name="validation_adherent_change_email"),
 
 ]

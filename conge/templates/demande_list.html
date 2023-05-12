@@ -84,10 +84,14 @@
 
                     <td>
                       {% for valid in demande.validation_adherent_list.all %}
-                        {% if valid.is_valid %}
-                        <span class="text-success" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} </span><br />
+                        {% if valid.is_valid is True or valid.is_valid is False %}
+                          {% if valid.is_valid is True %}
+                            <span class="text-success" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} </span><br />
+                          {% else %}
+                            <span class="text-danger" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} </span><br />
+                          {% endif %}
                         {% else %}
-                        <span class="text-danger" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} <a href=""></a></span><br />
+                        <span class="text-warning" data-toggle="tooltip" data-placement="top" title="{{valid.nom_prenom}}">{{valid.email}} : {{valid.valid_oui_non_str | safe }} <a href="/conge/change/{{valid.id}}" class="button btn-default"><i class="fas fa-pencil-alt"></i></a></span><br />
                         {% endif %}
                       {% endfor %}
                     </td>

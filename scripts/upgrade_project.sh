@@ -7,3 +7,5 @@ git pull
 python manage.py migrate
 python manage.py collectstatic --noinput
 sudo systemctl restart gunicorn.socket
+sudo systemctl restart celery
+sudo systemctl restart celerybeat

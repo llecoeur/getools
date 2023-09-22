@@ -17,12 +17,13 @@ from smtplib import SMTPRecipientsRefused
 from datetime import datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 from django.db.models import Q
 
 
 # Create your views here.
-class DemandeCongeListView(ListView):
+class DemandeCongeListView(PermissionRequiredMixin, ListView):
     """
         Affiche une liste de la totalité des demandes de congés dont la date de fin n'est pas dépassée
     """
@@ -30,6 +31,7 @@ class DemandeCongeListView(ListView):
     model = DemandeConge
     template_name = "demande_list.html"
     paginate_by = 20
+    permission_required = "conge.can_view_conges"
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
@@ -41,7 +43,7 @@ class DemandeCongeListView(ListView):
         qs = qs.filter(fin__gte=timezone.now()).order_by("-created")
         return qs
 
-class DemandeCongeListAllView(ListView):
+class DemandeCongeListAllView(PermissionRequiredMixin, ListView):
     """
         Affiche une liste de la totalité des demandes de congés dont la date de fin n'est pas dépassée
     """
@@ -49,6 +51,8 @@ class DemandeCongeListAllView(ListView):
     model = DemandeConge
     template_name = "demande_list.html"
     paginate_by = 20
+    permission_required = "conge.can_view_conges"
+
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
@@ -60,7 +64,7 @@ class DemandeCongeListAllView(ListView):
         qs = qs.order_by("-created")
         return qs
 
-class DemandeCongePasseListView(ListView):
+class DemandeCongePasseListView(PermissionRequiredMixin, ListView):
     """
         Affiche une liste de la totalité des demandes de congés en cours, donc envoyées
     """
@@ -68,6 +72,7 @@ class DemandeCongePasseListView(ListView):
     model = DemandeConge
     template_name = "demande_list.html"
     paginate_by = 20
+    permission_required = "conge.can_view_conges"
     
 
     def get_queryset(self, *args, **kwargs ):
@@ -80,7 +85,8 @@ class DemandeCongePasseListView(ListView):
         qs = qs.filter(fin__lt=timezone.now()).order_by("-created")
         return qs
 
-class DemandeCongeAttenteListView(ListView):
+
+class DemandeCongeAttenteListView(PermissionRequiredMixin, ListView):
     """
         Affiche une liste de la totalité des demandes en attente de validation
     """
@@ -88,6 +94,7 @@ class DemandeCongeAttenteListView(ListView):
     model = DemandeConge
     template_name = "demande_list.html"
     paginate_by = 20
+    permission_required = "conge.can_view_conges"
    
 
     def get_queryset(self, *args, **kwargs ):
@@ -109,6 +116,7 @@ class DemandeCongePersosListView(ListView):
     model = DemandeConge
     template_name = "demande_list.html"
     paginate_by = 20
+    
 
     def get_queryset(self, *args, **kwargs ):
         qs = super().get_queryset(*args, **kwargs)
@@ -292,7 +300,7 @@ class ValidationAdherentChangeEmailView(UpdateView):
         # return HttpResponseRedirect('/foo/')
         self.object.send_email()
         messages.success(self.request, f"Email pour {self.object} mis à jour.")
-        return reverse("list_conge_attente")
+        return reverse("list_conge_perso")
 
 
     def get_context_data(self, **kwargs):

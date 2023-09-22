@@ -53,6 +53,10 @@ class IndexView(TemplateView):
             d = {
                 "month": mois_actuel,
                 "heures_progressis": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=(adherent_progressis, )),
+                "heures_tps_partage": (
+                    get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), progressis=False)
+                    - get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=(adherent_la_poste, ))
+                ),
                 "heures_adherents": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), progressis=False),
                 "heures_formation": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_formation, ), progressis=True),
                 "loc_ordi": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_location_ordi, ), progressis=True),

@@ -7,6 +7,8 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from getools.utils import send_mail
 from conge.tasks import envoi_email
+import logging
+logger = logging.getLogger(__name__)
 
 
 
@@ -138,6 +140,7 @@ class DemandeConge(models.Model):
             }
             body = render_to_string(email_template_name, c)
             envoi_email.delay(subject=subject, body=body, recipient=self.salarie.email)
+            logger.warning(f"EMAIL : Envoi de message d'acceptation du congé ID={self.id} à {self.salarie.email}")
 
 
 
@@ -205,6 +208,7 @@ class ValidationAdherent(models.Model):
         }
         body = render_to_string(email_template_name, c)
         envoi_email.delay(subject=subject, body=body, recipient=self.email)
+        logger.warning(f"EMAIL : Envoi du message à l'adhérent pour validation ou refus ID={self.demande.id} {self.nom_prenom} <{self.email}>")
 
     def send_reject_email(self):
         email_template_name = "email_refus.txt"
@@ -216,6 +220,7 @@ class ValidationAdherent(models.Model):
         }
         body = render_to_string(email_template_name, c)
         envoi_email.delay(subject=subject, body=body, recipient=self.email)
+        logger.warning(f"EMAIL : Envoi du message au salarié  car la demande a été refusée par {self.nom_prenom} <{self.email}>")
 
 
     def accept_by_delay(self):
@@ -228,6 +233,7 @@ class ValidationAdherent(models.Model):
         }
         body = render_to_string(email_template_name, c)
         envoi_email.delay(subject=subject, body=body, recipient=self.email)
+        logger.warning(f"EMAIL : Envoi du message à l'adhérent ID={self.demande.id} {self.nom_prenom} <{self.email}>")
 
     @property
     def valid_oui_non_str(self):
@@ -264,4 +270,6 @@ class ValidationAdherent(models.Model):
         envoi_email.delay(subject=subject, body=body, recipient=self.email)
         self.is_rappel_envoye = True
         self.save()
+        logger.warning(f"EMAIL : Envoi du message de rappel à l'adhérent ID={self.demande.id} {self.nom_prenom} <{self.email}>")
+
 

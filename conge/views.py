@@ -18,9 +18,10 @@ from datetime import datetime
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import PermissionRequiredMixin
+import logging
 
 from django.db.models import Q
-
+logger = logging.getLogger(__name__)
 
 # Create your views here.
 class DemandeCongeListView(PermissionRequiredMixin, ListView):
@@ -123,7 +124,7 @@ class DemandeCongePersosListView(ListView):
         if not self.request.user.id:
             raise Http404
 
-        qs = qs.filter(salarie=self.request.user)
+        qs = qs.filter(salarie=self.request.user).order_by("-debut")
         return qs
 
 
@@ -205,6 +206,7 @@ def finish(request, id):
     demande.conge_envoye = True
     demande.conge_envoye_date = timezone.now()
     demande.save()
+    logger.warning(f"Demande créée, id={id}, demandeur={demande.salarie}")
     messages.success(request, f"Votre demande de congé a été envoyée")
     return redirect("/conge/")
 
@@ -246,6 +248,7 @@ def accept(request, slug):
         valid.slug_refus = ""
         valid.save()
         valid.demande.valid()
+        logger.warning(f"ACCEPT : Demande id={valid.demande.id} validée par {valid.nom_prenom} <{valid.email}>")
         messages.success(request, f"Merci ! La demande de congé a été acceptée.")
     return redirect("/")
 
@@ -267,6 +270,8 @@ def reject(request, slug):
         valid.demande.conge_invalid = True
         valid.demande.save()
         # Envoi de l'email
+        logger.warning(f"REJECT : Demande id={valid.demande.id} rejetée par {valid.nom_prenom} <{valid.email}>")
+
         messages.success(request, f"La demande de congé a été refusée.")
     
     return redirect("/")

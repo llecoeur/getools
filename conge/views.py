@@ -2,7 +2,7 @@ from django.core.checks import messages
 from django.shortcuts import render
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, DetailView
 from conge.models import DemandeConge, ValidationAdherent
 from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
@@ -206,7 +206,7 @@ def finish(request, id):
     demande.conge_envoye = True
     demande.conge_envoye_date = timezone.now()
     demande.save()
-    logger.warning(f"Demande créée, id={id}, demandeur={demande.salarie}")
+    logger.warning(f"Demande créée, ID={id}, demandeur={demande.salarie}")
     messages.success(request, f"Votre demande de congé a été envoyée")
     return redirect("/conge/")
 
@@ -248,7 +248,7 @@ def accept(request, slug):
         valid.slug_refus = ""
         valid.save()
         valid.demande.valid()
-        logger.warning(f"ACCEPT : Demande id={valid.demande.id} validée par {valid.nom_prenom} <{valid.email}>")
+        logger.warning(f"ACCEPT : Demande ID={valid.demande.id} validée par {valid.nom_prenom} <{valid.email}>")
         messages.success(request, f"Merci ! La demande de congé a été acceptée.")
     return redirect("/")
 
@@ -270,7 +270,7 @@ def reject(request, slug):
         valid.demande.conge_invalid = True
         valid.demande.save()
         # Envoi de l'email
-        logger.warning(f"REJECT : Demande id={valid.demande.id} rejetée par {valid.nom_prenom} <{valid.email}>")
+        logger.warning(f"REJECT : Demande ID={valid.demande.id} rejetée par {valid.nom_prenom} <{valid.email}>")
 
         messages.success(request, f"La demande de congé a été refusée.")
     
@@ -285,6 +285,21 @@ def delete_conge(request, id):
     dc.delete()
     messages.success(request, f"La demande de congé a été supprimée.")
     return redirect("/conge/")
+
+
+class AdherentAcceptOrRejectDetailView(DetailView):
+    template_name = "accept_reject.html"
+    model = ValidationAdherent
+
+    def get_object(self):
+        
+        try:
+            obj = self.model.objects.get(slug_acceptation=self.kwargs['slug'])
+        except ValidationAdherent.DoesNotExist:
+            obj = None
+        return obj
+
+
 
 class CalendarView(TemplateView):
     template_name = "calendar.html"

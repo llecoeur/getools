@@ -12,6 +12,7 @@ urlpatterns = [
     path('addadherent', views.DemandeCongeAddFormView.as_view(), name="add_adherent"),
     path('remove_validation/<int:id>/', views.remove_validation, name="remove_validation"),
     path('envoi/<int:id>/', views.finish, name="envoi_conge"),
+    path('acceptreject/<str:slug>/', views.AdherentAcceptOrRejectDetailView.as_view(), name="acceptreject"),
     path('accept/<str:slug>/', views.accept, name="conge_accept"),
     path('reject/<str:slug>/', views.reject, name="conge_reject"),
     path('delete/<int:id>/', views.delete_conge, name='delete_conge'),

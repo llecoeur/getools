@@ -21,7 +21,7 @@
         <div class="col-6">
             {% if object %}
             <img src={% static 'logo600.png' %}>
-            <p><h1>Bonjour</h1></p>
+            <p><h1>Bonjour {{object.nom_prenom}}</h1></p>
 
             <p><h4>{{object.demande.salarie}} aimerait prendre un congé, du {{object.demande.debut}} au {{object.demande.fin}} : </p>
             <p><h5>(motif : {{object.demande.motif}})<h5></p>

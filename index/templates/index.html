@@ -3,6 +3,28 @@
 
 {% block "main_content" %}
 <div id="app">
+  <div class="row">
+    <div class="col-12">
+      <div class="card card-primary">
+        <div class="card-header">
+          <h3 class="card-title">Actus et changements</h3>
+
+          <div class="card-tools">
+            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+              <i class="fas fa-minus"></i>
+            </button>
+          </div>
+          <!-- /.card-tools -->
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body"><p><h6><b>24/11/2022 : Corrections sur les congés</b></h6></p>
+          <p>Correction d'un bug qui faisait que certains client de messagerie validaient automatiquement les congés lors de la réception du mail de validation, en chargeant automatiquement les liens a l'ouverture du mail.
+          <br>Pour éviter cela, maintenant, la personne qui valide le congé passe par une page intermédiaire, ou il est demandé à l'adhérent d'accepter ou refuser le congé.</p>
+        </div>
+        <!-- /.card-body -->
+      </div>
+    </div>
+  </div>
   {% if perms.geauth.can_view_indicators %}
   <div class="row">
     <div class="col-3">
@@ -14,6 +36,7 @@
           <span class="info-box-number">{{total_heures_progressis|floatformat}}/{{total_heures_adherent|floatformat}} ({{pourcent_heures_progressis |floatformat}} %)</span>
         </div>
         <!-- /.info-box-content -->
+        
       </div>
     </div>
     <div class="col-9">

@@ -43,8 +43,8 @@ class CegidCloud:
             XRP_PRINT_AUTH = (Config.objects.get(key="XRP_AUTH_LOGIN").str_val, Config.objects.get(key="XRP_AUTH_PASSWORD").str_val)
             print(XRP_PRINT_AUTH)
             response = requests.get(url, auth=XRP_PRINT_AUTH, headers={"Accept": "application/json"})
-            if debug:
-                print(f"{response.status_code} - {response.text}")
+            # if debug:
+            #     print(f"{response.status_code} - {response.text}")
             try:
                 js = json.loads(response.text)
             except json.decoder.JSONDecodeError:
@@ -97,7 +97,7 @@ class CegidCloud:
 
         XRP_PRINT_AUTH = (Config.objects.get(key="XRP_AUTH_LOGIN").str_val, Config.objects.get(key="XRP_AUTH_PASSWORD").str_val)
         print(XRP_PRINT_AUTH)
-        response = requests.post(url_param, auth=XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
+        # response = requests.post(url_param, auth=XRP_PRINT_AUTH, headers={"Accept": "application/json"}, json=data)
         if debug:
             print(response.status_code)
         return response
@@ -145,7 +145,7 @@ class CegidCloud:
         """
             Retourne la liste des salariés, sous forme de dict
         """
-        return self._get_api_data(settings.API_SALARIE_LIST)
+        return self._get_api_data(settings.API_SALARIE_LIST, True)
 
     def get_rubrique_list(self):
         """

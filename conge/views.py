@@ -41,7 +41,7 @@ class DemandeCongeListView(PermissionRequiredMixin, ListView):
             qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
-        qs = qs.filter(fin__gte=timezone.now()).order_by("-created")
+        qs = qs.filter(fin__gte=timezone.now()).order_by("-debut")
         return qs
 
 class DemandeCongeListAllView(PermissionRequiredMixin, ListView):
@@ -62,7 +62,7 @@ class DemandeCongeListAllView(PermissionRequiredMixin, ListView):
             qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
-        qs = qs.order_by("-created")
+        qs = qs.order_by("-debut")
         return qs
 
 class DemandeCongePasseListView(PermissionRequiredMixin, ListView):
@@ -83,7 +83,7 @@ class DemandeCongePasseListView(PermissionRequiredMixin, ListView):
             qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
-        qs = qs.filter(fin__lt=timezone.now()).order_by("-created")
+        qs = qs.filter(fin__lt=timezone.now()).order_by("-debut")
         return qs
 
 
@@ -105,7 +105,7 @@ class DemandeCongeAttenteListView(PermissionRequiredMixin, ListView):
             qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
-        qs = qs.filter(conge_valide=False).filter(conge_invalid=False).order_by("-created")
+        qs = qs.filter(conge_valide=False).filter(conge_invalid=False).order_by("-debut")
         return qs
 
 

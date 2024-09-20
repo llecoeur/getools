@@ -11,8 +11,8 @@ router.register(r'releve_salarie', ReleveSalarieViewSet, basename="releve_salari
 router.register(r'releve_salarie_commentaire', ReleveSalarieCommentaireSerializerViewSet)
 router.register(r'user', UserViewSet)
 router.register(r'salarie', activiteView.SalarieViewSet)
-router.register(r'calendrier_salarie', salarieView.CalendrierSalarieViewSet)
-router.register(r'calendrier_salarie_periode', salarieView.CalendrierSalariePeriodeViewSet)
-router.register(r'calendrier_salarie_mise_a_disposition', salarieView.CalendrierSalarieMiseADispositionViewSet)
+router.register(r'calendrier_salarie', salarieView.CalendrierSalarieViewSet, basename="calendrier_salarie")
+router.register(r'calendrier_salarie_periode', salarieView.CalendrierSalariePeriodeViewSet, basename="calendrier_salarie_periode")
+router.register(r'calendrier_salarie_mise_a_disposition', salarieView.CalendrierSalarieMiseADispositionViewSet, basename="calendrier_salarie_mise_a_disposition")
 
 

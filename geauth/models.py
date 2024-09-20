@@ -80,8 +80,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, verbose_name="Utilisateur", related_name="profile", on_delete=models.CASCADE, null=True, default=None)
     salarie = models.OneToOneField(Salarie, verbose_name="Salarié", related_name="user_profile", on_delete=models.SET_NULL, null=True, default=None)
     # Cet utilisateur déclare les heures la poste pour les salariés sous sa responsabilité
-    # is_declarant_la_poste = models.BooleanField("Declarant La Poste", verbose_name="Déclarant La Poste", default=False)
+    is_laposte_manager = models.BooleanField("Est manager La Poste", default=False)
     # si != None et positionné sur un autre salarié ayant le status de déclarant "La Poste":
     #   Il ne peut se connecter
     #   ses heures sont déclarée par son responsable via le formulaire dédié
-    # manager_la_poste = models.M("Salarié La Poste", verbose_name="Salarié La Poste", on_delete=models.SET_NULL, default=False)
+    la_poste_manager = models.ForeignKey(User, verbose_name="Nom du manager La Poste", related_name="declare_pour", on_delete=models.SET_NULL, default=None, null=True)

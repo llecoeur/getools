@@ -27,7 +27,7 @@ class IndexView(TemplateView):
         article_formation = Article.objects.get(code_erp="FORMATION")
         article_location_ordi = Article.objects.get(code_erp="LOCATION")
         adherent_progressis = Adherent.objects.get(raison_sociale="PROGRESSIS")
-        adherent_la_poste = Adherent.objects.get(code_erp='294')
+        adherent_la_poste = (Adherent.objects.get(code_erp='294'), Adherent.objects.get(code_erp='625'))
         salarie_gestion = list(Salarie.objects.filter(code_erp__in=["0000000224", "0000000393", "0000000400", "0000000004", "0000000074", "0000000334", "0000000280", "0000000008", "0000000191", "0000000516"]))
         article_intermission = Article.objects.get(code_erp="PANNE")
 
@@ -55,14 +55,14 @@ class IndexView(TemplateView):
                 "heures_progressis": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=(adherent_progressis, )),
                 "heures_tps_partage": (
                     get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), progressis=False)
-                    - get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=(adherent_la_poste, ))
+                    - get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=adherent_la_poste)
                 ),
                 "heures_adherents": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), progressis=False),
                 "heures_formation": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_formation, ), progressis=True),
                 "loc_ordi": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_location_ordi, ), progressis=True),
                 "equipe_gestion": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), salarie_list=salarie_gestion, adherent_list=(adherent_progressis, )),
                 "intermission" : get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_intermission, )),
-                "la_poste": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=(adherent_la_poste, )),
+                "la_poste": get_total_value_search(mois_actuel.year, mois_actuel.month, article_list=(article_heures_normales, ), adherent_list=adherent_la_poste),
             }
             d['progressis_non_gestion'] = d["heures_progressis"] - d["equipe_gestion"]
             data.append(d)

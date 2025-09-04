@@ -23,7 +23,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
-
+from django.utils.crypto import get_random_string
 
 
 def logout_view(request):
@@ -39,7 +39,8 @@ class CreateUserView(PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.password = User.objects.make_random_password()
+        alphabet = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*()"
+        self.object.password = get_random_string(8, alphabet)
         self.object.save()
         profile = UserProfile()
         profile.user = self.object

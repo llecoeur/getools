@@ -38,7 +38,8 @@ class DemandeCongeListView(PermissionRequiredMixin, ListView):
         qs = super().get_queryset(*args, **kwargs)
         try:
             q = self.request.GET["q"]
-            qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            ## qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            qs = qs.filter(Q(salarie__profile__salarie__nom__icontains=q) | Q(salarie__profile__salarie__prenom__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
         qs = qs.filter(fin__gte=timezone.now()).order_by("-debut")
@@ -59,7 +60,8 @@ class DemandeCongeListAllView(PermissionRequiredMixin, ListView):
         qs = super().get_queryset(*args, **kwargs)
         try:
             q = self.request.GET["q"]
-            qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            ## qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            qs = qs.filter(Q(salarie__profile__salarie__nom__icontains=q) | Q(salarie__profile__salarie__prenom__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
         qs = qs.order_by("-debut")
@@ -80,7 +82,8 @@ class DemandeCongePasseListView(PermissionRequiredMixin, ListView):
         qs = super().get_queryset(*args, **kwargs)
         try:
             q = self.request.GET["q"]
-            qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            ##qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            qs = qs.filter(Q(salarie__profile__salarie__nom__icontains=q) | Q(salarie__profile__salarie__prenom__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
         qs = qs.filter(fin__lt=timezone.now()).order_by("-debut")
@@ -102,7 +105,8 @@ class DemandeCongeAttenteListView(PermissionRequiredMixin, ListView):
         qs = super().get_queryset(*args, **kwargs)
         try:
             q = self.request.GET["q"]
-            qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            ## qs = qs.filter(Q(salarie__first_name__icontains=q) | Q(salarie__last_name__icontains=q) | Q(salarie__email__icontains=q))
+            qs = qs.filter(Q(salarie__profile__salarie__nom__icontains=q) | Q(salarie__profile__salarie__prenom__icontains=q) | Q(salarie__email__icontains=q))
         except KeyError:
             pass
         qs = qs.filter(conge_valide=False).filter(conge_invalid=False).order_by("-debut")
